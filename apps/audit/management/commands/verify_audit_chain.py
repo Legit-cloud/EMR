@@ -8,7 +8,8 @@ class Command(BaseCommand):
     help = "Check every audit chain (one per tenant, plus the platform) for tampering."
 
     def handle(self, *args, **options):
-        tenant_ids = AuditEntry.objects.values_list("tenant_id", flat=True).distinct()
+        # order_by() clears the model's default ordering, which would defeat DISTINCT.
+        tenant_ids = AuditEntry.objects.order_by().values_list("tenant_id", flat=True).distinct()
         failures = 0
         for tenant_id in tenant_ids:
             problems = verify_chain(tenant_id)

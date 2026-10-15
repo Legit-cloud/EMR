@@ -230,3 +230,16 @@ def test_sharded_chains_verify_and_detect_tampering(tenant_a, settings):
     assert services.verify_chain(tenant_a.id) == [
         f"chain {victim.chain}: entry {victim.sequence} was altered"
     ]
+
+
+def test_verify_command_checks_each_chain_once(tenant_a, tenant_b):
+    import io
+
+    for tenant in (tenant_a, tenant_a, tenant_b, None):
+        entry(tenant_id=tenant.id if tenant else None)
+    out = io.StringIO()
+    call_command("verify_audit_chain", stdout=out)
+    lines = out.getvalue().splitlines()
+    assert sorted(lines) == sorted(
+        [f"{tenant_a.id}: intact", f"{tenant_b.id}: intact", "platform: intact"]
+    )
