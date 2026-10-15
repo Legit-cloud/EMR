@@ -15,6 +15,8 @@ from apps.core.tenancy import get_current_tenant_id, get_current_user_id
 from .models import AuditAction, AuditEntry, AuditOutcome
 
 GENESIS_HASH = "0" * 64
+# ``chain`` is deliberately not hashed: membership is proven by the previous_hash links,
+# and entries written before chains were sharded must keep verifying.
 _HASHED_FIELDS = (
     "id",
     "tenant_id",
@@ -52,8 +54,8 @@ def compute_hash(entry: AuditEntry) -> str:
     return hashlib.sha256(canonical.encode()).hexdigest()
 
 
-def _chain_lock_key(tenant_id) -> int:
-    digest = hashlib.sha256(f"audit:{tenant_id or 'platform'}".encode()).digest()
+def _chain_lock_key(tenant_id, chain: int) -> int:
+    digest = hashlib.sha256(f"audit:{tenant_id or 'platform'}:{chain}".encode()).digest()
     return int.from_bytes(digest[:8], "big", signed=True)
 
 
@@ -85,8 +87,10 @@ def record(
         if tenant_id is None and actor is not None:
             tenant_id = getattr(actor, "tenant_id", None)
 
+    entry_id = uuid.uuid4()
     entry = AuditEntry(
-        id=uuid.uuid4(),
+        id=entry_id,
+        chain=entry_id.int % settings.AUDIT_CHAIN_SHARDS,
         tenant_id=uuid.UUID(str(tenant_id)) if tenant_id else None,
         occurred_at=timezone.now(),
         actor_id=actor.pk if actor is not None else None,
@@ -106,9 +110,11 @@ def record(
 
     with transaction.atomic():
         with connection.cursor() as cursor:
-            cursor.execute("SELECT pg_advisory_xact_lock(%s)", [_chain_lock_key(entry.tenant_id)])
+            cursor.execute(
+                "SELECT pg_advisory_xact_lock(%s)", [_chain_lock_key(entry.tenant_id, entry.chain)]
+            )
         last = (
-            AuditEntry.objects.filter(tenant_id=entry.tenant_id)
+            AuditEntry.objects.filter(tenant_id=entry.tenant_id, chain=entry.chain)
             .order_by("-sequence")
             .values("sequence", "entry_hash")
             .first()
@@ -121,18 +127,30 @@ def record(
 
 
 def verify_chain(tenant_id=None) -> list[str]:
-    """Return a list of problems in one chain; an empty list means it is intact."""
+    """Return a list of problems in the tenant's chains; an empty list means intact."""
     problems = []
-    expected_previous = GENESIS_HASH
-    expected_sequence = 1
-    entries = AuditEntry.objects.filter(tenant_id=tenant_id).order_by("sequence")
-    for entry in entries.iterator():
-        if entry.sequence != expected_sequence:
-            problems.append(f"sequence gap before {entry.sequence} (expected {expected_sequence})")
-        if entry.previous_hash != expected_previous:
-            problems.append(f"entry {entry.sequence} does not link to the previous entry")
-        if compute_hash(entry) != entry.entry_hash:
-            problems.append(f"entry {entry.sequence} was altered")
-        expected_previous = entry.entry_hash
-        expected_sequence = entry.sequence + 1
+    chains = (
+        AuditEntry.objects.filter(tenant_id=tenant_id)
+        .values_list("chain", flat=True)
+        .distinct()
+        .order_by("chain")
+    )
+    for chain in chains:
+        prefix = f"chain {chain}: " if settings.AUDIT_CHAIN_SHARDS > 1 else ""
+        expected_previous = GENESIS_HASH
+        expected_sequence = 1
+        entries = AuditEntry.objects.filter(tenant_id=tenant_id, chain=chain).order_by("sequence")
+        for entry in entries.iterator():
+            if entry.sequence != expected_sequence:
+                problems.append(
+                    f"{prefix}sequence gap before {entry.sequence} (expected {expected_sequence})"
+                )
+            if entry.previous_hash != expected_previous:
+                problems.append(
+                    f"{prefix}entry {entry.sequence} does not link to the previous entry"
+                )
+            if compute_hash(entry) != entry.entry_hash:
+                problems.append(f"{prefix}entry {entry.sequence} was altered")
+            expected_previous = entry.entry_hash
+            expected_sequence = entry.sequence + 1
     return problems

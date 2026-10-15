@@ -14,3 +14,6 @@ if not PRESCRIPTION_SIGNING_KEY:  # noqa: F405
     PRESCRIPTION_SIGNING_KEY = base64.b64encode(
         hashlib.sha256(f"dev-signing:{SECRET_KEY}".encode()).digest()  # noqa: F405
     ).decode()
+
+# Development tooling such as seed_demo_data; never installed in production.
+INSTALLED_APPS = [*INSTALLED_APPS, "devtools"]  # noqa: F405

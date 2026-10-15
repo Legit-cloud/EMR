@@ -56,7 +56,7 @@ class PatientViewSet(ChartViewSetMixin, TenantModelViewSet):
 
     def get_base_queryset(self):
         queryset = super().get_base_queryset()
-        query = self.request.query_params.get("q", "").strip()
+        query = self.request.query_params.get("q", "").strip()[:100]
         if self.action == "list" and query:
             key = name_key(query)
             queryset = queryset.filter(

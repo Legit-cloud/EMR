@@ -9,7 +9,8 @@ from apps.core.api.permissions import PolicyPermission, TenantUserPermission
 
 # Endpoints that cannot use a policy resource, with the reason.
 NOT_POLICY_CHECKED = {
-    "auth-login": "anonymous sign-in, throttled",
+    "auth-login": "anonymous sign-in, throttled, CSRF-checked for sessions",
+    "auth-csrf": "sets the CSRF cookie only, no data",
     "auth-password-reset": "anonymous, throttled, never reveals accounts",
     "auth-password-reset-confirm": "anonymous, needs a signed one-time token",
     "auth-logout": "acts only on the caller's own session or token",
@@ -17,7 +18,7 @@ NOT_POLICY_CHECKED = {
     "auth-totp-enrol": "caller's own MFA set-up, before MFA can be satisfied",
     "auth-totp-confirm": "caller's own MFA set-up, before MFA can be satisfied",
     "break-glass-request": "TenantUserPermission plus business checks in the service",
-    "api-schema": "API description only, no data",
+    "api-schema": "API description only, no data; signed-in users (SERVE_PERMISSIONS)",
     "codes-loinc": "shared reference codes, no tenant data; TenantUserPermission",
     "codes-icd10": "shared reference codes, no tenant data; TenantUserPermission",
     "shift-clock-in": "acts only on the caller's own shift; TenantUserPermission",

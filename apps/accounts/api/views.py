@@ -1,7 +1,12 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
+from django.middleware.csrf import get_token
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django_otp.plugins.otp_totp.models import TOTPDevice
+from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers, status
+from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
@@ -28,9 +33,13 @@ class LoginView(AuthThrottleMixin, APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
+    @extend_schema(request=s.LoginSerializer, responses=s.LoginResultSerializer)
     def post(self, request):
         data = s.LoginSerializer(data=request.data)
         data.is_valid(raise_exception=True)
+        if data.validated_data["mode"] == "session":
+            # Session sign-in sets a cookie, so it must carry the CSRF token (login CSRF).
+            SessionAuthentication().enforce_csrf(request._request)
         user, raw_token = services.sign_in(request, **data.validated_data)
         body = {
             "user_id": str(user.pk),
@@ -41,9 +50,26 @@ class LoginView(AuthThrottleMixin, APIView):
         return Response(body)
 
 
+class CsrfTokenSerializer(serializers.Serializer):
+    csrf_token = serializers.CharField()
+
+
+@method_decorator(ensure_csrf_cookie, name="dispatch")
+class CsrfView(APIView):
+    """Sets the CSRF cookie for the web app before a session sign-in."""
+
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
+
+    @extend_schema(responses=CsrfTokenSerializer)
+    def get(self, request):
+        return Response({"csrf_token": get_token(request)})
+
+
 class LogoutView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={204: None})
     def post(self, request):
         services.sign_out(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
@@ -52,6 +78,7 @@ class LogoutView(APIView):
 class MeView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(responses=s.MeSerializer)
     def get(self, request):
         user = request.user
         context = {
@@ -66,6 +93,7 @@ class TOTPEnrolView(APIView):
 
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=None, responses={201: s.EnrolResultSerializer})
     def post(self, request):
         device: TOTPDevice = services.start_totp_enrolment(request)
         return Response({"config_url": device.config_url}, status=status.HTTP_201_CREATED)
@@ -74,6 +102,7 @@ class TOTPEnrolView(APIView):
 class TOTPConfirmView(AuthThrottleMixin, APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    @extend_schema(request=s.OTPTokenSerializer, responses=s.MfaEnabledSerializer)
     def post(self, request):
         data = s.OTPTokenSerializer(data=request.data)
         data.is_valid(raise_exception=True)
@@ -85,6 +114,7 @@ class PasswordResetRequestView(AuthThrottleMixin, APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
+    @extend_schema(request=s.PasswordResetRequestSerializer, responses={202: None})
     def post(self, request):
         data = s.PasswordResetRequestSerializer(data=request.data)
         data.is_valid(raise_exception=True)
@@ -96,6 +126,7 @@ class PasswordResetConfirmView(AuthThrottleMixin, APIView):
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
 
+    @extend_schema(request=s.PasswordResetConfirmSerializer, responses={204: None})
     def post(self, request):
         data = s.PasswordResetConfirmSerializer(data=request.data)
         data.is_valid(raise_exception=True)
@@ -111,6 +142,9 @@ class BreakGlassRequestView(APIView):
 
     permission_classes = [TenantUserPermission]
 
+    @extend_schema(
+        request=s.BreakGlassRequestSerializer, responses={201: s.BreakGlassGrantSerializer}
+    )
     def post(self, request):
         data = s.BreakGlassRequestSerializer(data=request.data)
         data.is_valid(raise_exception=True)

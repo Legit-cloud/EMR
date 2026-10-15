@@ -73,6 +73,8 @@ class PolicyViewSetMixin(TenantScopedAPIMixin):
     """
 
     model = None
+    # Every primary key is a UUID: anything else is a 404 before any query runs.
+    lookup_value_regex = "[0-9a-fA-F-]{36}"
     policy_resource: str | None = None
     policy_actions: dict = {}
     permission_classes = [PolicyPermission]

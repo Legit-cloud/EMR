@@ -32,3 +32,8 @@ OTP_TOTP_THROTTLE_FACTOR = 0
 SMS_BACKEND = "apps.notifications.backends.LocmemSmsBackend"
 # A fixed, test-only Ed25519 private key (32 bytes). Never used outside tests.
 PRESCRIPTION_SIGNING_KEY = "dGVzdC1vbmx5LXByZXNjcmlwdGlvbi1zaWduaW5nLWs="
+
+# Development tooling such as seed_demo_data; never installed in production.
+INSTALLED_APPS = [*INSTALLED_APPS, "devtools"]  # noqa: F405
+# One audit chain in tests, so sequence assertions stay simple; sharding has its own test.
+AUDIT_CHAIN_SHARDS = 1

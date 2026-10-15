@@ -22,6 +22,8 @@ CSRF_COOKIE_SECURE = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+CSRF_COOKIE_SAMESITE = "Strict"
+SESSION_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_AGE = env.int("SESSION_COOKIE_AGE", default=8 * 60 * 60)
 
 # Railway's edge sets X-Forwarded-For; trust it for client addresses in the audit log.
@@ -51,9 +53,16 @@ SENTRY_DSN = env("SENTRY_DSN", default="")
 if SENTRY_DSN:
     import sentry_sdk
 
+    from apps.core.redaction import scrub_sentry_event
+
     sentry_sdk.init(
         dsn=SENTRY_DSN,
         environment=env("SENTRY_ENVIRONMENT", default="production"),
         send_default_pii=False,
+        before_send=scrub_sentry_event,
+        before_send_transaction=scrub_sentry_event,
         traces_sample_rate=env.float("SENTRY_TRACES_SAMPLE_RATE", default=0.0),
     )
+
+# Railway's edge is one proxy in front of the app (throttling by client address).
+REST_FRAMEWORK["NUM_PROXIES"] = env.int("NUM_PROXIES", default=1)  # noqa: F405

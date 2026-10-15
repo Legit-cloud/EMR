@@ -20,8 +20,15 @@ class Tenant(TimestampedModel):
         return self.name
 
     def save(self, *args, **kwargs):
+        from .selectors import forget_tenant
+
+        if self.pk:
+            previous = Tenant.objects.filter(pk=self.pk).first()
+            if previous is not None:
+                forget_tenant(previous)  # the old domain may be changing
         self.domain = (self.domain or "").strip().lower() or None
         super().save(*args, **kwargs)
+        forget_tenant(self)
 
 
 class Facility(TenantModel):

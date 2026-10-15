@@ -5,6 +5,20 @@ from apps.core.roles import Role
 from ..models import BreakGlassGrant, BreakGlassReview, RoleAssignment, User
 
 
+class LoginResultSerializer(serializers.Serializer):
+    user_id = serializers.UUIDField()
+    mfa_enrolment_required = serializers.BooleanField()
+    token = serializers.CharField(required=False)
+
+
+class EnrolResultSerializer(serializers.Serializer):
+    config_url = serializers.CharField()
+
+
+class MfaEnabledSerializer(serializers.Serializer):
+    mfa_enabled = serializers.BooleanField()
+
+
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(max_length=150)
     password = serializers.CharField(max_length=128, trim_whitespace=False)
@@ -35,10 +49,10 @@ class MeSerializer(serializers.ModelSerializer):
         fields = ["id", "username", "email", "first_name", "last_name", "tenant", "roles"]
         fields += ["mfa_enabled"]
 
-    def get_roles(self, user):
+    def get_roles(self, user) -> list[str]:
         return sorted(self.context["roles"])
 
-    def get_mfa_enabled(self, user):
+    def get_mfa_enabled(self, user) -> bool:
         return self.context["mfa_enabled"]
 
 

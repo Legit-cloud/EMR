@@ -1,5 +1,6 @@
 from django.db import transaction
 from django.db.models import Prefetch
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -63,6 +64,7 @@ class ClockInView(APIView):
 
     permission_classes = [TenantUserPermission]
 
+    @extend_schema(request=None, responses={201: s.ShiftSerializer})
     def post(self, request):
         shift = services.clock_in(request.user)
         return Response(s.ShiftSerializer(shift).data, status=status.HTTP_201_CREATED)
@@ -73,5 +75,6 @@ class ClockOutView(APIView):
 
     permission_classes = [TenantUserPermission]
 
+    @extend_schema(request=None, responses=s.ShiftSerializer)
     def post(self, request):
         return Response(s.ShiftSerializer(services.clock_out(request.user)).data)

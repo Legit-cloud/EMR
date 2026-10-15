@@ -47,13 +47,15 @@ class AuditEntry(models.Model):
 
     Actor, tenant and object are stored as plain values, not foreign keys, so deleting a
     user or tenant never cascades into the log. Each tenant (and the platform, with no
-    tenant) has its own chain: ``entry_hash`` covers the entry and the previous hash, so
-    editing or removing a row breaks verification. A database trigger refuses UPDATE and
-    DELETE on this table.
+    tenant) has ``AUDIT_CHAIN_SHARDS`` hash chains, chosen by entry id: ``entry_hash``
+    covers the entry and the previous hash in its chain, so editing or removing a row
+    breaks verification. Several chains let concurrent requests append without queueing
+    on one lock. A database trigger refuses UPDATE and DELETE on this table.
     """
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tenant_id = models.UUIDField(null=True, blank=True, db_index=True)
+    chain = models.PositiveSmallIntegerField(default=0)
     sequence = models.PositiveBigIntegerField()
     occurred_at = models.DateTimeField(db_index=True)
     actor_id = models.UUIDField(null=True, blank=True, db_index=True)
@@ -77,7 +79,7 @@ class AuditEntry(models.Model):
         ordering = ["occurred_at", "sequence"]
         constraints = [
             models.UniqueConstraint(
-                fields=["tenant_id", "sequence"],
+                fields=["tenant_id", "chain", "sequence"],
                 name="audit_unique_sequence_per_chain",
                 nulls_distinct=False,
             )

@@ -11,6 +11,7 @@ class AccountsConfig(AppConfig):
         from apps.core.roles import Role
         from apps.patients.events import PATIENT_DECEASED
 
+        from . import schema  # noqa: F401  (OpenAPI description of bearer tokens)
         from .models import BreakGlassGrant, RoleAssignment, User
         from .tasks import revoke_portal_access_for_deceased_patient
 

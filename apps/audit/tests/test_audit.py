@@ -214,3 +214,19 @@ def test_the_log_api_is_read_only(signed_in, make_user, tenant_a):
     e = entry(tenant_id=tenant_a.id)
     assert auditor.delete(f"/api/audit/entries/{e.id}/").status_code == 405
     assert auditor.post("/api/audit/entries/", {}, format="json").status_code == 405
+
+
+def test_sharded_chains_verify_and_detect_tampering(tenant_a, settings):
+    settings.AUDIT_CHAIN_SHARDS = 4
+    entries = [entry(tenant_id=tenant_a.id, resource=f"r{i}") for i in range(40)]
+    chains = {e.chain for e in entries}
+    assert len(chains) > 1  # spread over several chains
+    for chain in chains:
+        in_chain = sorted((e for e in entries if e.chain == chain), key=lambda e: e.sequence)
+        assert [e.sequence for e in in_chain] == list(range(1, len(in_chain) + 1))
+    assert services.verify_chain(tenant_a.id) == []
+    victim = entries[5]
+    _bypass_trigger("UPDATE audit_auditentry SET reason = 'edited' WHERE id = %s", [victim.id])
+    assert services.verify_chain(tenant_a.id) == [
+        f"chain {victim.chain}: entry {victim.sequence} was altered"
+    ]

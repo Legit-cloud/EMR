@@ -1,8 +1,12 @@
 from django.contrib import admin
 from django.urls import include, path
+from django_otp.admin import OTPAdminSite
 from drf_spectacular.views import SpectacularAPIView
 
 from apps.core.api.views import healthz
+
+# The Django admin bypasses the API's policy layer, so it at least requires MFA.
+admin.site.__class__ = OTPAdminSite
 
 urlpatterns = [
     path("healthz", healthz, name="healthz"),

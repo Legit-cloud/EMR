@@ -19,7 +19,8 @@ def require_verified_tenant_user(request) -> None:
     """Shared gate: signed in, MFA satisfied, acting inside a tenant."""
     if not request.user or not request.user.is_authenticated:
         raise exceptions.NotAuthenticated()
-    if mfa_required(request.user) and not is_mfa_verified(request):
+    # Verified first: it is free for bearer tokens, and then mfa_required needs no query.
+    if not is_mfa_verified(request) and mfa_required(request.user):
         raise MFARequired()
     if getattr(request, "tenant_id", None) is None:
         raise NoTenant()
