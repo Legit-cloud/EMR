@@ -9,6 +9,7 @@ os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 from .base import *  # noqa: E402, F403
 
 DEBUG = False
+ALLOWED_HOSTS = [".example.test"]  # tenant host names used in tests
 # Static files are not collected for tests, so WhiteNoise has nothing to serve.
 MIDDLEWARE = [m for m in MIDDLEWARE if not m.startswith("whitenoise")]  # noqa: F405
 PASSWORD_HASHERS = ["django.contrib.auth.hashers.MD5PasswordHasher"]
@@ -21,3 +22,7 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.InMemoryStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 }
+
+# A test-only app with tenant-owned models and an API, used to prove isolation (SEC-07).
+INSTALLED_APPS = [*INSTALLED_APPS, "tests.tenancy_app"]  # noqa: F405
+ROOT_URLCONF = "tests.tenancy_app.urls"
