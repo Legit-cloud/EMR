@@ -1,0 +1,50 @@
+[project]
+name = "emr"
+version = "0.1.0"
+description = "EMR and hospital management platform"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "django>=5.2,<5.3",
+    "djangorestframework>=3.15",
+    "drf-spectacular>=0.28",
+    "django-environ>=0.11",
+    "psycopg[binary]>=3.2",
+    "celery>=5.4",
+    "redis>=5.0",
+    "channels>=4.1",
+    "channels-redis>=4.2",
+    "uvicorn[standard]>=0.30",
+    "uvicorn-worker>=0.3",
+    "gunicorn>=23",
+    "whitenoise>=6.7",
+    "django-otp>=1.5",
+    "django-storages[s3]>=1.14",
+    "sentry-sdk>=2.10",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "factory-boy>=3.3",
+    "ruff>=0.6",
+]
+
+[tool.uv]
+package = false
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = ["*/migrations/*", "frontend"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "DJ"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["apps", "config"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "apps"]
+python_files = ["test_*.py"]
+addopts = "--ds=config.settings.test --strict-markers -p no:cacheprovider"

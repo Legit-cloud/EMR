@@ -242,7 +242,7 @@ Target layout:
 1. Create one Railway project with two environments: `staging` and `production`.
 2. Add services from the same GitHub repo: **web**, **worker**, **beat**, later **frontend**. Add the managed **PostgreSQL** and **Redis** plugins to each environment.
 3. Start commands (all use the same Docker image):
-   - web: `gunicorn config.asgi:application -k uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --workers 3`
+   - web: `gunicorn config.asgi:application -k uvicorn_worker.UvicornWorker --bind 0.0.0.0:$PORT --workers 3`
    - worker: `celery -A config worker -l info --concurrency 4`
    - beat: `celery -A config beat -l info` (**exactly one replica**)
 4. Web pre-deploy command: `python manage.py migrate --noinput`. Health check path: `/healthz` (returns 200 only if the database and Redis respond).

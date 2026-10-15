@@ -1,0 +1,10 @@
+#!/bin/sh
+# Runs the two project checks (ruff, pytest) before every push.
+# Uses make on the host when uv and make are installed, otherwise the dev container.
+set -e
+
+if command -v make >/dev/null 2>&1 && command -v uv >/dev/null 2>&1; then
+    make check
+else
+    docker compose run --rm --build web make check
+fi

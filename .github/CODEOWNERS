@@ -1,0 +1,7 @@
+# Owners must be real GitHub users or teams. Replace the placeholders before enabling
+# "Require review from Code Owners" in the main branch protection rule.
+#
+# *                @<tech-lead>
+# /apps/clinical/  @<clinical-lead>
+# /apps/pharmacy/  @<clinical-lead>
+# /apps/billing/   @<finance-owner>

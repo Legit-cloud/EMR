@@ -1,0 +1,66 @@
+x-app: &app
+  build:
+    context: .
+    target: dev
+  image: emr-dev
+  env_file:
+    - path: .env
+      required: false
+  environment:
+    DJANGO_SETTINGS_MODULE: config.settings.local
+    SECRET_KEY: ${SECRET_KEY:-local-dev-only-not-a-secret}
+    DATABASE_URL: postgres://emr:emr@db:5432/emr
+    REDIS_URL: redis://redis:6379/0
+    EMAIL_URL: smtp://mailpit:1025
+  volumes:
+    - .:/app
+  depends_on:
+    db:
+      condition: service_healthy
+    redis:
+      condition: service_healthy
+
+services:
+  web:
+    <<: *app
+    command: sh -c "python manage.py migrate --noinput && uvicorn config.asgi:application --host 0.0.0.0 --port 8000 --reload"
+    ports:
+      - "${WEB_PORT:-8000}:8000"
+
+  worker:
+    <<: *app
+    command: celery -A config worker -l info --concurrency 2
+
+  beat:
+    <<: *app
+    command: celery -A config beat -l info --schedule /tmp/celerybeat-schedule
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: emr
+      POSTGRES_USER: emr
+      POSTGRES_PASSWORD: emr
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U emr -d emr"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mailpit:
+    image: axllent/mailpit:v1.27
+    ports:
+      - "${MAILPIT_PORT:-8026}:8025"
+
+volumes:
+  pgdata:
