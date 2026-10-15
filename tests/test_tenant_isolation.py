@@ -27,10 +27,9 @@ def data(tenant_a, tenant_b, as_tenant):
 
 
 @pytest.fixture
-def client_a(api_client, user_a):
+def client_a(signed_in, user_a):
     """Session-authenticated client: the tenant middleware resolves the tenant."""
-    api_client.force_login(user_a)
-    return api_client
+    return signed_in(user_a)
 
 
 # -- through the API -------------------------------------------------------------
@@ -39,7 +38,7 @@ def client_a(api_client, user_a):
 def test_sec_07_list_returns_only_own_tenant_rows(client_a, data):
     response = client_a.get("/test-api/records/")
     assert response.status_code == 200
-    assert [r["title"] for r in response.json()] == ["A record"]
+    assert [r["title"] for r in response.json()["results"]] == ["A record"]
 
 
 def test_sec_07_cannot_read_another_tenants_row(client_a, data):
@@ -79,12 +78,12 @@ def test_sec_07_cannot_link_to_another_tenants_row(client_a, data):
     assert not Record.all_tenants.filter(title="x").exists()
 
 
-def test_sec_07_token_style_auth_is_scoped_too(api_client, user_a, data):
-    """force_authenticate skips the middleware, like token auth: DRF must still scope."""
-    api_client.force_authenticate(user_a)
-    response = api_client.get("/test-api/records/")
-    assert [r["title"] for r in response.json()] == ["A record"]
-    response = api_client.get(f"/test-api/records/{data['record_b'].id}/")
+def test_sec_07_token_auth_is_scoped_too(token_client, user_a, data):
+    """Bearer tokens are resolved inside DRF, after the middleware: DRF must still scope."""
+    client = token_client(user_a)
+    response = client.get("/test-api/records/")
+    assert [r["title"] for r in response.json()["results"]] == ["A record"]
+    response = client.get(f"/test-api/records/{data['record_b'].id}/")
     assert response.status_code == 404
 
 
@@ -102,22 +101,22 @@ def test_sec_07_user_of_inactive_tenant_is_refused(client_a, tenant_a, data):
     assert response.json()["error"]["code"] == "tenant_inactive"
 
 
-def test_sec_07_platform_user_without_tenant_sees_nothing(api_client, make_user, data):
-    api_client.force_login(make_user("platform-admin"))
-    assert api_client.get("/test-api/records/").json() == []
+def test_sec_07_platform_user_without_tenant_gets_no_tenant_data(signed_in, make_user, data):
+    response = signed_in(make_user("platform-admin", is_superuser=True)).get("/test-api/records/")
+    assert response.status_code == 403
+    assert response.json()["error"]["code"] == "no_tenant"
 
 
 def test_sec_07_anonymous_requests_are_rejected(api_client, data):
     response = api_client.get("/test-api/records/", HTTP_HOST="a.example.test")
-    assert response.status_code == 403
+    assert response.status_code == 401
     assert response.json()["error"]["code"] == "not_authenticated"
 
 
-def test_tenant_context_is_cleared_after_each_request(client_a, api_client, user_a, data):
+def test_tenant_context_is_cleared_after_each_request(client_a, token_client, user_a, data):
     client_a.get("/test-api/records/")
     assert get_current_tenant_id() is None
-    api_client.force_authenticate(user_a)
-    api_client.get("/test-api/records/")
+    token_client(user_a).get("/test-api/records/")
     assert get_current_tenant_id() is None
 
 
@@ -188,3 +187,15 @@ def test_viewset_with_class_level_queryset_is_refused():
 
         class BadViewSet(TenantModelViewSet):  # noqa: F841
             queryset = Folder.objects.all()
+
+
+def test_sec_07_every_tenant_model_defaults_to_the_scoped_manager():
+    """A subclass with its own Meta must not silently default to the unscoped manager."""
+    from django.apps import apps
+
+    from apps.core.models import TenantManager, TenantModel
+
+    tenant_models = [m for m in apps.get_models() if issubclass(m, TenantModel)]
+    assert tenant_models
+    for model in tenant_models:
+        assert isinstance(model._default_manager, TenantManager), model.__name__

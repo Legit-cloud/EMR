@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.http import JsonResponse
 
+from apps.audit import services as audit
 from apps.core.api.exceptions import error_body
 from apps.core.errors import TenantError
 from apps.core.tenancy import tenant_context
@@ -27,6 +28,12 @@ class TenantMiddleware:
         try:
             tenant_id = resolve_tenant_id(user, request.get_host())
         except TenantError as exc:
+            audit.record(
+                action=audit.AuditAction.ACCESS,
+                outcome=audit.AuditOutcome.DENIED,
+                request=request,
+                reason=exc.code,
+            )
             return JsonResponse(error_body(exc.code, exc.message), status=exc.status_code)
         request.tenant_id = tenant_id
         user_id = user.pk if user is not None and user.is_authenticated else None

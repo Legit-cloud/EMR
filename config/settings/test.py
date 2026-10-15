@@ -26,3 +26,6 @@ STORAGES = {
 # A test-only app with tenant-owned models and an API, used to prove isolation (SEC-07).
 INSTALLED_APPS = [*INSTALLED_APPS, "tests.tenancy_app"]  # noqa: F405
 ROOT_URLCONF = "tests.tenancy_app.urls"
+
+# django-otp delays retries after a wrong code. Tests submit codes back to back.
+OTP_TOTP_THROTTLE_FACTOR = 0

@@ -19,6 +19,10 @@ CSRF_COOKIE_SECURE = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_REFERRER_POLICY = "same-origin"
 X_FRAME_OPTIONS = "DENY"
+SESSION_COOKIE_AGE = env.int("SESSION_COOKIE_AGE", default=8 * 60 * 60)
+
+# Railway's edge sets X-Forwarded-For; trust it for client addresses in the audit log.
+AUDIT_TRUST_X_FORWARDED_FOR = env.bool("AUDIT_TRUST_X_FORWARDED_FOR", default=True)
 
 # SEC-05: private bucket, short-lived signed URLs only.
 STORAGES = {

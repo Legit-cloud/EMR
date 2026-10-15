@@ -49,6 +49,10 @@ def api_exception_handler(exc, context):
         exc = exceptions.PermissionDenied()
 
     code = next((c for cls, c in _CODES.items() if isinstance(exc, cls)), "error")
+    # Subclasses such as MFARequired carry a more specific code on their detail.
+    detail_code = getattr(getattr(exc, "detail", None), "code", None)
+    if isinstance(detail_code, str) and detail_code not in ("invalid", "error"):
+        code = detail_code
     if isinstance(exc, exceptions.ValidationError):
         detail = exc.detail
         details = detail if isinstance(detail, dict) else {"non_field_errors": detail}

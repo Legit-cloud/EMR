@@ -19,14 +19,16 @@ class RecordSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Record
-        fields = ["id", "title", "folder"]
+        fields = ["id", "title", "folder", "facility", "department"]
 
 
 class FolderViewSet(TenantModelViewSet):
     model = Folder
+    policy_resource = "tenancy_app.folder"
     serializer_class = FolderSerializer
 
 
 class RecordViewSet(TenantModelViewSet):
     model = Record
+    policy_resource = "tenancy_app.record"
     serializer_class = RecordSerializer

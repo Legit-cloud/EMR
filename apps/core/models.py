@@ -49,6 +49,10 @@ class TenantManager(models.Manager.from_queryset(TenantQuerySet)):
         return queryset.filter(tenant_id=tenant_id)
 
 
+class UnscopedManager(models.Manager):
+    """Every tenant's rows. For system code only; each use needs a reason in review."""
+
+
 class TenantModel(TimestampedModel):
     """Base for every tenant-owned row (SEC-07).
 
@@ -77,10 +81,10 @@ class TenantModel(TimestampedModel):
         editable=False,
     )
 
-    # Unscoped, for system code that must cross tenants. Meta.default_manager_name keeps
-    # ``objects`` as the default manager whatever the declaration order.
-    all_tenants = models.Manager()
+    # ``objects`` must stay first: subclasses that declare their own Meta lose
+    # default_manager_name, and Django then uses the first manager declared.
     objects = TenantManager()
+    all_tenants = UnscopedManager()
 
     class Meta:
         abstract = True
@@ -162,8 +166,8 @@ class SoftStateModel(TenantModel):
     entered_in_error_at = models.DateTimeField(null=True, blank=True, editable=False)
     entered_in_error_reason = models.TextField(blank=True, editable=False)
 
-    all_tenants = models.Manager()
     objects = SoftStateManager()
+    all_tenants = UnscopedManager()
 
     class Meta(TenantModel.Meta):
         abstract = True

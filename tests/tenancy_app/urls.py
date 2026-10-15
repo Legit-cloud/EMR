@@ -1,11 +1,11 @@
 from django.urls import include, path
-from rest_framework.routers import DefaultRouter
+from rest_framework.routers import SimpleRouter
 
 from config.urls import urlpatterns as project_urlpatterns
 
 from .api import FolderViewSet, RecordViewSet
 
-router = DefaultRouter()
+router = SimpleRouter()
 router.register("folders", FolderViewSet, basename="folder")
 router.register("records", RecordViewSet, basename="record")
 

@@ -24,6 +24,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_spectacular",
+    "django_otp",
+    "django_otp.plugins.otp_totp",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -47,6 +49,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_otp.middleware.OTPMiddleware",
     "apps.tenants.middleware.TenantMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -115,18 +118,52 @@ vars().update(EMAIL_CONFIG)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@example.com")
 
 REST_FRAMEWORK = {
+    # Bearer first, so unauthenticated API calls get 401 with a WWW-Authenticate header.
     "DEFAULT_AUTHENTICATION_CLASSES": [
+        "apps.accounts.authentication.ApiTokenAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": ["rest_framework.permissions.IsAuthenticated"],
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "EXCEPTION_HANDLER": "apps.core.api.exceptions.api_exception_handler",
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
+    "DEFAULT_THROTTLE_RATES": {"auth": env("AUTH_THROTTLE_RATE", default="10/min")},
 }
 SPECTACULAR_SETTINGS = {
     "TITLE": "EMR API",
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Accounts and access control (CLAUDE.md Section 7)
+API_TOKEN_TTL_MINUTES = env.int("API_TOKEN_TTL_MINUTES", default=12 * 60)
+OTP_TOTP_ISSUER = env("OTP_TOTP_ISSUER", default="EMR")
+# Roles that must use MFA. Users of other roles need it once they enrol a device.
+MFA_REQUIRED_ROLES = env.list(
+    "MFA_REQUIRED_ROLES",
+    default=[
+        "tenant_admin",
+        "doctor",
+        "nurse",
+        "pharmacist",
+        "lab_technician",
+        "front_desk",
+        "billing_officer",
+        "finance",
+        "hr",
+        "compliance_officer",
+    ],
+)
+BREAK_GLASS_ROLES = env.list("BREAK_GLASS_ROLES", default=["doctor", "nurse"])
+BREAK_GLASS_MINUTES = env.int("BREAK_GLASS_MINUTES", default=60)
+BREAK_GLASS_MIN_REASON_LENGTH = 15
+PASSWORD_RESET_URL = env(
+    "PASSWORD_RESET_URL", default="http://localhost:3000/reset-password?uid={uid}&token={token}"
+)
+PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 24)
+# Trust the first X-Forwarded-For address for audit records only behind a trusted proxy.
+AUDIT_TRUST_X_FORWARDED_FOR = env.bool("AUDIT_TRUST_X_FORWARDED_FOR", default=False)
 
 CELERY_BROKER_URL = REDIS_URL
 CELERY_TASK_ACKS_LATE = True
