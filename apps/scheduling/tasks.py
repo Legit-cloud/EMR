@@ -5,21 +5,33 @@ import logging
 from celery import shared_task
 
 from apps.core import events
+from apps.core.tenancy import tenant_context
+from apps.tenants.selectors import active_tenant_ids
+
+from . import services
 
 logger = logging.getLogger(__name__)
 
 
 @shared_task
 def cancel_appointments_for_deceased_patient(envelope):
-    """Cancel the patient's active and recurring appointments.
-
-    Stub until appointments exist (CLAUDE.md Prompt 6). It already runs under the
-    publisher's tenant so the real handler only needs the query.
-    """
+    """Handler for ``patient.deceased``: cancel active and recurring appointments."""
     with events.event_context(envelope) as payload:
+        cancelled = services.cancel_for_deceased_patient(payload["patient_id"])
         logger.info(
-            "patient.deceased: appointment cancellation pending for patient %s (event %s)",
+            "patient.deceased: cancelled %d appointment(s) for patient %s (event %s)",
+            cancelled,
             payload["patient_id"],
             envelope["event_id"],
         )
-        return {"cancelled": 0}
+        return {"cancelled": cancelled}
+
+
+@shared_task
+def send_appointment_reminders():
+    """Every few minutes (Celery beat): send reminders that have come due, in every tenant."""
+    sent = 0
+    for tenant_id in active_tenant_ids():
+        with tenant_context(tenant_id):
+            sent += services.send_due_reminders()
+    return sent

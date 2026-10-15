@@ -36,9 +36,10 @@ def org(tenant_a, as_tenant):
 @pytest.fixture
 def on_duty():
     """Switch the shift provider on for everyone during a test."""
+    previous = policy.get_on_duty_provider()
     policy.set_on_duty_provider(lambda user_id: True)
     yield
-    policy.set_on_duty_provider(None)
+    policy.set_on_duty_provider(previous)
 
 
 def titles(response):
@@ -89,12 +90,13 @@ def test_sec_02_nurse_needs_care_team_membership_and_to_be_on_duty(
     client = signed_in(nurse)
     assert client.get(RECORDS).status_code == 403  # off duty: no grant applies
 
+    previous = policy.get_on_duty_provider()
     policy.set_on_duty_provider(lambda user_id: user_id == nurse.pk)
     try:
         assert titles(client.get(RECORDS)) == ["r1"]
         assert client.get(f"{RECORDS}{org['r2'].id}/").status_code == 403
     finally:
-        policy.set_on_duty_provider(None)
+        policy.set_on_duty_provider(previous)
 
 
 @pytest.mark.parametrize(

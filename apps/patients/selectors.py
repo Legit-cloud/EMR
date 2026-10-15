@@ -18,3 +18,24 @@ def active_allergies(patient_id) -> list[dict]:
         .filter(patient_id=patient_id)
         .values("id", "substance", "substance_code", "category", "reaction", "severity")
     )
+
+
+def contact_details(patient_id) -> dict | None:
+    """Name and contact channels for appointment messages."""
+    return (
+        Patient.objects.active_chart()
+        .filter(pk=patient_id)
+        .values("first_name", "last_name", "phone", "email")
+        .first()
+    )
+
+
+def summaries(patient_ids) -> dict:
+    """``{patient_id: {"name", "mrn"}}`` for lists such as the physician queue."""
+    rows = Patient.objects.filter(pk__in=list(patient_ids)).values(
+        "id", "first_name", "last_name", "mrn"
+    )
+    return {
+        row["id"]: {"name": f"{row['first_name']} {row['last_name']}", "mrn": row["mrn"]}
+        for row in rows
+    }

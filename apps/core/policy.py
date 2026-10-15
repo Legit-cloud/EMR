@@ -146,6 +146,10 @@ def registered_resources() -> dict[str, Resource]:
     return dict(_resources)
 
 
+def get_on_duty_provider() -> Callable[[uuid.UUID], bool] | None:
+    return _on_duty_provider
+
+
 def set_on_duty_provider(provider: Callable[[uuid.UUID], bool] | None) -> None:
     """The staff module supplies shift status. Without a provider nobody counts as on duty."""
     global _on_duty_provider

@@ -3,6 +3,7 @@
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
@@ -148,6 +149,21 @@ PATIENT_ATTACHMENT_MAX_BYTES = env.int("PATIENT_ATTACHMENT_MAX_BYTES", default=2
 PATIENT_ATTACHMENT_URL_SECONDS = env.int("S3_SIGNED_URL_SECONDS", default=300)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
+# Staff and scheduling
+LICENCE_EXPIRY_WARNING_DAYS = env.int("LICENCE_EXPIRY_WARNING_DAYS", default=60)
+APPOINTMENT_SLOT_MINUTES = env.int("APPOINTMENT_SLOT_MINUTES", default=15)
+APPOINTMENT_REMINDER_OFFSETS_HOURS = [
+    int(h) for h in env.list("APPOINTMENT_REMINDER_OFFSETS_HOURS", default=["24", "2"])
+]
+APPOINTMENT_MAX_RECURRENCE = 12
+APPOINTMENT_DEFAULT_TRIAGE_PRIORITY = 3
+ICS_PRODUCT_ID = "EMR//Appointments"
+ICS_UID_DOMAIN = env("ICS_UID_DOMAIN", default="emr.local")
+
+# Notifications. The SMS provider is an open decision (CLAUDE.md Section 12).
+SMS_BACKEND = env("SMS_BACKEND", default="apps.notifications.backends.ConsoleSmsBackend")
+SMS_SENDER_ID = env("SMS_SENDER_ID", default="EMR")
+
 # Accounts and access control (CLAUDE.md Section 7)
 API_TOKEN_TTL_MINUTES = env.int("API_TOKEN_TTL_MINUTES", default=12 * 60)
 OTP_TOTP_ISSUER = env("OTP_TOTP_ISSUER", default="EMR")
@@ -180,8 +196,18 @@ AUDIT_TRUST_X_FORWARDED_FOR = env.bool("AUDIT_TRUST_X_FORWARDED_FOR", default=Fa
 CELERY_BROKER_URL = REDIS_URL
 CELERY_TASK_ACKS_LATE = True
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
-CELERY_TIMEZONE = TIME_ZONE
-CELERY_BEAT_SCHEDULE = {}
+# Beat schedules run in local time (for example ward charges at 00:00).
+CELERY_TIMEZONE = env("CELERY_TIMEZONE", default="Africa/Lagos")
+CELERY_BEAT_SCHEDULE = {
+    "licence-watcher": {
+        "task": "apps.staff.tasks.run_licence_watcher",
+        "schedule": crontab(hour=6, minute=0),
+    },
+    "appointment-reminders": {
+        "task": "apps.scheduling.tasks.send_appointment_reminders",
+        "schedule": crontab(minute="*/10"),
+    },
+}
 
 CHANNEL_LAYERS = {
     "default": {

@@ -40,3 +40,8 @@ def resolve_tenant_id(user, host: str) -> uuid.UUID | None:
     if not host_tenant.is_active:
         raise TenantInactive()
     return host_tenant.id
+
+
+def active_tenant_ids() -> list[uuid.UUID]:
+    """For system jobs that run once per tenant (licence watcher, reminders, ward charges)."""
+    return list(Tenant.objects.filter(is_active=True).values_list("id", flat=True))

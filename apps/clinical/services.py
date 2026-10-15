@@ -21,6 +21,7 @@ from .models import (
     ConsultationNote,
     Diagnosis,
     Encounter,
+    EncounterClass,
     EncounterStatus,
     LoincCode,
     NoteStatus,
@@ -204,3 +205,32 @@ def mark_entered_in_error(record, reason: str):
     except ValueError as exc:
         raise ValidationError({"reason": [str(exc)]}) from exc
     return record
+
+
+# -- used by scheduling --------------------------------------------------------------
+
+
+@transaction.atomic
+def open_encounter_for_appointment(
+    *, patient_id, facility_id, department_id, practitioner_id, appointment_id
+) -> Encounter:
+    """Start the outpatient encounter when a consultation begins."""
+    check_patient_can_have_encounter(patient_id)
+    encounter = Encounter(
+        patient_id=patient_id,
+        encounter_class=EncounterClass.OUTPATIENT,
+        facility_id=facility_id,
+        department_id=department_id,
+        practitioner_id=practitioner_id,
+        appointment_id=appointment_id,
+    )
+    encounter._assign_tenant()
+    encounter.full_clean(exclude=["created_by", "updated_by"])
+    encounter.save()
+    return encounter
+
+
+def finish_encounter(encounter_id) -> None:
+    encounter = Encounter.objects.filter(pk=encounter_id).first()
+    if encounter is not None and encounter.status == EncounterStatus.IN_PROGRESS:
+        change_encounter_status(encounter, EncounterStatus.FINISHED)

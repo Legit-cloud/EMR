@@ -20,6 +20,8 @@ NOT_POLICY_CHECKED = {
     "api-schema": "API description only, no data",
     "codes-loinc": "shared reference codes, no tenant data; TenantUserPermission",
     "codes-icd10": "shared reference codes, no tenant data; TenantUserPermission",
+    "shift-clock-in": "acts only on the caller's own shift; TenantUserPermission",
+    "shift-clock-out": "acts only on the caller's own shift; TenantUserPermission",
 }
 
 

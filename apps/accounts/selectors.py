@@ -54,3 +54,25 @@ def is_mfa_verified(request) -> bool:
         return request.auth.mfa_verified
     is_verified = getattr(request.user, "is_verified", None)
     return bool(is_verified and is_verified())
+
+
+def emails_of_role_holders(roles) -> list[str]:
+    """Email addresses of active users holding any of ``roles`` in the current tenant."""
+    rows = (
+        RoleAssignment.objects.filter(role__in=[str(r) for r in roles], user__is_active=True)
+        .exclude(user__email="")
+        .values_list("user__email", flat=True)
+    )
+    return sorted(set(rows))
+
+
+def is_session_mfa_verified(session, user) -> bool:
+    """MFA check for WebSocket connections, which do not pass through OTPMiddleware."""
+    from django_otp import DEVICE_ID_SESSION_KEY
+    from django_otp.models import Device
+
+    persistent_id = (session or {}).get(DEVICE_ID_SESSION_KEY)
+    if not persistent_id:
+        return False
+    device = Device.from_persistent_id(persistent_id)
+    return device is not None and device.user_id == user.pk and device.confirmed
