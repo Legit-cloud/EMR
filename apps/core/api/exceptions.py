@@ -10,6 +10,7 @@ plain 500 so no internals leak.
 """
 
 from django.core.exceptions import PermissionDenied as DjangoPermissionDenied
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.http import Http404
 from rest_framework import exceptions, status
 from rest_framework.response import Response
@@ -38,6 +39,12 @@ def error_body(code: str, message: str, details=None) -> dict:
 def api_exception_handler(exc, context):
     if isinstance(exc, DomainError):
         return Response(error_body(exc.code, exc.message, exc.details), status=exc.status_code)
+
+    if isinstance(exc, DjangoValidationError):
+        # Model rules raised outside a serializer (for example in a service).
+        from .serializers import _as_detail
+
+        exc = exceptions.ValidationError(_as_detail(exc))
 
     response = drf_exception_handler(exc, context)
     if response is None:

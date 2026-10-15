@@ -1,0 +1,37 @@
+{
+  "_notice": "Small starter subset for development and tests, not a full code system. LOINC codes are from LOINC (https://loinc.org), used under the LOINC licence. ICD-10 codes are from the WHO ICD-10 classification. Load licensed full sets separately before go-live.",
+  "loinc": [
+    {"code": "8480-6", "display": "Systolic blood pressure", "unit": "mm[Hg]", "min": "40", "max": "300", "derived": false},
+    {"code": "8462-4", "display": "Diastolic blood pressure", "unit": "mm[Hg]", "min": "20", "max": "200", "derived": false},
+    {"code": "8867-4", "display": "Heart rate", "unit": "/min", "min": "20", "max": "300", "derived": false},
+    {"code": "9279-1", "display": "Respiratory rate", "unit": "/min", "min": "4", "max": "80", "derived": false},
+    {"code": "8310-5", "display": "Body temperature", "unit": "Cel", "min": "30", "max": "45", "derived": false},
+    {"code": "59408-5", "display": "Oxygen saturation by pulse oximetry", "unit": "%", "min": "50", "max": "100", "derived": false},
+    {"code": "8302-2", "display": "Body height", "unit": "cm", "min": "20", "max": "260", "derived": false},
+    {"code": "29463-7", "display": "Body weight", "unit": "kg", "min": "0.3", "max": "400", "derived": false},
+    {"code": "39156-5", "display": "Body mass index", "unit": "kg/m2", "min": "5", "max": "150", "derived": true},
+    {"code": "9843-4", "display": "Head occipital-frontal circumference", "unit": "cm", "min": "20", "max": "70", "derived": false}
+  ],
+  "icd10": [
+    {"code": "A01.0", "display": "Typhoid fever"},
+    {"code": "A09", "display": "Diarrhoea and gastroenteritis of presumed infectious origin"},
+    {"code": "B50.9", "display": "Plasmodium falciparum malaria, unspecified"},
+    {"code": "B54", "display": "Unspecified malaria"},
+    {"code": "B20", "display": "HIV disease resulting in infectious and parasitic diseases"},
+    {"code": "A15.0", "display": "Tuberculosis of lung"},
+    {"code": "D57.1", "display": "Sickle-cell disease without crisis"},
+    {"code": "E11.9", "display": "Type 2 diabetes mellitus without complications"},
+    {"code": "E66.9", "display": "Obesity, unspecified"},
+    {"code": "I10", "display": "Essential (primary) hypertension"},
+    {"code": "I50.9", "display": "Heart failure, unspecified"},
+    {"code": "J06.9", "display": "Acute upper respiratory infection, unspecified"},
+    {"code": "J18.9", "display": "Pneumonia, unspecified organism"},
+    {"code": "J45.9", "display": "Asthma, unspecified"},
+    {"code": "K29.7", "display": "Gastritis, unspecified"},
+    {"code": "N39.0", "display": "Urinary tract infection, site not specified"},
+    {"code": "O80", "display": "Single spontaneous delivery"},
+    {"code": "R50.9", "display": "Fever, unspecified"},
+    {"code": "R51", "display": "Headache"},
+    {"code": "Z00.0", "display": "General medical examination"}
+  ]
+}

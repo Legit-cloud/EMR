@@ -18,6 +18,8 @@ NOT_POLICY_CHECKED = {
     "auth-totp-confirm": "caller's own MFA set-up, before MFA can be satisfied",
     "break-glass-request": "TenantUserPermission plus business checks in the service",
     "api-schema": "API description only, no data",
+    "codes-loinc": "shared reference codes, no tenant data; TenantUserPermission",
+    "codes-icd10": "shared reference codes, no tenant data; TenantUserPermission",
 }
 
 
