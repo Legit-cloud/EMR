@@ -41,6 +41,7 @@ COPY --chown=app:app . .
 RUN SECRET_KEY=collectstatic-only \
     DATABASE_URL=postgres://build:build@localhost:5432/build \
     REDIS_URL=redis://localhost:6379/0 \
+    PRESCRIPTION_SIGNING_KEY=Y29sbGVjdHN0YXRpYy1vbmx5LW5vdC1yZWFsLWtleSE= \
     DJANGO_SETTINGS_MODULE=config.settings.production \
     python manage.py collectstatic --noinput
 ENV DJANGO_SETTINGS_MODULE=config.settings.production

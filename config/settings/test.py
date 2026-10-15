@@ -30,3 +30,5 @@ ROOT_URLCONF = "tests.tenancy_app.urls"
 # django-otp delays retries after a wrong code. Tests submit codes back to back.
 OTP_TOTP_THROTTLE_FACTOR = 0
 SMS_BACKEND = "apps.notifications.backends.LocmemSmsBackend"
+# A fixed, test-only Ed25519 private key (32 bytes). Never used outside tests.
+PRESCRIPTION_SIGNING_KEY = "dGVzdC1vbmx5LXByZXNjcmlwdGlvbi1zaWduaW5nLWs="

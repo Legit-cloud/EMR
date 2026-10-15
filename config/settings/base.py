@@ -149,6 +149,16 @@ PATIENT_ATTACHMENT_MAX_BYTES = env.int("PATIENT_ATTACHMENT_MAX_BYTES", default=2
 PATIENT_ATTACHMENT_URL_SECONDS = env.int("S3_SIGNED_URL_SECONDS", default=300)
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
+# Pharmacy (CLAUDE.md Section 5, SEC-09)
+PHARMACY_INTERACTION_CHECKER = env(
+    "PHARMACY_INTERACTION_CHECKER", default="apps.pharmacy.interactions.LocalRulesChecker"
+)
+PRESCRIPTION_MIN_OVERRIDE_REASON = 15
+# Base64 Ed25519 private key (32 bytes), one per environment. Never commit it.
+PRESCRIPTION_SIGNING_KEY = env("PRESCRIPTION_SIGNING_KEY", default="")
+# Public keys of rotated signing keys, so older prescriptions still verify.
+PRESCRIPTION_RETIRED_PUBLIC_KEYS = env.list("PRESCRIPTION_RETIRED_PUBLIC_KEYS", default=[])
+
 # Staff and scheduling
 LICENCE_EXPIRY_WARNING_DAYS = env.int("LICENCE_EXPIRY_WARNING_DAYS", default=60)
 APPOINTMENT_SLOT_MINUTES = env.int("APPOINTMENT_SLOT_MINUTES", default=15)

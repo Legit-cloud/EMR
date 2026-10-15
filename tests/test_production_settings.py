@@ -33,6 +33,7 @@ PRODUCTION_ENV = {
     "SECRET_KEY": "from-the-environment",
     "DATABASE_URL": "postgres://user:pass@db:5432/emr",
     "REDIS_URL": "redis://redis:6379/0",
+    "PRESCRIPTION_SIGNING_KEY": "cHJvZHVjdGlvbi10ZXN0LWtleS1ub3QtcmVhbC0zMmI=",
 }
 
 
@@ -75,6 +76,12 @@ def test_sec_04_production_refuses_to_start_without_secret_key():
     result = _run(drop=("SECRET_KEY",))
     assert result.returncode != 0
     assert "SECRET_KEY" in result.stderr
+
+
+def test_sec_09_production_refuses_to_start_without_a_signing_key():
+    result = _run(drop=("PRESCRIPTION_SIGNING_KEY",))
+    assert result.returncode != 0
+    assert "PRESCRIPTION_SIGNING_KEY" in result.stderr
 
 
 def test_sec_05_file_storage_is_private_with_signed_urls():

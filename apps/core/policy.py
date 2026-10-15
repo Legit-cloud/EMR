@@ -41,6 +41,8 @@ class Action(StrEnum):
     CREATE = "create"
     UPDATE = "update"
     DELETE = "delete"
+    # Separate from update so prescribers cannot also dispense.
+    DISPENSE = "dispense"
 
 
 class Scope(StrEnum):

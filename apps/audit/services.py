@@ -5,11 +5,12 @@ import json
 import uuid
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import connection, transaction
 from django.utils import timezone
 
-from apps.core.tenancy import get_current_tenant_id
+from apps.core.tenancy import get_current_tenant_id, get_current_user_id
 
 from .models import AuditAction, AuditEntry, AuditOutcome
 
@@ -76,6 +77,9 @@ def record(
     if actor is None and request is not None:
         user = getattr(request, "user", None)
         actor = user if user is not None and user.is_authenticated else None
+    if actor is None and request is None and get_current_user_id() is not None:
+        # Service code running inside a request or task: the context knows the actor.
+        actor = get_user_model().objects.filter(pk=get_current_user_id()).first()
     if tenant_id is _UNSET:
         tenant_id = get_current_tenant_id()
         if tenant_id is None and actor is not None:

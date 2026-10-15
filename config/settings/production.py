@@ -5,6 +5,9 @@ from .base import env
 
 DEBUG = False
 
+# SEC-09: production must have its own signing key; there is no default.
+PRESCRIPTION_SIGNING_KEY = env("PRESCRIPTION_SIGNING_KEY")
+
 # SEC-01: HTTPS only. TLS terminates at the Railway edge, which sets X-Forwarded-Proto.
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = True
