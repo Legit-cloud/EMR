@@ -48,6 +48,7 @@ def request_invoice_lines(envelope):
                 quantity=item.quantity,
                 unit_price=item.drug.unit_price,
                 idempotency_key=services.billing_key(item.pk),
+                revenue_category="pharmacy",
             )
 
 

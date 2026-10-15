@@ -6,9 +6,49 @@ class BillingConfig(AppConfig):
     label = "billing"
 
     def ready(self):
-        from apps.core import events
+        from apps.core import events, policy
+        from apps.core.policy import Action
+        from apps.core.roles import Role
         from apps.patients.events import PATIENT_DECEASED
 
+        from . import events as billing_events  # noqa: F401  (defines invoice.paid)
+        from .models import Account, Insurer, Invoice, JournalEntry, Payment
         from .tasks import flag_invoices_for_estate_review
 
         events.subscribe(PATIENT_DECEASED, flag_invoices_for_estate_review)
+
+        view, create, update = Action.VIEW, Action.CREATE, Action.UPDATE
+        policy.register(
+            "billing.invoice",
+            model=Invoice,
+            grants=[
+                policy.grant({Role.BILLING_OFFICER}, {view, update}),
+                policy.grant({Role.FINANCE, Role.FRONT_DESK}, {view}),
+            ],
+        )
+        policy.register(
+            "billing.payment",
+            model=Payment,
+            grants=[policy.grant({Role.BILLING_OFFICER, Role.FINANCE}, {view})],
+        )
+        policy.register(
+            "billing.insurer",
+            model=Insurer,
+            grants=[
+                policy.grant({Role.BILLING_OFFICER, Role.TENANT_ADMIN}, {view, create, update}),
+                policy.grant({Role.FRONT_DESK, Role.FINANCE}, {view}),
+            ],
+            phi=False,
+        )
+        policy.register(
+            "billing.ledger",
+            model=Account,
+            grants=[policy.grant({Role.FINANCE}, {view})],
+            phi=False,
+        )
+        policy.register(
+            "billing.journalentry",
+            model=JournalEntry,
+            grants=[policy.grant({Role.FINANCE}, {view})],
+            phi=False,
+        )

@@ -11,10 +11,12 @@ class SchedulingConfig(AppConfig):
         from apps.core.roles import Role
         from apps.patients.events import PATIENT_DECEASED
 
+        from .events import APPOINTMENT_COMPLETED
         from .models import Appointment, AvailabilityWindow
-        from .tasks import cancel_appointments_for_deceased_patient
+        from .tasks import cancel_appointments_for_deceased_patient, charge_consultation_fee
 
         events.subscribe(PATIENT_DECEASED, cancel_appointments_for_deceased_patient)
+        events.subscribe(APPOINTMENT_COMPLETED, charge_consultation_fee)
 
         view, create, update, remove = Action.VIEW, Action.CREATE, Action.UPDATE, Action.DELETE
         policy.register(

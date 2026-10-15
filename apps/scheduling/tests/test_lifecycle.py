@@ -301,3 +301,33 @@ def test_deceased_patient_appointments_are_cancelled(
         assert appointment.cancellation_reason == "Patient deceased"
     finished.refresh_from_db()
     assert finished.status == "completed"
+
+
+def test_completed_consultation_bills_the_fee_once(
+    desk, signed_in, physician, make_appointment, tenant_a, django_capture_on_commit_callbacks
+):
+    from apps.billing.models import InvoiceLine
+    from apps.scheduling.tasks import charge_consultation_fee
+
+    appointment = make_appointment()
+    doctor = signed_in(physician)
+    move(desk, appointment, "checked_in")
+    move(doctor, appointment, "in_consultation")
+    with django_capture_on_commit_callbacks(execute=True):
+        move(doctor, appointment, "completed")
+    line = InvoiceLine.all_tenants.get()
+    assert (line.amount_minor, line.status, line.revenue_category) == (
+        1500000,
+        "final",
+        "consultation",
+    )
+    # Replaying the event bills nothing more.
+    charge_consultation_fee(
+        {
+            "event_id": "replay",
+            "tenant_id": str(tenant_a.id),
+            "actor_id": None,
+            "payload": {"appointment_id": str(appointment.pk)},
+        }
+    )
+    assert InvoiceLine.all_tenants.count() == 1

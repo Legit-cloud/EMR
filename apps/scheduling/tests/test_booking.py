@@ -208,3 +208,20 @@ def test_ics_is_rfc_5545_shaped():
     assert "SUMMARY:Appointment with Dr Okafor\\, clinic\\; room 2" in lines
     assert all(len(line.encode()) <= 75 for line in lines)
     assert any(line.startswith(" ") for line in lines)  # folded description
+
+
+def test_a_deadlocked_colliding_insert_is_reported_as_slot_taken(desk, booking, window):
+    """PostgreSQL may abort one of two colliding inserts with deadlock_detected (40P01)."""
+    from unittest import mock
+
+    from django.db import OperationalError
+
+    class Deadlock(Exception):
+        sqlstate = "40P01"
+
+    error = OperationalError("deadlock detected")
+    error.__cause__ = Deadlock()
+    with mock.patch.object(Appointment, "save", side_effect=error):
+        response = desk.post(APPOINTMENTS, booking(), format="json")
+    assert response.status_code == 409
+    assert response.json()["error"]["code"] == "slot_taken"

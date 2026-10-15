@@ -9,16 +9,18 @@ from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.db import IntegrityError, transaction
+from django.db import IntegrityError, OperationalError, transaction
 from django.utils import timezone
 
 from apps.clinical import services as clinical
+from apps.core import events
 from apps.core.errors import DomainError
 from apps.core.tenancy import get_current_tenant_id, get_current_user_id
 from apps.notifications import services as notifications
 from apps.patients import selectors as patients
 from apps.staff import selectors as staff
 
+from .events import APPOINTMENT_COMPLETED
 from .ics import build_ics
 from .models import (
     HOLDING_STATUSES,
@@ -34,6 +36,7 @@ logger = logging.getLogger(__name__)
 S = AppointmentStatus
 ACTIVE_FOR_PATIENT = [S.BOOKED, S.CONFIRMED, S.CHECKED_IN]
 DEFAULT_TRIAGE = {AppointmentType.EMERGENCY: 1}
+DEADLOCK_DETECTED = "40P01"
 RECURRENCE_STEP = {"daily": timedelta(days=1), "weekly": timedelta(weeks=1)}
 
 
@@ -93,6 +96,12 @@ def _save_new(appointment: Appointment) -> None:
         raise
     except IntegrityError as exc:
         if "no_double_booking" in str(exc):
+            raise SlotTaken(details={"start_at": appointment.start_at.isoformat()}) from None
+        raise
+    except OperationalError as exc:
+        # Simultaneous inserts that collide on an exclusion constraint can deadlock;
+        # PostgreSQL aborts one of them. That booking did collide, so the slot is taken.
+        if getattr(exc.__cause__, "sqlstate", None) == DEADLOCK_DETECTED:
             raise SlotTaken(details={"start_at": appointment.start_at.isoformat()}) from None
         raise
 
@@ -195,6 +204,7 @@ def change_status(
         appointment.completed_at = now
         if appointment.encounter_id:
             clinical.finish_encounter(appointment.encounter_id)
+        events.publish(APPOINTMENT_COMPLETED, {"appointment_id": str(appointment.pk)})
     appointment.status = status
     appointment.full_clean(exclude=["created_by", "updated_by"], validate_constraints=False)
     appointment.save()
