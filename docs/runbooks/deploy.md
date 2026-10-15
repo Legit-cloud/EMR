@@ -16,7 +16,8 @@
    Never commit these values.
 5. `ALLOWED_HOSTS` must include the public domain and `healthcheck.railway.app`
    (the host Railway uses for health checks).
-6. `staging` deploys automatically from its branch; `production` is promoted manually.
+6. The `staging` environment deploys automatically from the `staging` branch (the protected
+   default branch); `production` is promoted manually.
 
 ## Before any real patient data
 
