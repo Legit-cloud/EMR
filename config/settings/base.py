@@ -20,6 +20,7 @@ DJANGO_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
 ]
 THIRD_PARTY_APPS = [
     "rest_framework",
@@ -135,6 +136,17 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }
+
+# Patients (CLAUDE.md Section 5)
+MRN_TIME_ZONE = env("MRN_TIME_ZONE", default="Africa/Lagos")
+MRN_SEQUENCE_DIGITS = 6
+PATIENT_DUPLICATE_THRESHOLD = 0.85
+DEFAULT_PHONE_COUNTRY_CODE = env("DEFAULT_PHONE_COUNTRY_CODE", default="234")
+PATIENT_DECEASED_ROLES = env.list("PATIENT_DECEASED_ROLES", default=["doctor"])
+PATIENT_ATTACHMENT_MAX_BYTES = env.int("PATIENT_ATTACHMENT_MAX_BYTES", default=20 * 1024 * 1024)
+# Kept equal to the signed URL lifetime of the storage backend.
+PATIENT_ATTACHMENT_URL_SECONDS = env.int("S3_SIGNED_URL_SECONDS", default=300)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 5 * 1024 * 1024
 
 # Accounts and access control (CLAUDE.md Section 7)
 API_TOKEN_TTL_MINUTES = env.int("API_TOKEN_TTL_MINUTES", default=12 * 60)

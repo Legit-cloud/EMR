@@ -24,6 +24,7 @@ print(json.dumps({
     "SECRET_KEY": settings.SECRET_KEY,
     "querystring_auth": options["querystring_auth"],
     "default_acl": options["default_acl"],
+    "signature_version": options["signature_version"],
 }))
 """
 
@@ -80,3 +81,4 @@ def test_sec_05_file_storage_is_private_with_signed_urls():
     values = _values()
     assert values["querystring_auth"] is True
     assert values["default_acl"] is None
+    assert values["signature_version"] == "s3v4"

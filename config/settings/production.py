@@ -35,6 +35,7 @@ STORAGES = {
             "secret_key": env("S3_SECRET_ACCESS_KEY", default=""),
             "region_name": env("S3_REGION", default=None),
             "default_acl": None,
+            "signature_version": "s3v4",
             "querystring_auth": True,
             "querystring_expire": env.int("S3_SIGNED_URL_SECONDS", default=300),
             "file_overwrite": False,
