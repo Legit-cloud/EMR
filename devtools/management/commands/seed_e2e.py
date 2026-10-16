@@ -18,7 +18,7 @@ from django.db import transaction
 from django.utils import timezone
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
-from apps.accounts.models import RoleAssignment
+from apps.accounts.models import BreakGlassGrant, RoleAssignment
 from apps.billing import services as billing
 from apps.billing.models import Insurer
 from apps.clinical import services as clinical
@@ -41,6 +41,9 @@ ROLES = {
     "billing": Role.BILLING_OFFICER,
     "login": Role.NURSE,
     "pharmacist": Role.PHARMACIST,
+    "admin": Role.TENANT_ADMIN,
+    "hr": Role.HR,
+    "compliance": Role.COMPLIANCE_OFFICER,
 }
 
 
@@ -190,6 +193,23 @@ class Command(BaseCommand):
                     "date_of_birth": date(1985, 6, 1),
                     "sex": "female",
                 }
+            )
+
+            # A break-glass access waiting for compliance review.
+            BreakGlassGrant.objects.create(
+                user=doctor,
+                resource="clinical.encounter",
+                object_id=str(encounter.pk),
+                reason="Covering the emergency department overnight",
+                expires_at=timezone.now() + timedelta(hours=1),
+            )
+            # A clinician without a staff profile yet, for HR to set up.
+            get_user_model().objects.create_user(
+                username=f"e2e-newnurse-{run}",
+                password=password,
+                tenant=tenant,
+                first_name="Amaka",
+                last_name="Newnurse",
             )
 
             bisi = Patient.objects.create(

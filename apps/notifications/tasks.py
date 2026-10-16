@@ -52,3 +52,14 @@ def deliver_email(self, tenant_id, notification_id, to, subject, body, attachmen
                 return
             raise self.retry(exc=exc) from exc
         _finish(notification_id, reference="email")
+
+
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
+def deliver_untracked_email(self, to, subject, body):
+    try:
+        EmailMessage(subject, body, None, [to]).send()
+    except Exception as exc:
+        logger.warning("Untracked email delivery failed")
+        if self.request.retries >= self.max_retries:
+            return
+        raise self.retry(exc=exc) from exc

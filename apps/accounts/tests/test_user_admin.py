@@ -79,3 +79,22 @@ def test_roles_cannot_be_assigned_to_another_tenants_user(admin, user_b):
     response = admin.post(ASSIGNMENTS, {"user": str(user_b.id), "role": "doctor"}, format="json")
     assert response.status_code == 400
     assert "user" in response.json()["error"]["details"]
+
+
+def test_invitation_survives_a_mail_outage(admin, django_capture_on_commit_callbacks):
+    """The email is queued: an unreachable mail server never fails the request."""
+    from unittest import mock
+
+    from apps.notifications.models import Notification
+
+    with (
+        mock.patch("django.core.mail.EmailMessage.send", side_effect=ConnectionRefusedError()),
+        django_capture_on_commit_callbacks(execute=True),
+    ):
+        response = admin.post(
+            USERS, {"username": "mailless", "email": "mailless@example.test"}, format="json"
+        )
+    assert response.status_code == 201, response.json()
+    assert User.objects.filter(username="mailless").exists()
+    note = Notification.all_tenants.get(purpose="password_link")
+    assert note.recipient_masked == "m***@example.test"

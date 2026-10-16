@@ -27,7 +27,9 @@ def queue_sms(*, to: str, body: str, purpose: str, related_object: str = "") -> 
         recipient_masked=mask(to),
         related_object=related_object,
     )
-    transaction.on_commit(lambda: deliver_sms.delay(str(note.tenant_id), str(note.pk), to, body))
+    transaction.on_commit(
+        lambda: deliver_sms.delay(str(note.tenant_id), str(note.pk), to, body), robust=True
+    )
     return note
 
 
@@ -53,6 +55,14 @@ def queue_email(
         (name, base64.b64encode(content).decode(), mime) for name, content, mime in attachments
     ]
     transaction.on_commit(
-        lambda: deliver_email.delay(str(note.tenant_id), str(note.pk), to, subject, body, encoded)
+        lambda: deliver_email.delay(str(note.tenant_id), str(note.pk), to, subject, body, encoded),
+        robust=True,
     )
     return note
+
+
+def queue_untracked_email(*, to: str, subject: str, body: str) -> None:
+    """For people outside any tenant (platform staff): delivered the same way, not logged."""
+    from .tasks import deliver_untracked_email
+
+    transaction.on_commit(lambda: deliver_untracked_email.delay(to, subject, body), robust=True)

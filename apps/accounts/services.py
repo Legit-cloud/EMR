@@ -7,7 +7,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth.tokens import default_token_generator
-from django.core.mail import send_mail
 from django.db import transaction
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
@@ -18,6 +17,7 @@ from apps.audit import services as audit
 from apps.core import policy
 from apps.core.errors import DomainError
 from apps.core.tenancy import tenant_context
+from apps.notifications import services as notifications
 
 from . import selectors
 from .models import ApiToken, BreakGlassGrant, BreakGlassReview, User
@@ -141,16 +141,29 @@ def confirm_totp_enrolment(request, token: str) -> TOTPDevice:
 
 
 def _send_password_link(user: User, subject: str) -> None:
+    """Queue the email; a slow or unreachable mail server never fails the request.
+
+    The delivery log keeps only a masked address and the purpose, never the link.
+    """
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
     link = settings.PASSWORD_RESET_URL.format(uid=uid, token=token)
-    send_mail(
-        subject,
+    body = (
         f"Use this link to set your password:\n\n{link}\n\n"
-        "If you did not expect this message, ignore it.",
-        None,
-        [user.email],
+        "If you did not expect this message, ignore it."
     )
+    if user.tenant_id is None:
+        # Platform staff have no tenant to log the delivery under.
+        notifications.queue_untracked_email(to=user.email, subject=subject, body=body)
+        return
+    with tenant_context(user.tenant_id, user.pk):
+        notifications.queue_email(
+            to=user.email,
+            subject=subject,
+            body=body,
+            purpose="password_link",
+            related_object=f"accounts.user:{user.pk}",
+        )
 
 
 def request_password_reset(request, email: str) -> None:

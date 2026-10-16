@@ -7,7 +7,10 @@ import type { APIRequestContext } from "@playwright/test";
 export type Seed = {
   run: string;
   password: string;
-  users: Record<"doctor" | "desk" | "billing" | "login" | "pharmacist", { username: string; totp_key: string }>;
+  users: Record<
+    "doctor" | "desk" | "billing" | "login" | "pharmacist" | "admin" | "hr" | "compliance",
+    { username: string; totp_key: string }
+  >;
   physician_id: string;
   patient: { id: string; name: string; mrn: string };
   queued_appointment_id: string;

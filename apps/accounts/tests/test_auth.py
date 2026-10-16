@@ -181,11 +181,14 @@ def test_password_reset_does_not_reveal_unknown_addresses(api_client, doctor):
     assert mail.outbox == []
 
 
-def test_password_reset_end_to_end(api_client, token_client, doctor):
+def test_password_reset_end_to_end(
+    api_client, token_client, doctor, django_capture_on_commit_callbacks
+):
     other_session_token = token_client(doctor)
-    response = api_client.post(
-        "/api/accounts/auth/password-reset/", {"email": "DOC@example.test"}, format="json"
-    )
+    with django_capture_on_commit_callbacks(execute=True):
+        response = api_client.post(
+            "/api/accounts/auth/password-reset/", {"email": "DOC@example.test"}, format="json"
+        )
     assert response.status_code == 202
     assert len(mail.outbox) == 1
     uid, token = re.search(r"uid=([^&\s]+)&token=(\S+)", mail.outbox[0].body).groups()

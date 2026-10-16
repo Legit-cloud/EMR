@@ -16,6 +16,9 @@ const NAV = [
   { href: "/pharmacy", label: "Pharmacy" },
   { href: "/registrations", label: "Registrations" },
   { href: "/billing", label: "Billing" },
+  // /admin is the Django admin behind the edge proxy, so the app uses /manage.
+  { href: "/manage", label: "Admin" },
+  { href: "/compliance", label: "Compliance" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {

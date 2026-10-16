@@ -198,7 +198,7 @@ class UserViewSet(TenantModelViewSet):
             user.set_unusable_password()
             user.save(update_fields=["password"])
             self.audit_write(Action.CREATE, user, sorted(serializer.validated_data))
-            transaction.on_commit(lambda: services.invite_user(user))
+            services.invite_user(user)  # queued: delivered after commit by a worker
 
     @extend_schema(request=None, responses=s.UserSerializer)
     @action(detail=True, methods=["post"])
