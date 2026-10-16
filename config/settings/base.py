@@ -170,6 +170,7 @@ SPECTACULAR_SETTINGS = {
         "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
         "InvoiceLineStatusEnum": "apps.billing.models.LineStatus",
         "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
+        "DosageFormEnum": "apps.pharmacy.models.DosageForm",
     },
 }
 

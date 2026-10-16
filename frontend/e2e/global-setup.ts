@@ -14,7 +14,7 @@ export default async function globalSetup(config: FullConfig) {
   const baseURL = config.projects[0].use.baseURL;
   const seed = loadSeed();
   mkdirSync(path.join(__dirname, ".auth"), { recursive: true });
-  for (const role of ["doctor", "desk", "billing"] as const) {
+  for (const role of ["doctor", "desk", "billing", "pharmacist"] as const) {
     const user = seed.users[role];
     const context = await request.newContext({ baseURL });
     await context.get("/api/accounts/auth/csrf/");

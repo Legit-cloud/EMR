@@ -65,3 +65,30 @@ export function lagosToday(offsetDays = 0): string {
   const now = new Date(Date.now() + offsetDays * 86_400_000);
   return now.toLocaleDateString("en-CA", { timeZone: LAGOS });
 }
+
+/**
+ * Parse a typed major-unit amount ("1,500.50") into integer minor units without floating
+ * point. Returns null when it is not a valid amount for the currency.
+ */
+export function toMinor(text: string, currency = "NGN"): number | null {
+  const digits = MINOR_DIGITS[currency] ?? 2;
+  const clean = text.replaceAll(",", "").trim();
+  const [whole, fraction = "", extra] = clean.split(".");
+  const valid =
+    extra === undefined &&
+    /^\d+$/.test(whole) &&
+    /^\d*$/.test(fraction) &&
+    fraction.length <= digits &&
+    !(digits === 0 && clean.includes("."));
+  if (!valid) return null;
+  const minorPart = fraction.padEnd(digits, "0");
+  return Number(BigInt(whole) * 10n ** BigInt(digits) + BigInt(minorPart || "0"));
+}
+
+/** Minor units as an editable major-unit string ("1500.50"). */
+export function toMajorText(minor: number, currency = "NGN"): string {
+  const digits = MINOR_DIGITS[currency] ?? 2;
+  const scale = 10n ** BigInt(digits);
+  const units = BigInt(minor);
+  return digits ? `${units / scale}.${(units % scale).toString().padStart(digits, "0")}` : `${units}`;
+}

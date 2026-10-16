@@ -2623,6 +2623,18 @@ export interface components {
             };
         };
         /**
+         * @description * `tablet` - Tablet
+         *     * `capsule` - Capsule
+         *     * `syrup` - Syrup / suspension
+         *     * `injection` - Injection
+         *     * `cream` - Cream / ointment
+         *     * `inhaler` - Inhaler
+         *     * `drops` - Drops
+         *     * `other` - Other
+         * @enum {string}
+         */
+        DosageFormEnum: "tablet" | "capsule" | "syrup" | "injection" | "cream" | "inhaler" | "drops" | "other";
+        /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
          *     Business rules that live on the model (status transitions, cross-field checks,
@@ -2634,7 +2646,7 @@ export interface components {
             /** @description Generic name with strength */
             name: string;
             brand_name?: string;
-            form: components["schemas"]["FormEnum"];
+            form: components["schemas"]["DosageFormEnum"];
             strength: string;
             ingredients: string[];
             classes?: string[];
@@ -2653,7 +2665,7 @@ export interface components {
             /** @description Generic name with strength */
             name: string;
             brand_name?: string;
-            form: components["schemas"]["FormEnum"];
+            form: components["schemas"]["DosageFormEnum"];
             strength: string;
             ingredients: string[];
             classes?: string[];
@@ -2790,18 +2802,6 @@ export interface components {
             name: string;
             code: string;
         };
-        /**
-         * @description * `tablet` - Tablet
-         *     * `capsule` - Capsule
-         *     * `syrup` - Syrup / suspension
-         *     * `injection` - Injection
-         *     * `cream` - Cream / ointment
-         *     * `inhaler` - Inhaler
-         *     * `drops` - Drops
-         *     * `other` - Other
-         * @enum {string}
-         */
-        FormEnum: "tablet" | "capsule" | "syrup" | "injection" | "cream" | "inhaler" | "drops" | "other";
         FreeSlot: {
             /** Format: date-time */
             start_at: string;
@@ -3564,7 +3564,7 @@ export interface components {
             /** @description Generic name with strength */
             name?: string;
             brand_name?: string;
-            form?: components["schemas"]["FormEnum"];
+            form?: components["schemas"]["DosageFormEnum"];
             strength?: string;
             ingredients?: string[];
             classes?: string[];

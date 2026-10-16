@@ -8,10 +8,13 @@ import { Loading } from "@/components/ui";
 import { api } from "@/lib/api";
 import { SessionContext, type Me } from "@/lib/session";
 
+// Every signed-in user sees the same menu; each page shows "no access" when the API refuses.
 const NAV = [
   { href: "/patients", label: "Patients" },
   { href: "/schedule", label: "Schedule" },
   { href: "/queue", label: "Queue" },
+  { href: "/pharmacy", label: "Pharmacy" },
+  { href: "/registrations", label: "Registrations" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {

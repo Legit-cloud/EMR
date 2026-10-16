@@ -5152,6 +5152,26 @@ components:
             minimum: 1
       required:
       - items
+    DosageFormEnum:
+      enum:
+      - tablet
+      - capsule
+      - syrup
+      - injection
+      - cream
+      - inhaler
+      - drops
+      - other
+      type: string
+      description: |-
+        * `tablet` - Tablet
+        * `capsule` - Capsule
+        * `syrup` - Syrup / suspension
+        * `injection` - Injection
+        * `cream` - Cream / ointment
+        * `inhaler` - Inhaler
+        * `drops` - Drops
+        * `other` - Other
     Drug:
       type: object
       description: |-
@@ -5172,7 +5192,7 @@ components:
           type: string
           maxLength: 200
         form:
-          $ref: '#/components/schemas/FormEnum'
+          $ref: '#/components/schemas/DosageFormEnum'
         strength:
           type: string
           maxLength: 50
@@ -5220,7 +5240,7 @@ components:
           type: string
           maxLength: 200
         form:
-          $ref: '#/components/schemas/FormEnum'
+          $ref: '#/components/schemas/DosageFormEnum'
         strength:
           type: string
           minLength: 1
@@ -5516,26 +5536,6 @@ components:
       required:
       - code
       - name
-    FormEnum:
-      enum:
-      - tablet
-      - capsule
-      - syrup
-      - injection
-      - cream
-      - inhaler
-      - drops
-      - other
-      type: string
-      description: |-
-        * `tablet` - Tablet
-        * `capsule` - Capsule
-        * `syrup` - Syrup / suspension
-        * `injection` - Injection
-        * `cream` - Cream / ointment
-        * `inhaler` - Inhaler
-        * `drops` - Drops
-        * `other` - Other
     FreeSlot:
       type: object
       properties:
@@ -6930,7 +6930,7 @@ components:
           type: string
           maxLength: 200
         form:
-          $ref: '#/components/schemas/FormEnum'
+          $ref: '#/components/schemas/DosageFormEnum'
         strength:
           type: string
           minLength: 1

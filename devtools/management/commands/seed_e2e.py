@@ -25,8 +25,10 @@ from apps.clinical.models import Diagnosis, Encounter
 from apps.core.money import Money
 from apps.core.roles import Role
 from apps.core.tenancy import tenant_context
+from apps.patients import services as patients
 from apps.patients.models import Allergy, Patient
-from apps.pharmacy.models import Drug, StockBatch
+from apps.pharmacy import services as pharmacy
+from apps.pharmacy.models import Drug, Prescription, PrescriptionItem, StockBatch
 from apps.scheduling.models import Appointment, AvailabilityWindow
 from apps.staff.models import StaffProfile
 from apps.tenants.models import Department, Facility, Tenant
@@ -37,6 +39,7 @@ ROLES = {
     "desk": Role.FRONT_DESK,
     "billing": Role.BILLING_OFFICER,
     "login": Role.NURSE,
+    "pharmacist": Role.PHARMACIST,
 }
 
 
@@ -144,11 +147,12 @@ class Command(BaseCommand):
                 verification_status="confirmed",
                 rank=1,
             )
+            drugs = {}
             for name, ingredient, classes, price in (
                 ("Amoxicillin", "amoxicillin", ["penicillin"], 15_000),
                 ("Paracetamol", "paracetamol", [], 2_500),
             ):
-                drug = Drug.objects.create(
+                drug = drugs[ingredient] = Drug.objects.create(
                     name=name,
                     strength="500 mg",
                     form="tablet",
@@ -162,6 +166,30 @@ class Command(BaseCommand):
                     expiry_date=date(2031, 1, 1),
                     quantity_on_hand=500,
                 )
+
+            # A signed prescription waiting at the pharmacy.
+            to_dispense = Prescription.objects.create(
+                patient=ngozi, encounter=encounter, prescriber=doctor
+            )
+            PrescriptionItem.objects.create(
+                prescription=to_dispense,
+                drug=drugs["paracetamol"],
+                dose="2 tablets",
+                frequency="three times daily",
+                duration_days=3,
+                quantity=18,
+            )
+            pharmacy.authorise(to_dispense)
+
+            # A registration held as a possible duplicate of Ngozi Eze.
+            review = patients.register_patient(
+                {
+                    "first_name": "Ngozi",
+                    "last_name": "Ezeh",
+                    "date_of_birth": date(1985, 6, 1),
+                    "sex": "female",
+                }
+            )
 
             bisi = Patient.objects.create(
                 first_name="Bisi", last_name="Lawal", date_of_birth=date(1990, 2, 2), sex="female"
@@ -215,5 +243,7 @@ class Command(BaseCommand):
             "queued_patient_id": str(bisi.pk),
             "encounter_id": str(encounter.pk),
             "invoice_id": str(invoice.pk),
+            "prescription_to_dispense_id": str(to_dispense.pk),
+            "duplicate_review_id": str(review.pk),
             "booking_date": tomorrow.isoformat(),
         }
