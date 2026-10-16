@@ -225,8 +225,13 @@ class Command(BaseCommand):
                 end_at=datetime.combine(tomorrow, time(9, 15), tzinfo=zone),
             )
 
+            # The billing journey has its own patient: prescriptions written for Ngozi
+            # bill onto her open invoice through the worker and would change its totals.
+            tolu = Patient.objects.create(
+                first_name="Tolu", last_name="Okafor", date_of_birth=date(1978, 9, 9), sex="male"
+            )
             line = billing.charge_delivered(
-                patient_id=ngozi.pk,
+                patient_id=tolu.pk,
                 source="e2e.seed",
                 source_id=run,
                 description="Consultation with Dr Doctor Tester",
@@ -236,7 +241,7 @@ class Command(BaseCommand):
                 revenue_category="consultation",
             )
             billing.add_line(
-                patient_id=ngozi.pk,
+                patient_id=tolu.pk,
                 source="e2e.seed",
                 source_id=run,
                 description="Paracetamol 500 mg (Tablet)",
