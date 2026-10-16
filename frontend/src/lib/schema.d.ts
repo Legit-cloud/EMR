@@ -3002,14 +3002,6 @@ export interface components {
             readonly roles: string[];
             readonly mfa_enabled: boolean;
         };
-        /**
-         * @description * `cash` - Cash
-         *     * `card` - Card / POS
-         *     * `transfer` - Bank transfer
-         *     * `insurer_remittance` - Insurer remittance
-         * @enum {string}
-         */
-        MethodEnum: "cash" | "card" | "transfer" | "insurer_remittance";
         MfaEnabled: {
             mfa_enabled: boolean;
         };
@@ -3743,7 +3735,7 @@ export interface components {
             /** Format: uuid */
             invoice: string;
             payer: components["schemas"]["PayerEnum"];
-            method: components["schemas"]["MethodEnum"];
+            method: components["schemas"]["PaymentMethodEnum"];
             /** Format: int64 */
             amount_minor: number;
             currency: string;
@@ -3753,9 +3745,17 @@ export interface components {
             /** Format: uuid */
             received_by?: string | null;
         };
+        /**
+         * @description * `cash` - Cash
+         *     * `card` - Card / POS
+         *     * `transfer` - Bank transfer
+         *     * `insurer_remittance` - Insurer remittance
+         * @enum {string}
+         */
+        PaymentMethodEnum: "cash" | "card" | "transfer" | "insurer_remittance";
         PaymentRequestRequest: {
             payer: components["schemas"]["PayerEnum"];
-            method: components["schemas"]["MethodEnum"];
+            method: components["schemas"]["PaymentMethodEnum"];
             amount_minor: number;
             /** @default  */
             reference: string;

@@ -396,3 +396,15 @@ def test_sec_02_front_desk_views_bills_but_cannot_take_payment(
     )
     assert response.status_code == 403
     assert desk.get("/api/billing/ledger/accounts/").status_code == 403
+
+
+def test_payment_without_a_reference_is_accepted(billing, ctx, patient):
+    """The web app sends reference="" when none is typed (cash at the desk)."""
+    with ctx():
+        invoice = invoice_of(charge(patient, "cash", 1_000))
+    response = billing.post(
+        f"/api/billing/invoices/{invoice.pk}/pay/",
+        {"payer": "patient", "method": "cash", "amount_minor": 1_000, "reference": ""},
+        format="json",
+    )
+    assert response.status_code == 201, response.json()

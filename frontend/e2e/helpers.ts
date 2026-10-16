@@ -16,6 +16,7 @@ export type Seed = {
   encounter_id: string;
   invoice_id: string;
   prescription_to_dispense_id: string;
+  uninsured_invoice_id: string;
   duplicate_review_id: string;
   booking_date: string;
 };

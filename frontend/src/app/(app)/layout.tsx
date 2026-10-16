@@ -15,6 +15,7 @@ const NAV = [
   { href: "/queue", label: "Queue" },
   { href: "/pharmacy", label: "Pharmacy" },
   { href: "/registrations", label: "Registrations" },
+  { href: "/billing", label: "Billing" },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {

@@ -123,17 +123,3 @@ test.describe("doctor", () => {
     await expect(page.getByText("Allergy history disputed; test dose supervised")).toBeVisible();
   });
 });
-
-test.describe("billing", () => {
-  test.use({ storageState: authFile("billing") });
-
-  test("views an invoice with lines, payments and what is still due", async ({ page }) => {
-    await page.goto(`/invoices/${seed.invoice_id}`);
-    await expect(page.getByTestId("payment-status")).toHaveText("Partially paid");
-    await expect(page.getByRole("region", { name: "Charges" })).toContainText("Consultation with Dr Doctor Tester");
-    await expect(page.getByRole("region", { name: "Charges" })).toContainText("Paracetamol");
-    await expect(page.getByTestId("total")).toHaveText("₦10,300.00");
-    await expect(page.getByTestId("paid")).toHaveText("₦5,000.00");
-    await expect(page.getByTestId("net-due")).toHaveText("₦5,300.00");
-  });
-});

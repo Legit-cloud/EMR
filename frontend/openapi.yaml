@@ -6022,18 +6022,6 @@ components:
       - mfa_enabled
       - roles
       - username
-    MethodEnum:
-      enum:
-      - cash
-      - card
-      - transfer
-      - insurer_remittance
-      type: string
-      description: |-
-        * `cash` - Cash
-        * `card` - Card / POS
-        * `transfer` - Bank transfer
-        * `insurer_remittance` - Insurer remittance
     MfaEnabled:
       type: object
       properties:
@@ -7338,7 +7326,7 @@ components:
         payer:
           $ref: '#/components/schemas/PayerEnum'
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         amount_minor:
           type: integer
           maximum: 9223372036854775807
@@ -7365,19 +7353,30 @@ components:
       - method
       - payer
       - received_at
+    PaymentMethodEnum:
+      enum:
+      - cash
+      - card
+      - transfer
+      - insurer_remittance
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `card` - Card / POS
+        * `transfer` - Bank transfer
+        * `insurer_remittance` - Insurer remittance
     PaymentRequestRequest:
       type: object
       properties:
         payer:
           $ref: '#/components/schemas/PayerEnum'
         method:
-          $ref: '#/components/schemas/MethodEnum'
+          $ref: '#/components/schemas/PaymentMethodEnum'
         amount_minor:
           type: integer
           minimum: 1
         reference:
           type: string
-          minLength: 1
           default: ''
           maxLength: 100
         idempotency_key:

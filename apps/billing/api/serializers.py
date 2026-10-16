@@ -97,7 +97,7 @@ class PaymentRequestSerializer(serializers.Serializer):
     payer = serializers.ChoiceField(choices=Payer.choices)
     method = serializers.ChoiceField(choices=PaymentMethod.choices)
     amount_minor = serializers.IntegerField(min_value=1)
-    reference = serializers.CharField(max_length=100, required=False, default="")
+    reference = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
     # Send the same key when retrying, so a timeout never records the payment twice.
     idempotency_key = serializers.CharField(max_length=100, required=False)
 

@@ -20,6 +20,7 @@ from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from apps.accounts.models import RoleAssignment
 from apps.billing import services as billing
+from apps.billing.models import Insurer
 from apps.clinical import services as clinical
 from apps.clinical.models import Diagnosis, Encounter
 from apps.core.money import Money
@@ -229,6 +230,19 @@ class Command(BaseCommand):
                 invoice, payer="patient", method="cash", amount=Money(500_000, "NGN")
             )
 
+            # An unpaid invoice with nothing delivered yet, so coverage can still be set.
+            Insurer.objects.create(name="E2E Health HMO", code="e2e-hmo")
+            open_line = billing.add_line(
+                patient_id=bisi.pk,
+                source="e2e.seed",
+                source_id=run,
+                description="Malaria treatment pack",
+                quantity=1,
+                unit_price=Money(2_000_000, "NGN"),
+                idempotency_key=f"e2e:{run}:bisi",
+                revenue_category="pharmacy",
+            )
+
         return {
             "run": run,
             "password": password,
@@ -244,6 +258,7 @@ class Command(BaseCommand):
             "encounter_id": str(encounter.pk),
             "invoice_id": str(invoice.pk),
             "prescription_to_dispense_id": str(to_dispense.pk),
+            "uninsured_invoice_id": str(open_line.invoice_id),
             "duplicate_review_id": str(review.pk),
             "booking_date": tomorrow.isoformat(),
         }
