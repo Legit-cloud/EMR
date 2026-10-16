@@ -172,6 +172,20 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         return instance
 
 
+class SafetyAlertSerializer(serializers.Serializer):
+    kind = serializers.CharField()
+    key = serializers.CharField()
+    severity = serializers.CharField()
+    blocking = serializers.BooleanField()
+    message = serializers.CharField()
+
+
+class SignatureCheckSerializer(serializers.Serializer):
+    signed = serializers.BooleanField()
+    valid = serializers.BooleanField()
+    signing_key_id = serializers.CharField()
+
+
 class AuthoriseSerializer(serializers.Serializer):
     overrides = serializers.DictField(
         child=serializers.CharField(max_length=2000, allow_blank=True), required=False, default={}

@@ -81,14 +81,34 @@ class AppointmentUpdateSerializer(serializers.ModelSerializer):
         fields = ["reason"]
 
 
-class StatusChangeSerializer(serializers.Serializer):
+class AppointmentStatusChangeSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=AppointmentStatus.choices)
-    cancellation_reason = serializers.CharField(max_length=500, required=False, default="")
+    # Blank is fine for every change but cancelling; the service requires a reason then.
+    cancellation_reason = serializers.CharField(
+        max_length=500, required=False, allow_blank=True, default=""
+    )
     triage_priority = serializers.IntegerField(min_value=1, max_value=5, required=False)
 
 
 class TriageSerializer(serializers.Serializer):
     triage_priority = serializers.IntegerField(min_value=1, max_value=5)
+
+
+class QueueEntrySerializer(serializers.Serializer):
+    appointment_id = serializers.UUIDField()
+    patient_id = serializers.UUIDField()
+    patient_name = serializers.CharField()
+    mrn = serializers.CharField()
+    appointment_type = serializers.CharField()
+    triage_priority = serializers.IntegerField(allow_null=True)
+    checked_in_at = serializers.DateTimeField()
+    start_at = serializers.DateTimeField()
+
+
+class FreeSlotSerializer(serializers.Serializer):
+    start_at = serializers.DateTimeField()
+    end_at = serializers.DateTimeField()
+    facility = serializers.UUIDField()
 
 
 class FreeSlotsQuerySerializer(serializers.Serializer):

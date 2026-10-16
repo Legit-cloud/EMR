@@ -157,6 +157,20 @@ SPECTACULAR_SETTINGS = {
     "SERVE_INCLUDE_SCHEMA": False,
     # The API description is not public.
     "SERVE_PERMISSIONS": ["rest_framework.permissions.IsAuthenticated"],
+    # Separate request and response components, so clients never have to send read-only
+    # fields (the frontend's typed client relies on this).
+    "COMPONENT_SPLIT_REQUEST": True,
+    # Stable names for the many "status" choice sets, so generated clients stay readable.
+    "ENUM_NAME_OVERRIDES": {
+        "PatientStatusEnum": "apps.patients.models.PatientStatus",
+        "DuplicateReviewStatusEnum": "apps.patients.models.ReviewStatus",
+        "EncounterStatusEnum": "apps.clinical.models.EncounterStatus",
+        "NoteStatusEnum": "apps.clinical.models.NoteStatus",
+        "AppointmentStatusEnum": "apps.scheduling.models.AppointmentStatus",
+        "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
+        "InvoiceLineStatusEnum": "apps.billing.models.LineStatus",
+        "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
+    },
 }
 
 # Patients (CLAUDE.md Section 5)

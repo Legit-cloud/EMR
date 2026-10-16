@@ -1,11 +1,14 @@
 from django.db import transaction
 from django.db.models import Prefetch, Q
+from drf_spectacular.utils import extend_schema
 from rest_framework import generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.core.api.mixins import TenantModelViewSet
 from apps.core.api.permissions import TenantUserPermission
+from apps.core.api.schema import list_filters
+from apps.core.api.serializers import EnteredInErrorSerializer
 from apps.core.models import RecordState
 from apps.core.policy import Action
 
@@ -42,10 +45,11 @@ class ChartViewSetMixin:
                     queryset = queryset.filter(**{f"{name}_id": params[name]})
         return queryset
 
+    @extend_schema(request=EnteredInErrorSerializer)
     @action(detail=True, methods=["post"], url_path="entered-in-error")
     def entered_in_error(self, request, pk=None):
         record = self.get_object()
-        data = s.EnteredInErrorSerializer(data=request.data)
+        data = EnteredInErrorSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         with transaction.atomic():
             services.mark_entered_in_error(record, data.validated_data["reason"])
@@ -53,6 +57,7 @@ class ChartViewSetMixin:
         return Response(self.get_serializer(record).data)
 
 
+@list_filters("patient", "encounter", "history")
 class EncounterViewSet(ChartViewSetMixin, TenantModelViewSet):
     model = Encounter
     policy_resource = "clinical.encounter"
@@ -69,6 +74,7 @@ class EncounterViewSet(ChartViewSetMixin, TenantModelViewSet):
             serializer.validated_data["practitioner"] = self.request.user
         super().perform_create(serializer)
 
+    @extend_schema(request=s.EncounterStatusSerializer, responses=s.EncounterSerializer)
     @action(detail=True, methods=["post"], url_path="status")
     def set_status(self, request, pk=None):
         encounter = self.get_object()
@@ -79,6 +85,7 @@ class EncounterViewSet(ChartViewSetMixin, TenantModelViewSet):
             self.audit_write(Action.UPDATE, encounter, ["status"])
         return Response(self.get_serializer(encounter).data)
 
+    @extend_schema(request=s.RankSerializer, responses=s.DiagnosisSerializer(many=True))
     @action(detail=True, methods=["post"], url_path="rank-diagnoses")
     def rank_diagnoses(self, request, pk=None):
         encounter = self.get_object()
@@ -90,6 +97,7 @@ class EncounterViewSet(ChartViewSetMixin, TenantModelViewSet):
         return Response(s.DiagnosisSerializer(ranked, many=True).data)
 
 
+@list_filters("patient", "encounter", "history")
 class VitalSignsViewSet(ChartViewSetMixin, TenantModelViewSet):
     model = VitalSignsModel
     policy_resource = "clinical.vitalsigns"
@@ -117,6 +125,7 @@ class VitalSignsViewSet(ChartViewSetMixin, TenantModelViewSet):
             self.audit_write(Action.CREATE, vitals, codes)
 
 
+@list_filters("patient", "encounter", "history", "current")
 class DiagnosisViewSet(ChartViewSetMixin, TenantModelViewSet):
     model = Diagnosis
     policy_resource = "clinical.diagnosis"
@@ -139,6 +148,7 @@ class DiagnosisViewSet(ChartViewSetMixin, TenantModelViewSet):
         super().perform_create(serializer)
 
 
+@list_filters("patient", "encounter", "history")
 class ConsultationNoteViewSet(ChartViewSetMixin, TenantModelViewSet):
     model = ConsultationNote
     policy_resource = "clinical.consultationnote"
@@ -153,6 +163,7 @@ class ConsultationNoteViewSet(ChartViewSetMixin, TenantModelViewSet):
         services.check_note_editable(serializer.instance)
         super().perform_update(serializer)
 
+    @extend_schema(request=None, responses=s.ConsultationNoteSerializer)
     @action(detail=True, methods=["post"])
     def close(self, request, pk=None):
         note = self.get_object()

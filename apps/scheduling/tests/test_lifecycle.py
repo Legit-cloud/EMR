@@ -331,3 +331,14 @@ def test_completed_consultation_bills_the_fee_once(
         }
     )
     assert InvoiceLine.all_tenants.count() == 1
+
+
+def test_blank_cancellation_reason_is_accepted_except_when_cancelling(desk, make_appointment):
+    """Clients may send cancellation_reason="" with any status change (the web app does)."""
+    appointment = make_appointment()
+    response = move(desk, appointment, "checked_in", cancellation_reason="")
+    assert response.status_code == 200, response.json()
+    other = make_appointment(start=at(1, 10))
+    response = move(desk, other, "cancelled", cancellation_reason="  ")
+    assert response.status_code == 400
+    assert "cancellation_reason" in response.json()["error"]["details"]

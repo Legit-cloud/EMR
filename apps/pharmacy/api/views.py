@@ -1,10 +1,12 @@
 from dataclasses import asdict
 
 from django.db import transaction
+from drf_spectacular.utils import extend_schema
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.core.api.mixins import TenantModelViewSet
+from apps.core.api.schema import list_filters
 from apps.core.policy import Action
 
 from .. import services
@@ -12,6 +14,7 @@ from ..models import Drug, Prescription, StockBatch
 from . import serializers as s
 
 
+@list_filters("q", "formulary")
 class DrugViewSet(TenantModelViewSet):
     """The formulary."""
 
@@ -30,6 +33,7 @@ class DrugViewSet(TenantModelViewSet):
         return queryset
 
 
+@list_filters("drug")
 class StockBatchViewSet(TenantModelViewSet):
     model = StockBatch
     policy_resource = "pharmacy.stockbatch"
@@ -42,6 +46,7 @@ class StockBatchViewSet(TenantModelViewSet):
         return queryset.filter(drug_id=drug) if drug else queryset
 
 
+@list_filters("patient", "encounter", "status")
 class PrescriptionViewSet(TenantModelViewSet):
     """Prescribing (draft, safety check, sign) and dispensing."""
 
@@ -70,12 +75,14 @@ class PrescriptionViewSet(TenantModelViewSet):
         serializer.validated_data["prescriber"] = self.request.user
         super().perform_create(serializer)
 
+    @extend_schema(request=None, responses=s.SafetyAlertSerializer(many=True))
     @action(detail=True, methods=["post"])
     def check(self, request, pk=None):
         """Preview the safety alerts of a draft without signing."""
         prescription = self.get_object()
         return Response([asdict(alert) for alert in services.check_safety(prescription)])
 
+    @extend_schema(request=s.AuthoriseSerializer, responses=s.PrescriptionSerializer)
     @action(detail=True, methods=["post"])
     def authorise(self, request, pk=None):
         prescription = self.get_object()
@@ -88,6 +95,7 @@ class PrescriptionViewSet(TenantModelViewSet):
             self.audit_write(Action.UPDATE, prescription, ["status", "signature"])
         return Response(self.get_serializer(prescription).data)
 
+    @extend_schema(responses=s.SignatureCheckSerializer)
     @action(detail=True, methods=["get"])
     def verify(self, request, pk=None):
         prescription = self.get_object()
@@ -99,6 +107,7 @@ class PrescriptionViewSet(TenantModelViewSet):
             }
         )
 
+    @extend_schema(request=s.DispenseSerializer, responses=s.PrescriptionSerializer)
     @action(detail=True, methods=["post"])
     def dispense(self, request, pk=None):
         prescription = self.get_object()
@@ -109,6 +118,7 @@ class PrescriptionViewSet(TenantModelViewSet):
             self.audit_write(Action.DISPENSE, prescription, sorted(data.validated_data["items"]))
         return Response(self.get_serializer(prescription).data)
 
+    @extend_schema(request=s.CancelSerializer, responses=s.PrescriptionSerializer)
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
         prescription = self.get_object()

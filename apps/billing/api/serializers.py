@@ -111,6 +111,16 @@ class ManualChargeSerializer(serializers.Serializer):
     idempotency_key = serializers.CharField(max_length=100, required=False)
 
 
+class ReconciliationSerializer(serializers.Serializer):
+    reconciled = serializers.BooleanField()
+    problems = serializers.ListField(child=serializers.CharField())
+
+
+class TrialBalanceSerializer(serializers.Serializer):
+    debits_minor = serializers.IntegerField()
+    credits_minor = serializers.IntegerField()
+
+
 class AccountSerializer(serializers.ModelSerializer):
     balance_minor = serializers.SerializerMethodField()
 

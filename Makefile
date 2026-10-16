@@ -42,3 +42,16 @@ up:
 
 down:
 	$(COMPOSE) down
+
+# Frontend (Node runs in containers; nothing to install on the host).
+NODE_IMAGE ?= node:22-bookworm-slim
+
+.PHONY: openapi e2e
+openapi:
+	$(COMPOSE) run --rm web python manage.py spectacular --validate --fail-on-warn --file frontend/openapi.yaml
+	docker run --rm -v "$(CURDIR)/frontend:/app" -w /app $(NODE_IMAGE) npm run gen:api
+
+e2e:
+	$(COMPOSE) --profile e2e up -d --build web worker frontend edge
+	$(COMPOSE) exec -T web python manage.py seed_e2e
+	$(COMPOSE) --profile e2e run --rm playwright

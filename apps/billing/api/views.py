@@ -1,11 +1,13 @@
 import uuid
 
 from django.db import transaction
+from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet
+from apps.core.api.schema import list_filters
 from apps.core.money import Money
 from apps.core.policy import Action
 
@@ -21,6 +23,7 @@ class InsurerViewSet(TenantModelViewSet):
     http_method_names = ["get", "post", "patch", "head", "options"]
 
 
+@list_filters("patient", "payment_status", "estate_review")
 class InvoiceViewSet(TenantReadOnlyViewSet):
     """Invoices are built from charges; billing staff set coverage and take payments."""
 
@@ -47,6 +50,7 @@ class InvoiceViewSet(TenantReadOnlyViewSet):
     def _respond(self, invoice):
         return Response(self.get_serializer(Invoice.objects.get(pk=invoice.pk)).data)
 
+    @extend_schema(request=s.CoverageSerializer, responses=s.InvoiceSerializer)
     @action(detail=True, methods=["post"])
     def coverage(self, request, pk=None):
         invoice = self.get_object()
@@ -61,6 +65,7 @@ class InvoiceViewSet(TenantReadOnlyViewSet):
             self.audit_write(Action.UPDATE, invoice, ["insurer", "insurer_coverage_bp"])
         return self._respond(invoice)
 
+    @extend_schema(request=s.PaymentRequestSerializer, responses={201: s.PaymentSerializer})
     @action(detail=True, methods=["post"])
     def pay(self, request, pk=None):
         invoice = self.get_object()
@@ -80,6 +85,7 @@ class InvoiceViewSet(TenantReadOnlyViewSet):
         body = s.PaymentSerializer(payment).data
         return Response(body, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=s.ManualChargeSerializer, responses={201: s.InvoiceLineSerializer})
     @action(detail=True, methods=["post"])
     def charge(self, request, pk=None):
         """A manual charge, such as a registration fee."""
@@ -103,6 +109,7 @@ class InvoiceViewSet(TenantReadOnlyViewSet):
         return Response(s.InvoiceLineSerializer(line).data, status=status.HTTP_201_CREATED)
 
 
+@list_filters("invoice")
 class PaymentViewSet(TenantReadOnlyViewSet):
     model = Payment
     policy_resource = "billing.payment"
@@ -127,11 +134,13 @@ class AccountViewSet(TenantReadOnlyViewSet):
         context["balances"] = ledger.balances(self.request.query_params.get("currency", "NGN"))
         return context
 
+    @extend_schema(responses=s.ReconciliationSerializer)
     @action(detail=False, methods=["get"])
     def reconcile(self, request):
         problems = services.reconcile(request.query_params.get("currency", "NGN"))
         return Response({"reconciled": not problems, "problems": problems})
 
+    @extend_schema(responses=s.TrialBalanceSerializer)
     @action(detail=False, methods=["get"], url_path="trial-balance")
     def trial_balance(self, request):
         debits, credits = ledger.trial_balance(request.query_params.get("currency", "NGN"))

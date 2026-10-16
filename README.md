@@ -10,8 +10,20 @@ Requires Docker. Optional: [uv](https://docs.astral.sh/uv/) and `make` to run to
 
 ```sh
 cp .env.example .env               # optional local overrides
-docker compose up --build          # web on :8000, Mailpit UI on :8026
-curl http://localhost:8000/healthz
+docker compose up --build          # app on :8080 (edge), API on :8000, Mailpit UI on :8026
+curl http://localhost:8080/healthz
+```
+
+Open http://localhost:8080 for the web app. For synthetic demo data (development only):
+`docker compose exec web python manage.py seed_demo_data --password <pw>`.
+
+## Frontend
+
+Next.js app in `frontend/`. Node runs in containers, so nothing needs installing.
+
+```sh
+make openapi   # after any API change: export the schema and regenerate the typed client
+make e2e       # browser tests (Playwright) against the compose stack, with fresh seed data
 ```
 
 ## Checks

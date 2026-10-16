@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction
 from django.db.models import Q
+from drf_spectacular.utils import extend_schema
 from rest_framework import serializers, status
 from rest_framework.decorators import action
 from rest_framework.parsers import FormParser, JSONParser, MultiPartParser
@@ -9,6 +10,8 @@ from rest_framework.response import Response
 
 from apps.core.api.exceptions import error_body
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet
+from apps.core.api.schema import list_filters
+from apps.core.api.serializers import EnteredInErrorSerializer
 from apps.core.models import RecordState
 from apps.core.policy import Action
 
@@ -35,10 +38,11 @@ class ChartViewSetMixin:
             queryset = queryset.filter(record_state=RecordState.ACTIVE)
         return queryset
 
+    @extend_schema(request=EnteredInErrorSerializer)
     @action(detail=True, methods=["post"], url_path="entered-in-error")
     def entered_in_error(self, request, pk=None):
         record = self.get_object()
-        data = s.EnteredInErrorSerializer(data=request.data)
+        data = EnteredInErrorSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         with transaction.atomic():
             services.mark_entered_in_error(record, data.validated_data["reason"])
@@ -46,6 +50,7 @@ class ChartViewSetMixin:
         return Response(self.get_serializer(record).data)
 
 
+@list_filters("q", "history")
 class PatientViewSet(ChartViewSetMixin, TenantModelViewSet):
     """Patient register. Registration may be held for duplicate review (409)."""
 
@@ -95,10 +100,11 @@ class PatientViewSet(ChartViewSetMixin, TenantModelViewSet):
             return Response(body, status=status.HTTP_409_CONFLICT)
         return Response(self.get_serializer(outcome).data, status=status.HTTP_201_CREATED)
 
+    @extend_schema(request=s.PatientStatusChangeSerializer, responses=s.PatientSerializer)
     @action(detail=True, methods=["post"], url_path="status")
     def set_status(self, request, pk=None):
         patient = self.get_object()
-        data = s.StatusChangeSerializer(data=request.data)
+        data = s.PatientStatusChangeSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         with transaction.atomic():
             try:
@@ -109,6 +115,7 @@ class PatientViewSet(ChartViewSetMixin, TenantModelViewSet):
         return Response(self.get_serializer(patient).data)
 
 
+@list_filters("patient", "history")
 class AllergyViewSet(ChartViewSetMixin, TenantModelViewSet):
     model = Allergy
     policy_resource = "patients.allergy"
@@ -120,6 +127,7 @@ class AllergyViewSet(ChartViewSetMixin, TenantModelViewSet):
         return queryset.filter(patient_id=patient) if patient else queryset
 
 
+@list_filters("patient", "history")
 class AttachmentViewSet(ChartViewSetMixin, TenantModelViewSet):
     """Files in private storage. Content is only reachable through a short-lived signed URL."""
 
@@ -135,6 +143,7 @@ class AttachmentViewSet(ChartViewSetMixin, TenantModelViewSet):
         patient = self.request.query_params.get("patient")
         return queryset.filter(patient_id=patient) if patient else queryset
 
+    @extend_schema(responses=s.AttachmentDownloadSerializer)
     @action(detail=True, methods=["get"])
     def download(self, request, pk=None):
         attachment = self.get_object()
@@ -148,6 +157,7 @@ class AttachmentViewSet(ChartViewSetMixin, TenantModelViewSet):
         )
 
 
+@list_filters("status")
 class DuplicateReviewViewSet(TenantReadOnlyViewSet):
     """Queue of registrations held as possible duplicates."""
 
@@ -161,6 +171,7 @@ class DuplicateReviewViewSet(TenantReadOnlyViewSet):
         review_status = self.request.query_params.get("status")
         return queryset.filter(status=review_status) if review_status else queryset
 
+    @extend_schema(request=s.ResolveReviewSerializer)
     @action(detail=True, methods=["post"])
     def resolve(self, request, pk=None):
         review = self.get_object()

@@ -170,10 +170,6 @@ class ConsultationNoteSerializer(CleanModelSerializer):
         return attrs
 
 
-class EnteredInErrorSerializer(serializers.Serializer):
-    reason = serializers.CharField(max_length=1000)
-
-
 class LoincCodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LoincCode

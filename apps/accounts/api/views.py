@@ -170,6 +170,7 @@ class BreakGlassGrantViewSet(TenantReadOnlyViewSet):
         review_status = self.request.query_params.get("review_status")
         return queryset.filter(review_status=review_status) if review_status else queryset
 
+    @extend_schema(request=s.BreakGlassReviewSerializer, responses=s.BreakGlassGrantSerializer)
     @action(detail=True, methods=["post"])
     def review(self, request, pk=None):
         grant = self.get_object()
@@ -199,6 +200,7 @@ class UserViewSet(TenantModelViewSet):
             self.audit_write(Action.CREATE, user, sorted(serializer.validated_data))
             transaction.on_commit(lambda: services.invite_user(user))
 
+    @extend_schema(request=None, responses=s.UserSerializer)
     @action(detail=True, methods=["post"])
     def deactivate(self, request, pk=None):
         user = self.get_object()

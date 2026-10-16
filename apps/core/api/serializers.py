@@ -40,3 +40,9 @@ def _as_detail(exc: DjangoValidationError):
             for field, messages in exc.message_dict.items()
         }
     return {"non_field_errors": exc.messages}
+
+
+class EnteredInErrorSerializer(serializers.Serializer):
+    """Request body of every Entered-in-Error action."""
+
+    reason = serializers.CharField(max_length=1000)

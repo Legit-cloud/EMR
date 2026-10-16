@@ -12,6 +12,9 @@ x-app: &app
     DATABASE_URL: postgres://emr:emr@db:5432/emr
     REDIS_URL: redis://redis:6379/0
     EMAIL_URL: smtp://mailpit:1025
+    # The browser reaches Django through the edge proxy (http://localhost:8080 or http://edge).
+    ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0,web,edge
+    CSRF_TRUSTED_ORIGINS: http://localhost:8080,http://edge
   volumes:
     - .:/app
   depends_on:
@@ -57,6 +60,39 @@ services:
       timeout: 3s
       retries: 10
 
+  # Next.js app (production build).
+  frontend:
+    build: ./frontend
+    image: emr-frontend
+    depends_on:
+      - web
+
+  # One origin for the browser: /api, /ws, /admin to Django, everything else to Next.js.
+  edge:
+    image: nginx:1.27-alpine
+    volumes:
+      - ./deploy/edge/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "${EDGE_PORT:-8080}:80"
+    depends_on:
+      - web
+      - frontend
+
+  # Browser tests: `make e2e`.
+  playwright:
+    image: mcr.microsoft.com/playwright:v1.64.1-noble
+    profiles: ["e2e"]
+    working_dir: /work
+    environment:
+      BASE_URL: http://edge
+      CI: "1"
+    volumes:
+      - ./frontend:/work
+      - playwright-node-modules:/work/node_modules
+    command: sh -c "npm ci --no-audit --no-fund && npx playwright test"
+    depends_on:
+      - edge
+
   mailpit:
     image: axllent/mailpit:v1.27
     ports:
@@ -64,3 +100,4 @@ services:
 
 volumes:
   pgdata:
+  playwright-node-modules:

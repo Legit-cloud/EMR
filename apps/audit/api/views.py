@@ -1,4 +1,5 @@
 from apps.core.api.mixins import TenantReadOnlyViewSet
+from apps.core.api.schema import list_filters
 from apps.core.tenancy import get_current_tenant_id
 
 from ..models import AuditEntry
@@ -7,6 +8,7 @@ from .serializers import AuditEntrySerializer
 FILTERS = ("actor_id", "action", "outcome", "resource", "object_id")
 
 
+@list_filters("actor_id", "action", "outcome", "resource", "object_id")
 class AuditEntryViewSet(TenantReadOnlyViewSet):
     """Read-only audit log of the current tenant for compliance review."""
 

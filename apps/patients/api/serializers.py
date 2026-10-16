@@ -72,13 +72,9 @@ class PatientSerializer(serializers.ModelSerializer):
         return value
 
 
-class StatusChangeSerializer(serializers.Serializer):
+class PatientStatusChangeSerializer(serializers.Serializer):
     status = serializers.ChoiceField(choices=PatientStatus.choices)
     deceased_at = serializers.DateField(required=False, allow_null=True)
-
-
-class EnteredInErrorSerializer(serializers.Serializer):
-    reason = serializers.CharField(max_length=1000)
 
 
 class AllergySerializer(serializers.ModelSerializer):
@@ -172,6 +168,13 @@ class DuplicateReviewSerializer(serializers.ModelSerializer):
             "created_patient",
         ]
         read_only_fields = fields
+
+
+class AttachmentDownloadSerializer(serializers.Serializer):
+    url = serializers.CharField()
+    expires_in = serializers.IntegerField()
+    content_type = serializers.CharField()
+    original_name = serializers.CharField()
 
 
 class ResolveReviewSerializer(serializers.Serializer):

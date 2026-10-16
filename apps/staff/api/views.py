@@ -8,6 +8,7 @@ from rest_framework.views import APIView
 
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet
 from apps.core.api.permissions import TenantUserPermission
+from apps.core.api.schema import list_filters
 from apps.core.policy import Action
 
 from .. import services
@@ -15,6 +16,7 @@ from ..models import Shift, StaffProfile
 from . import serializers as s
 
 
+@list_filters("staff_type", "licence_flag")
 class StaffProfileViewSet(TenantModelViewSet):
     """Staff directory and licence records. HR and tenant admins maintain them."""
 
@@ -34,6 +36,7 @@ class StaffProfileViewSet(TenantModelViewSet):
             queryset = queryset.filter(licence_flag=params["licence_flag"])
         return queryset
 
+    @extend_schema(request=s.LicenceVerificationSerializer, responses=s.StaffProfileSerializer)
     @action(detail=True, methods=["post"], url_path="verify-licence")
     def verify_licence(self, request, pk=None):
         profile = self.get_object()
