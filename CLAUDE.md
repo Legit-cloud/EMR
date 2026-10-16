@@ -24,6 +24,7 @@
 - **These checks, never more:** backend (1) `ruff` (lint and format check) and (2) `pytest`; frontend (3) ESLint plus a Prettier check and (4) Vitest. Playwright browser tests run on demand (`make e2e`), not in `make check`. Do not add mypy, import-linter, pip-audit, coverage gates, Dependabot or any other check or gate. Rules that would need a tool (module boundaries, migration drift) are written as ordinary pytest tests instead.
 - Run `make check` before saying a task is done. If something cannot be verified, say so plainly.
 - Prefer boring, standard Django. Do not add a dependency without stating why in the pull request.
+- All UI work follows `docs/DESIGN.md`. Use the tokens; never hard-code colours, sizes or fonts.
 
 ---
 

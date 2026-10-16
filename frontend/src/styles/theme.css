@@ -1,0 +1,113 @@
+/*
+ * Tailwind names for the tokens in tokens.css (docs/DESIGN.md Sections 3, 4 and 10).
+ * `inline` makes each utility read the token variable directly, so values live only in
+ * tokens.css. Tailwind's default palette stays available for the Release 1 screens until
+ * they are rebuilt; new UI uses only the names below.
+ */
+@theme inline {
+  --color-blue-50: var(--blue-50);
+  --color-blue-100: var(--blue-100);
+  --color-blue-500: var(--blue-500);
+  --color-blue-600: var(--blue-600);
+  --color-blue-700: var(--blue-700);
+  --color-sky-400: var(--sky-400);
+
+  --color-ink-900: var(--ink-900);
+  --color-ink-600: var(--ink-600);
+  --color-ink-500: var(--ink-500);
+  --color-ink-400: var(--ink-400);
+  --color-ink-300: var(--ink-300);
+  --color-line: var(--line);
+  --color-canvas: var(--canvas);
+  --color-sidebar: var(--sidebar);
+  --color-surface: var(--surface);
+  --color-surface-muted: var(--surface-muted);
+  --color-disabled-fill: var(--disabled-fill);
+  --color-pill-grey: var(--pill-grey);
+
+  --color-green: var(--green);
+  --color-green-tint: var(--green-tint);
+  --color-green-text: var(--green-text);
+  --color-green-btn: var(--green-btn);
+  --color-amber: var(--amber);
+  --color-amber-tint: var(--amber-tint);
+  --color-amber-text: var(--amber-text);
+  --color-amber-strip: var(--amber-strip);
+  --color-pink: var(--pink);
+  --color-pink-tint: var(--pink-tint);
+  --color-pink-text: var(--pink-text);
+  --color-sky: var(--sky);
+  --color-sky-tint: var(--sky-tint);
+  --color-sky-text: var(--sky-text);
+  --color-purple: var(--purple);
+  --color-purple-tint: var(--purple-tint);
+  --color-purple-text: var(--purple-text);
+  --color-teal: var(--teal);
+  --color-teal-tint: var(--teal-tint);
+  --color-teal-text: var(--teal-text);
+  --color-now-line: var(--now-line);
+
+  --color-chart-income: var(--chart-income);
+  --color-chart-expense: var(--chart-expense);
+  --color-chart-out: var(--chart-out);
+  --color-chart-orange: var(--chart-orange);
+  --color-chart-lime: var(--chart-lime);
+  --color-chart-sky: var(--chart-sky);
+  --color-chart-grid: var(--chart-grid);
+
+  --radius-pill: var(--r-pill);
+  --radius-card: var(--r-card);
+  --radius-modal: var(--r-modal);
+  --radius-control: var(--r-control);
+  --radius-tag: var(--r-tag);
+  --radius-cal: var(--r-cal);
+
+  /* Type scale (Section 3): size / line height / weight. Caps styles also need `uppercase`. */
+  --text-display: 28px;
+  --text-display--line-height: 36px;
+  --text-display--font-weight: 700;
+  --text-page-title: 20px;
+  --text-page-title--line-height: 28px;
+  --text-page-title--font-weight: 700;
+  --text-card-title: 15px;
+  --text-card-title--line-height: 22px;
+  --text-card-title--font-weight: 600;
+  --text-kpi: 24px;
+  --text-kpi--line-height: 32px;
+  --text-kpi--font-weight: 700;
+  --text-kpi-sm: 20px;
+  --text-kpi-sm--line-height: 28px;
+  --text-kpi-sm--font-weight: 700;
+  --text-body: 14px;
+  --text-body--line-height: 22px;
+  --text-body--font-weight: 500;
+  --text-body-regular: 14px;
+  --text-body-regular--line-height: 22px;
+  --text-body-regular--font-weight: 400;
+  --text-small: 12.5px;
+  --text-small--line-height: 18px;
+  --text-small--font-weight: 500;
+  --text-label-caps: 11px;
+  --text-label-caps--line-height: 16px;
+  --text-label-caps--font-weight: 600;
+  --text-label-caps--letter-spacing: 0.04em;
+  --text-pill: 10.5px;
+  --text-pill--line-height: 14px;
+  --text-pill--font-weight: 700;
+}
+
+/* The token names collide with Tailwind's shadow and font variables, so these are plain utilities. */
+@utility shadow-card {
+  box-shadow: var(--shadow-card);
+}
+@utility shadow-pop {
+  box-shadow: var(--shadow-pop);
+}
+@utility shadow-modal {
+  box-shadow: var(--shadow-modal);
+}
+
+/* Tabular figures for tables, KPIs, vitals and money. */
+@utility tnum {
+  font-variant-numeric: tabular-nums;
+}

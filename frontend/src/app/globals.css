@@ -1,13 +1,15 @@
 @import "tailwindcss";
 @import "../styles/tokens.css";
+@import "../styles/theme.css";
 
 :root {
   color-scheme: light;
 }
 
 body {
-  background: #f8fafc;
-  color: #0f172a;
+  background: var(--canvas);
+  color: var(--ink-900);
+  font-family: var(--font-sans);
 }
 
 @media (prefers-reduced-motion: reduce) {

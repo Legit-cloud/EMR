@@ -1,6 +1,71 @@
 /*
- * Design tokens from docs/DESIGN.md Section 10 (filled in by F1).
- * Components use these tokens only: no raw hex values anywhere else.
+ * Design tokens from docs/DESIGN.md Section 10. This is the only place colour, shadow and
+ * font values live: components use the Tailwind names mapped in theme.css, never raw values.
+ * Change a value here and in docs/DESIGN.md in the same pull request.
  */
 :root {
+  /* brand */
+  --blue-50: #eef2fe;
+  --blue-100: #e8f0fb;
+  --blue-500: #5470ea;
+  --blue-600: #3f5de7;
+  --blue-700: #2d45c9;
+  --sky-400: #63b1ff;
+  /* ink */
+  --ink-900: #243444;
+  --ink-600: #5b6b7f;
+  --ink-500: #627184;
+  --ink-400: #8a97a8;
+  --ink-300: #c5cdd8;
+  --line: #e6eaf1;
+  --canvas: #f4f6fa;
+  --sidebar: #f5f7fb;
+  --surface: #ffffff;
+  --surface-muted: #f8fafc;
+  --disabled-fill: #e3e6ec;
+  --pill-grey: #edeff3;
+  /* accents: solid / tint / text-safe */
+  --green: #45b787;
+  --green-tint: #e5f6ee;
+  --green-text: #187a50;
+  --green-btn: #1c855d;
+  --amber: #f9bd21;
+  --amber-tint: #fff4d6;
+  --amber-text: #855400;
+  --amber-strip: #fff3bd;
+  --pink: #e75787;
+  --pink-tint: #fde9f0;
+  --pink-text: #b8325f;
+  --sky: #63b1ff;
+  --sky-tint: #e6f1ff;
+  --sky-text: #1b63be;
+  --purple: #9969f9;
+  --purple-tint: #f0ebfe;
+  --purple-text: #6b46d6;
+  --teal: #15cfcf;
+  --teal-tint: #e0f8f8;
+  --teal-text: #0b7a80;
+  --now-line: #e5484d;
+  /* chart */
+  --chart-income: #8dcf99;
+  --chart-expense: #ffb709;
+  --chart-out: #fe3d70;
+  --chart-orange: #f26a1b;
+  --chart-lime: #99e76f;
+  --chart-sky: #33b1f3;
+  --chart-grid: #d5dbe5;
+  /* shape */
+  --r-pill: 999px;
+  --r-card: 14px;
+  --r-modal: 16px;
+  --r-control: 10px;
+  --r-tag: 6px;
+  --r-cal: 8px;
+  --shadow-card: 0 1px 2px rgba(36, 52, 68, 0.04), 0 6px 20px rgba(36, 52, 68, 0.05);
+  --shadow-pop: 0 8px 28px rgba(36, 52, 68, 0.12);
+  --shadow-modal: 0 16px 48px rgba(36, 52, 68, 0.18);
+  --scrim: rgba(36, 52, 68, 0.45);
+  /* Manrope is loaded by next/font, which exposes it as --font-manrope (src/app/layout.tsx). */
+  --font-sans: var(--font-manrope), "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", Menlo, monospace;
 }
