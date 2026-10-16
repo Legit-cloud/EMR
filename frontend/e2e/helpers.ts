@@ -12,6 +12,7 @@ export type Seed = {
   patient: { id: string; name: string; mrn: string };
   queued_appointment_id: string;
   queued_patient: string;
+  queued_patient_id: string;
   encounter_id: string;
   invoice_id: string;
   booking_date: string;

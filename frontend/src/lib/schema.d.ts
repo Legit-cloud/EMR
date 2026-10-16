@@ -2026,6 +2026,138 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tenants/departments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["tenants_departments_list"];
+        put?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        post: operations["tenants_departments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenants/departments/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["tenants_departments_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        patch: operations["tenants_departments_partial_update"];
+        trace?: never;
+    };
+    "/api/tenants/facilities/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
+        get: operations["tenants_facilities_list"];
+        put?: never;
+        /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
+        post: operations["tenants_facilities_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tenants/facilities/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
+        get: operations["tenants_facilities_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
+        patch: operations["tenants_facilities_partial_update"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -2416,6 +2548,30 @@ export interface components {
          *     Business rules that live on the model (status transitions, cross-field checks,
          *     constraints) then apply to API writes exactly as they do in services.
          */
+        Department: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            facility: string;
+            name: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        DepartmentRequest: {
+            /** Format: uuid */
+            facility: string;
+            name: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
         Diagnosis: {
             /** Format: uuid */
             readonly id: string;
@@ -2611,6 +2767,28 @@ export interface components {
         /** @description Request body of every Entered-in-Error action. */
         EnteredInErrorRequest: {
             reason: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Facility: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            code: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        FacilityRequest: {
+            name: string;
+            code: string;
         };
         /**
          * @description * `tablet` - Tablet
@@ -2985,6 +3163,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["ConsultationNote"][];
         };
+        PaginatedDepartmentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Department"][];
+        };
         PaginatedDiagnosisList: {
             /** @example 123 */
             count: number;
@@ -3044,6 +3237,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Encounter"][];
+        };
+        PaginatedFacilityList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Facility"][];
         };
         PaginatedIcd10CodeList: {
             /** @example 123 */
@@ -3320,6 +3528,17 @@ export interface components {
          *     Business rules that live on the model (status transitions, cross-field checks,
          *     constraints) then apply to API writes exactly as they do in services.
          */
+        PatchedDepartmentRequest: {
+            /** Format: uuid */
+            facility?: string;
+            name?: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
         PatchedDiagnosisRequest: {
             /** Format: uuid */
             encounter?: string;
@@ -3375,6 +3594,16 @@ export interface components {
             reason?: string;
             /** Format: uuid */
             appointment_id?: string | null;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        PatchedFacilityRequest: {
+            name?: string;
+            code?: string;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -4847,6 +5076,8 @@ export interface operations {
             query?: {
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Search text. */
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -6879,6 +7110,197 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Shift"];
+                };
+            };
+        };
+    };
+    tenants_departments_list: {
+        parameters: {
+            query?: {
+                facility?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDepartmentList"];
+                };
+            };
+        };
+    };
+    tenants_departments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DepartmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DepartmentRequest"];
+                "multipart/form-data": components["schemas"]["DepartmentRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Department"];
+                };
+            };
+        };
+    };
+    tenants_departments_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Department"];
+                };
+            };
+        };
+    };
+    tenants_departments_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedDepartmentRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedDepartmentRequest"];
+                "multipart/form-data": components["schemas"]["PatchedDepartmentRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Department"];
+                };
+            };
+        };
+    };
+    tenants_facilities_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFacilityList"];
+                };
+            };
+        };
+    };
+    tenants_facilities_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FacilityRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FacilityRequest"];
+                "multipart/form-data": components["schemas"]["FacilityRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Facility"];
+                };
+            };
+        };
+    };
+    tenants_facilities_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Facility"];
+                };
+            };
+        };
+    };
+    tenants_facilities_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFacilityRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFacilityRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFacilityRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Facility"];
                 };
             };
         };

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 
 export function Button({
   children,
@@ -172,5 +172,89 @@ export function Loading({ label = "Loading" }: { label?: string }) {
     <p role="status" className="text-slate-600">
       {label}…
     </p>
+  );
+}
+
+export function TextArea({
+  label,
+  error,
+  hint,
+  ...props
+}: React.ComponentProps<"textarea"> & { label: string; error?: string; hint?: string }) {
+  const id = useId();
+  const describedBy = [error ? `${id}-error` : "", hint ? `${id}-hint` : ""].join(" ").trim();
+  return (
+    <div className="flex flex-col gap-1">
+      <label htmlFor={id} className="text-sm font-medium text-slate-800">
+        {label}
+      </label>
+      <textarea
+        id={id}
+        rows={3}
+        {...props}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={describedBy || undefined}
+        className={`rounded-md border px-3 py-2 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${error ? "border-red-600" : "border-slate-300"}`}
+      />
+      {hint && (
+        <p id={`${id}-hint`} className="text-xs text-slate-600">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={`${id}-error`} className="text-sm text-red-700">
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** Asks for a reason before an action that needs one (Entered-in-Error, refusals). */
+export function ReasonDialog({
+  open,
+  title,
+  explanation,
+  confirmLabel,
+  onClose,
+  onConfirm,
+}: {
+  open: boolean;
+  title: string;
+  explanation: string;
+  confirmLabel: string;
+  onClose: () => void;
+  onConfirm: (reason: string) => Promise<string | null>;
+}) {
+  const [reason, setReason] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!open) {
+      setReason("");
+      setError(null);
+    }
+  }, [open]);
+  return (
+    <Dialog open={open} title={title} onClose={onClose}>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={async (event) => {
+          event.preventDefault();
+          setError(await onConfirm(reason));
+        }}
+      >
+        <p className="text-sm text-slate-700">{explanation}</p>
+        {error && <Notice tone="error" title={error} />}
+        <TextArea label="Reason" required value={reason} onChange={(e) => setReason(e.target.value)} />
+        <div className="flex justify-end gap-2">
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
+          <Button type="submit" variant="danger" disabled={!reason.trim()}>
+            {confirmLabel}
+          </Button>
+        </div>
+      </form>
+    </Dialog>
   );
 }

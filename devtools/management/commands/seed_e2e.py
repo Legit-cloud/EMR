@@ -212,6 +212,7 @@ class Command(BaseCommand):
             "patient": {"id": str(ngozi.pk), "name": "Ngozi Eze", "mrn": ngozi.mrn},
             "queued_appointment_id": str(queued.pk),
             "queued_patient": "Bisi Lawal",
+            "queued_patient_id": str(bisi.pk),
             "encounter_id": str(encounter.pk),
             "invoice_id": str(invoice.pk),
             "booking_date": tomorrow.isoformat(),

@@ -1186,6 +1186,11 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
       tags:
       - clinical
       security:
@@ -3870,6 +3875,282 @@ paths:
               schema:
                 $ref: '#/components/schemas/Shift'
           description: ''
+  /api/tenants/departments/:
+    get:
+      operationId: tenants_departments_list
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      parameters:
+      - in: query
+        name: facility
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - tenants
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDepartmentList'
+          description: ''
+    post:
+      operationId: tenants_departments_create
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/tenants/departments/{id}/:
+    get:
+      operationId: tenants_departments_retrieve
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - tenants
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+    patch:
+      operationId: tenants_departments_partial_update
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDepartmentRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Department'
+          description: ''
+  /api/tenants/facilities/:
+    get:
+      operationId: tenants_facilities_list
+      description: Sites of the organisation. Tenant admins maintain them; all staff
+        can list them.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - tenants
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFacilityList'
+          description: ''
+    post:
+      operationId: tenants_facilities_create
+      description: Sites of the organisation. Tenant admins maintain them; all staff
+        can list them.
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FacilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FacilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FacilityRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facility'
+          description: ''
+  /api/tenants/facilities/{id}/:
+    get:
+      operationId: tenants_facilities_retrieve
+      description: Sites of the organisation. Tenant admins maintain them; all staff
+        can list them.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - tenants
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facility'
+          description: ''
+    patch:
+      operationId: tenants_facilities_partial_update
+      description: Sites of the organisation. Tenant admins maintain them; all staff
+        can list them.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - tenants
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFacilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFacilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFacilityRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Facility'
+          description: ''
 components:
   schemas:
     Account:
@@ -4714,6 +4995,46 @@ components:
         * `created_new` - created_new
         * `duplicate` - duplicate
         * `rejected` - rejected
+    Department:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 200
+      required:
+      - facility
+      - id
+      - name
+    DepartmentRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - facility
+      - name
     Diagnosis:
       type: object
       description: |-
@@ -5152,6 +5473,49 @@ components:
           maxLength: 1000
       required:
       - reason
+    Facility:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        code:
+          type: string
+          maxLength: 32
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - code
+      - id
+      - name
+    FacilityRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        code:
+          type: string
+          minLength: 1
+          maxLength: 32
+          pattern: ^[-a-zA-Z0-9_]+$
+      required:
+      - code
+      - name
     FormEnum:
       enum:
       - tablet
@@ -5926,6 +6290,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/ConsultationNote'
+    PaginatedDepartmentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Department'
     PaginatedDiagnosisList:
       type: object
       required:
@@ -6018,6 +6405,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Encounter'
+    PaginatedFacilityList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Facility'
     PaginatedIcd10CodeList:
       type: object
       required:
@@ -6450,6 +6860,21 @@ components:
           type: string
           format: uuid
           nullable: true
+    PatchedDepartmentRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
     PatchedDiagnosisRequest:
       type: object
       description: |-
@@ -6566,6 +6991,23 @@ components:
           type: string
           format: uuid
           nullable: true
+    PatchedFacilityRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        code:
+          type: string
+          minLength: 1
+          maxLength: 32
+          pattern: ^[-a-zA-Z0-9_]+$
     PatchedInsurerRequest:
       type: object
       description: |-

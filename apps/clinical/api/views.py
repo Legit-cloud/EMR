@@ -7,7 +7,7 @@ from rest_framework.response import Response
 
 from apps.core.api.mixins import TenantModelViewSet
 from apps.core.api.permissions import TenantUserPermission
-from apps.core.api.schema import list_filters
+from apps.core.api.schema import list_filters, query
 from apps.core.api.serializers import EnteredInErrorSerializer
 from apps.core.models import RecordState
 from apps.core.policy import Action
@@ -182,6 +182,7 @@ class LoincCodeList(generics.ListAPIView):
     pagination_class = None
 
 
+@extend_schema(parameters=[query("q")])
 class Icd10CodeList(generics.ListAPIView):
     """Reference data: ICD-10 code search (``?q=``). No tenant data."""
 
