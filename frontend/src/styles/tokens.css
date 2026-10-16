@@ -11,6 +11,7 @@
   --blue-600: #3f5de7;
   --blue-700: #2d45c9;
   --sky-400: #63b1ff;
+  --logo-start: #7babff;
   /* ink */
   --ink-900: #243444;
   --ink-600: #5b6b7f;
@@ -24,6 +25,10 @@
   --surface-muted: #f8fafc;
   --disabled-fill: #e3e6ec;
   --pill-grey: #edeff3;
+  /* control fills named in DESIGN.md Section 7 */
+  --nav-hover: #edf1f8;
+  --search-fill: #eef1f6;
+  --skeleton: #edf0f5;
   /* accents: solid / tint / text-safe */
   --green: #45b787;
   --green-tint: #e5f6ee;
@@ -61,6 +66,7 @@
   --r-control: 10px;
   --r-tag: 6px;
   --r-cal: 8px;
+  --r-menu: 12px;
   --shadow-card: 0 1px 2px rgba(36, 52, 68, 0.04), 0 6px 20px rgba(36, 52, 68, 0.05);
   --shadow-pop: 0 8px 28px rgba(36, 52, 68, 0.12);
   --shadow-modal: 0 16px 48px rgba(36, 52, 68, 0.18);

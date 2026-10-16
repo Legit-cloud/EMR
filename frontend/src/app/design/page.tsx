@@ -49,7 +49,10 @@ const SHADOWS = [
 const COLOUR_GROUPS = [
   {
     title: "Brand, ink and surfaces",
-    match: (n: string) => /^(blue|sky-400|ink|line|canvas|sidebar|surface|disabled|pill)/.test(n),
+    match: (n: string) =>
+      /^(blue|sky-400|logo|ink|line|canvas|sidebar|surface|disabled|pill|nav|search|skeleton)/.test(
+        n,
+      ),
   },
   {
     title: "Accents",

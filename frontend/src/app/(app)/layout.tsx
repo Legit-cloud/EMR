@@ -1,52 +1,69 @@
 "use client";
 
-import Link from "next/link";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 
+import { AppShell } from "@/components/layout/app-shell";
+import { PageContainer } from "@/components/layout/page-container";
+import type { Facility } from "@/components/layout/sidebar";
 import { Loading } from "@/components/legacy-ui";
 import { api } from "@/lib/api";
-import { SessionContext, type Me } from "@/lib/session";
+import { SessionContext } from "@/lib/session";
 
-// Every signed-in user sees the same menu; each page shows "no access" when the API refuses.
-const NAV = [
-  { href: "/patients", label: "Patients" },
-  { href: "/schedule", label: "Schedule" },
-  { href: "/queue", label: "Queue" },
-  { href: "/pharmacy", label: "Pharmacy" },
-  { href: "/registrations", label: "Registrations" },
-  { href: "/billing", label: "Billing" },
-  // /admin is the Django admin behind the edge proxy, so the app uses /manage.
-  { href: "/manage", label: "Admin" },
-  { href: "/compliance", label: "Compliance" },
-];
+const FACILITY_KEY = "emr.facility";
+
+function storedFacility(): string | null {
+  try {
+    return window.localStorage.getItem(FACILITY_KEY);
+  } catch {
+    return null;
+  }
+}
+
+function storeFacility(id: string): void {
+  try {
+    window.localStorage.setItem(FACILITY_KEY, id);
+  } catch {
+    // Storage can be blocked; the choice then lasts for this visit only.
+  }
+}
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
-  const [me, setMe] = useState<Me | null>(null);
+  const queryClient = useQueryClient();
 
+  const me = useQuery({
+    queryKey: ["me"],
+    queryFn: async () => {
+      const { data, response } = await api.GET("/api/accounts/auth/me/");
+      return response.ok && data ? data : null;
+    },
+    staleTime: 5 * 60_000,
+  });
+  const facilities = useQuery({
+    queryKey: ["facilities"],
+    queryFn: async () => (await api.GET("/api/tenants/facilities/")).data?.results ?? [],
+    enabled: !!me.data,
+    staleTime: 5 * 60_000,
+  });
+  // The facility shown in the switcher, remembered in this browser. Records are not
+  // filtered by it yet: the API has no "current facility" setting.
+  const [facilityId, setFacilityId] = useState(storedFacility);
+
+  const signedOut = me.isSuccess && me.data === null;
   useEffect(() => {
-    let cancelled = false;
-    api.GET("/api/accounts/auth/me/").then(({ data, response }) => {
-      if (cancelled) return;
-      if (response.status === 401 || response.status === 403 || !data) {
-        router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-        return;
-      }
-      setMe(data);
-    });
-    return () => {
-      cancelled = true;
-    };
-  }, [router, pathname]);
+    if (signedOut) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+  }, [signedOut, router, pathname]);
 
   async function signOut() {
     await api.POST("/api/accounts/auth/logout/");
+    queryClient.clear();
     router.replace("/login");
   }
 
-  if (!me) {
+  if (!me.data) {
     return (
       <main className="p-6">
         <Loading label="Checking your session" />
@@ -54,49 +71,27 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     );
   }
 
+  const list: Facility[] = facilities.data ?? [];
+  const current = list.find((f) => f.id === facilityId) ?? list[0] ?? null;
+  const name =
+    [me.data.first_name, me.data.last_name].filter(Boolean).join(" ") || me.data.username;
+
   return (
-    <SessionContext.Provider value={me}>
-      <a
-        href="#main"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:p-2"
+    <SessionContext.Provider value={me.data}>
+      <AppShell
+        user={{ name, roles: me.data.roles }}
+        facility={{
+          facilities: list,
+          current,
+          onSelect: (f) => {
+            storeFacility(f.id);
+            setFacilityId(f.id);
+          },
+        }}
+        onSignOut={signOut}
       >
-        Skip to content
-      </a>
-      <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-          <span className="text-lg font-semibold text-teal-800">EMR</span>
-          <nav aria-label="Main" className="flex flex-wrap gap-1">
-            {NAV.map((item) => {
-              const current = pathname.startsWith(item.href);
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  aria-current={current ? "page" : undefined}
-                  className={`rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 ${current ? "bg-teal-50 text-teal-900" : "text-slate-700 hover:bg-slate-100"}`}
-                >
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-          <div className="ml-auto flex items-center gap-3 text-sm">
-            <span data-testid="signed-in-user">
-              {[me.first_name, me.last_name].filter(Boolean).join(" ") || me.username}
-            </span>
-            <button
-              type="button"
-              onClick={signOut}
-              className="min-h-11 rounded-md px-3 text-slate-700 hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600"
-            >
-              Sign out
-            </button>
-          </div>
-        </div>
-      </header>
-      <main id="main" className="mx-auto max-w-6xl p-4">
-        {children}
-      </main>
+        <PageContainer>{children}</PageContainer>
+      </AppShell>
     </SessionContext.Provider>
   );
 }

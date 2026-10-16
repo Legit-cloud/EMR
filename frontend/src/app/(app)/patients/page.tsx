@@ -1,14 +1,29 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useState } from "react";
 
 import { Field, Loading, NoAccess } from "@/components/legacy-ui";
 import { api, type Schemas } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
 export default function PatientsPage() {
-  const [query, setQuery] = useState("");
+  return (
+    <Suspense fallback={<Loading />}>
+      <PatientsFromSearch />
+    </Suspense>
+  );
+}
+
+/** The top bar search opens this page with ?search=; a new search starts a fresh list. */
+function PatientsFromSearch() {
+  const search = useSearchParams().get("search") ?? "";
+  return <PatientList key={search} initialQuery={search} />;
+}
+
+function PatientList({ initialQuery }: { initialQuery: string }) {
+  const [query, setQuery] = useState(initialQuery);
   const [patients, setPatients] = useState<Schemas["Patient"][] | null>(null);
   const [forbidden, setForbidden] = useState(false);
 

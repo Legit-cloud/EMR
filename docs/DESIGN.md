@@ -307,11 +307,12 @@ WCAG 2.2 AA. Text colours only from the text-safe shades. Status is never colour
 :root {
   /* brand */
   --blue-50:#EEF2FE; --blue-100:#E8F0FB; --blue-500:#5470EA; --blue-600:#3F5DE7; --blue-700:#2D45C9;
-  --sky-400:#63B1FF;
+  --sky-400:#63B1FF; --logo-start:#7BABFF; /* logo gradient start, Sections 2.6 and 9 */
   /* ink */
   --ink-900:#243444; --ink-600:#5B6B7F; --ink-500:#627184; --ink-400:#8A97A8; --ink-300:#C5CDD8;
   --line:#E6EAF1; --canvas:#F4F6FA; --sidebar:#F5F7FB; --surface:#FFFFFF; --surface-muted:#F8FAFC;
   --disabled-fill:#E3E6EC; --pill-grey:#EDEFF3;
+  --nav-hover:#EDF1F8; --search-fill:#EEF1F6; --skeleton:#EDF0F5; /* fills from Section 7 */
   /* accents: solid / tint / text-safe */
   --green:#45B787;  --green-tint:#E5F6EE;  --green-text:#187A50; --green-btn:#1C855D;
   --amber:#F9BD21;  --amber-tint:#FFF4D6;  --amber-text:#855400; --amber-strip:#FFF3BD;
@@ -324,7 +325,7 @@ WCAG 2.2 AA. Text colours only from the text-safe shades. Status is never colour
   --chart-income:#8DCF99; --chart-expense:#FFB709; --chart-out:#FE3D70; --chart-orange:#F26A1B;
   --chart-lime:#99E76F; --chart-sky:#33B1F3; --chart-grid:#D5DBE5;
   /* shape */
-  --r-pill:999px; --r-card:14px; --r-modal:16px; --r-control:10px; --r-tag:6px; --r-cal:8px;
+  --r-pill:999px; --r-card:14px; --r-modal:16px; --r-control:10px; --r-tag:6px; --r-cal:8px; --r-menu:12px;
   --shadow-card:0 1px 2px rgba(36,52,68,.04),0 6px 20px rgba(36,52,68,.05);
   --shadow-pop:0 8px 28px rgba(36,52,68,.12);
   --shadow-modal:0 16px 48px rgba(36,52,68,.18);

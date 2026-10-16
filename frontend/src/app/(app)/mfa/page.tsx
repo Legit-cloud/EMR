@@ -25,7 +25,7 @@ export default function MfaSetupPage() {
       body: { token: code },
     });
     if (failure) return setError("That code is not valid. Try the current code.");
-    router.replace("/patients");
+    router.replace("/dashboard");
   }
 
   return (

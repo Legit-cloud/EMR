@@ -24,6 +24,9 @@
   --color-surface-muted: var(--surface-muted);
   --color-disabled-fill: var(--disabled-fill);
   --color-pill-grey: var(--pill-grey);
+  --color-nav-hover: var(--nav-hover);
+  --color-search-fill: var(--search-fill);
+  --color-skeleton: var(--skeleton);
 
   --color-green: var(--green);
   --color-green-tint: var(--green-tint);
@@ -46,6 +49,7 @@
   --color-teal-tint: var(--teal-tint);
   --color-teal-text: var(--teal-text);
   --color-now-line: var(--now-line);
+  --color-scrim: var(--scrim);
 
   --color-chart-income: var(--chart-income);
   --color-chart-expense: var(--chart-expense);
@@ -61,6 +65,7 @@
   --radius-control: var(--r-control);
   --radius-tag: var(--r-tag);
   --radius-cal: var(--r-cal);
+  --radius-menu: var(--r-menu);
 
   /* Type scale (Section 3): size / line height / weight. Caps styles also need `uppercase`. */
   --text-display: 28px;

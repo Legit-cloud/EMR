@@ -1,5 +1,6 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
@@ -9,6 +10,7 @@ import { api, apiError, ensureCsrfCookie } from "@/lib/api";
 /** Sign-in: password first, then the authenticator code when the account uses MFA. */
 export default function LoginPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -54,9 +56,11 @@ export default function LoginPage() {
       setStep("password");
       return;
     }
+    // Drop anything cached while signed out, such as the "no session" answer.
+    queryClient.clear();
     const next = new URLSearchParams(window.location.search).get("next");
     router.replace(
-      data?.mfa_enrolment_required ? "/mfa" : next?.startsWith("/") ? next : "/patients",
+      data?.mfa_enrolment_required ? "/mfa" : next?.startsWith("/") ? next : "/dashboard",
     );
   }
 
