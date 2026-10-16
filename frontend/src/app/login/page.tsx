@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
-import { Button, Field, Notice } from "@/components/ui";
+import { Button, Field, Notice } from "@/components/legacy-ui";
 import { api, apiError, ensureCsrfCookie } from "@/lib/api";
 
 /** Sign-in: password first, then the authenticator code when the account uses MFA. */
@@ -55,7 +55,9 @@ export default function LoginPage() {
       return;
     }
     const next = new URLSearchParams(window.location.search).get("next");
-    router.replace(data?.mfa_enrolment_required ? "/mfa" : next?.startsWith("/") ? next : "/patients");
+    router.replace(
+      data?.mfa_enrolment_required ? "/mfa" : next?.startsWith("/") ? next : "/patients",
+    );
   }
 
   return (
@@ -92,7 +94,8 @@ export default function LoginPage() {
         ) : (
           <>
             <p className="text-sm text-slate-700">
-              Enter the 6-digit code from the authenticator app linked to <strong>{username}</strong>.
+              Enter the 6-digit code from the authenticator app linked to{" "}
+              <strong>{username}</strong>.
             </p>
             <Field
               ref={otpRef}

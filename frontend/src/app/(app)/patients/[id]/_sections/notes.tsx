@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Dialog, Notice, ReasonDialog, TextArea } from "@/components/ui";
+import { Button, Card, Dialog, Notice, ReasonDialog, TextArea } from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useMe } from "@/lib/session";
@@ -12,7 +12,10 @@ import { RowAction, Show } from "./common";
 
 type Note = Schemas["ConsultationNote"];
 type Draft = { subjective: string; objective: string; assessment: string; plan: string };
-type Editing = { mode: "new"; encounter: string } | { mode: "edit"; note: Note } | { mode: "addendum"; note: Note };
+type Editing =
+  | { mode: "new"; encounter: string }
+  | { mode: "edit"; note: Note }
+  | { mode: "addendum"; note: Note };
 
 const SOAP: [keyof Draft, string][] = [
   ["subjective", "Subjective"],
@@ -25,7 +28,13 @@ const SOAP: [keyof Draft, string][] = [
  * SOAP consultation notes. The author edits a note while it is open; closing signs it
  * off and locks it. Corrections to a closed note are addenda.
  */
-export function NotesSection({ patientId, encounterId }: { patientId: string; encounterId?: string }) {
+export function NotesSection({
+  patientId,
+  encounterId,
+}: {
+  patientId: string;
+  encounterId?: string;
+}) {
   const me = useMe();
   const [notes, reload] = useLoad<Note[]>(
     () => api.GET("/api/clinical/notes/", { params: { query: { patient: patientId } } }),
@@ -36,7 +45,9 @@ export function NotesSection({ patientId, encounterId }: { patientId: string; en
   const [error, setError] = useState<string | null>(null);
 
   async function close(note: Note) {
-    const { error: failure } = await api.POST("/api/clinical/notes/{id}/close/", { params: { path: { id: note.id } } });
+    const { error: failure } = await api.POST("/api/clinical/notes/{id}/close/", {
+      params: { path: { id: note.id } },
+    });
     setError(failure ? apiError(failure).message : null);
     reload();
   }
@@ -44,7 +55,13 @@ export function NotesSection({ patientId, encounterId }: { patientId: string; en
   return (
     <Card
       title="Consultation notes"
-      actions={encounterId ? <Button onClick={() => setEditing({ mode: "new", encounter: encounterId })}>Write note</Button> : null}
+      actions={
+        encounterId ? (
+          <Button onClick={() => setEditing({ mode: "new", encounter: encounterId })}>
+            Write note
+          </Button>
+        ) : null
+      }
     >
       {error && <Notice tone="error" title={error} />}
       <Show value={notes}>
@@ -57,11 +74,17 @@ export function NotesSection({ patientId, encounterId }: { patientId: string; en
                 const mine = note.author === me.id;
                 const open = note.status === "open";
                 return (
-                  <li key={note.id} data-testid="note" className="rounded-md border border-slate-200 p-3">
+                  <li
+                    key={note.id}
+                    data-testid="note"
+                    className="rounded-md border border-slate-200 p-3"
+                  >
                     <p className="text-sm text-slate-600">
                       {note.addendum_to ? "Addendum, " : ""}
                       {formatDateTime(note.created_at)} · {mine ? "you" : "colleague"} ·{" "}
-                      <span data-testid="note-status">{open ? "Open" : `Closed ${formatDateTime(note.closed_at)}`}</span>
+                      <span data-testid="note-status">
+                        {open ? "Open" : `Closed ${formatDateTime(note.closed_at)}`}
+                      </span>
                     </p>
                     <dl className="mt-2 grid gap-1 text-sm">
                       {SOAP.filter(([field]) => note[field]).map(([field, label]) => (
@@ -72,9 +95,19 @@ export function NotesSection({ patientId, encounterId }: { patientId: string; en
                       ))}
                     </dl>
                     <div className="mt-2 flex flex-wrap gap-1">
-                      {open && mine && <RowAction onClick={() => setEditing({ mode: "edit", note })}>Edit</RowAction>}
-                      {open && mine && <RowAction onClick={() => close(note)}>Close and sign</RowAction>}
-                      {!open && <RowAction onClick={() => setEditing({ mode: "addendum", note })}>Add addendum</RowAction>}
+                      {open && mine && (
+                        <RowAction onClick={() => setEditing({ mode: "edit", note })}>
+                          Edit
+                        </RowAction>
+                      )}
+                      {open && mine && (
+                        <RowAction onClick={() => close(note)}>Close and sign</RowAction>
+                      )}
+                      {!open && (
+                        <RowAction onClick={() => setEditing({ mode: "addendum", note })}>
+                          Add addendum
+                        </RowAction>
+                      )}
                       <RowAction onClick={() => setErroneous(note)}>Entered in error</RowAction>
                     </div>
                   </li>
@@ -115,7 +148,15 @@ export function NotesSection({ patientId, encounterId }: { patientId: string; en
 
 const BLANK: Draft = { subjective: "", objective: "", assessment: "", plan: "" };
 
-function NoteDialog({ editing, onClose, onSaved }: { editing: Editing | null; onClose: () => void; onSaved: () => void }) {
+function NoteDialog({
+  editing,
+  onClose,
+  onSaved,
+}: {
+  editing: Editing | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
   const [draft, setDraft] = useState<Draft>(BLANK);
   const [error, setError] = useState<string | null>(null);
 
@@ -134,7 +175,10 @@ function NoteDialog({ editing, onClose, onSaved }: { editing: Editing | null; on
     if (!editing) return;
     const { data, error: failure } =
       editing.mode === "edit"
-        ? await api.PATCH("/api/clinical/notes/{id}/", { params: { path: { id: editing.note.id } }, body: draft })
+        ? await api.PATCH("/api/clinical/notes/{id}/", {
+            params: { path: { id: editing.note.id } },
+            body: draft,
+          })
         : await api.POST("/api/clinical/notes/", {
             body: {
               ...draft,
@@ -146,17 +190,30 @@ function NoteDialog({ editing, onClose, onSaved }: { editing: Editing | null; on
     onSaved();
   }
 
-  const title = !editing ? "" : editing.mode === "edit" ? "Edit note" : editing.mode === "addendum" ? "Addendum" : "New consultation note";
+  const title = !editing
+    ? ""
+    : editing.mode === "edit"
+      ? "Edit note"
+      : editing.mode === "addendum"
+        ? "Addendum"
+        : "New consultation note";
 
   return (
     <Dialog open={editing !== null} title={title} onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-3">
         {error && <Notice tone="error" title={error} />}
         {editing?.mode === "addendum" && (
-          <p className="text-sm text-slate-700">The original note stays as signed. Write the correction or addition here.</p>
+          <p className="text-sm text-slate-700">
+            The original note stays as signed. Write the correction or addition here.
+          </p>
         )}
         {SOAP.map(([field, label]) => (
-          <TextArea key={field} label={label} value={draft[field]} onChange={(e) => setDraft({ ...draft, [field]: e.target.value })} />
+          <TextArea
+            key={field}
+            label={label}
+            value={draft[field]}
+            onChange={(e) => setDraft({ ...draft, [field]: e.target.value })}
+          />
         ))}
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>

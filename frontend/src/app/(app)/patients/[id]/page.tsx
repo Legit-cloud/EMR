@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { use } from "react";
 
-import { Card, Notice } from "@/components/ui";
+import { Card, Notice } from "@/components/legacy-ui";
 import { api, type Schemas } from "@/lib/api";
 import { ageFrom, formatDate, formatDateTime, formatMoney, humanise } from "@/lib/format";
 import { useLoad } from "@/lib/useLoad";
@@ -21,7 +21,10 @@ import { VitalsSection } from "./_sections/vitals";
  */
 export default function PatientChartPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const [patient] = useLoad<Schemas["Patient"]>(() => api.GET("/api/patients/patients/{id}/", { params: { path: { id } } }), [id]);
+  const [patient] = useLoad<Schemas["Patient"]>(
+    () => api.GET("/api/patients/patients/{id}/", { params: { path: { id } } }),
+    [id],
+  );
   const [encounters, reloadEncounters] = useLoad<Schemas["Encounter"][]>(
     () => api.GET("/api/clinical/encounters/", { params: { query: { patient: id } } }),
     [id],
@@ -31,7 +34,9 @@ export default function PatientChartPage({ params }: { params: Promise<{ id: str
     [id],
   );
 
-  const openEncounter = Array.isArray(encounters) ? encounters.find((e) => e.status === "in_progress") : undefined;
+  const openEncounter = Array.isArray(encounters)
+    ? encounters.find((e) => e.status === "in_progress")
+    : undefined;
   const clinical = encounters !== "forbidden";
 
   return (
@@ -43,17 +48,38 @@ export default function PatientChartPage({ params }: { params: Promise<{ id: str
               {p.first_name} {p.middle_name} {p.last_name}
             </h1>
             <dl className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-slate-700">
-              <div><dt className="inline font-medium">MRN </dt><dd className="inline font-mono" data-testid="mrn">{p.mrn}</dd></div>
-              <div><dt className="inline font-medium">Age </dt><dd className="inline">{ageFrom(p.date_of_birth)} ({formatDate(p.date_of_birth)})</dd></div>
-              <div><dt className="inline font-medium">Sex </dt><dd className="inline">{humanise(p.sex ?? "unknown")}</dd></div>
-              <div><dt className="inline font-medium">Phone </dt><dd className="inline">{p.phone || "—"}</dd></div>
-              <div><dt className="inline font-medium">Status </dt><dd className="inline">{humanise(p.status)}</dd></div>
+              <div>
+                <dt className="inline font-medium">MRN </dt>
+                <dd className="inline font-mono" data-testid="mrn">
+                  {p.mrn}
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-medium">Age </dt>
+                <dd className="inline">
+                  {ageFrom(p.date_of_birth)} ({formatDate(p.date_of_birth)})
+                </dd>
+              </div>
+              <div>
+                <dt className="inline font-medium">Sex </dt>
+                <dd className="inline">{humanise(p.sex ?? "unknown")}</dd>
+              </div>
+              <div>
+                <dt className="inline font-medium">Phone </dt>
+                <dd className="inline">{p.phone || "—"}</dd>
+              </div>
+              <div>
+                <dt className="inline font-medium">Status </dt>
+                <dd className="inline">{humanise(p.status)}</dd>
+              </div>
             </dl>
           </header>
         )}
       </Show>
 
-      {clinical && <VisitPanel patientId={id} openEncounter={openEncounter} onChange={reloadEncounters} />}
+      {clinical && (
+        <VisitPanel patientId={id} openEncounter={openEncounter} onChange={reloadEncounters} />
+      )}
 
       <div className="grid gap-4 lg:grid-cols-2">
         <AllergiesSection patientId={id} />
@@ -79,9 +105,13 @@ export default function PatientChartPage({ params }: { params: Promise<{ id: str
           <Show value={encounters}>
             {() =>
               openEncounter ? (
-                <p className="text-sm text-slate-700">Prescriptions are written within the current visit.</p>
+                <p className="text-sm text-slate-700">
+                  Prescriptions are written within the current visit.
+                </p>
               ) : (
-                <Notice tone="info" title="No visit in progress">Start a visit to prescribe.</Notice>
+                <Notice tone="info" title="No visit in progress">
+                  Start a visit to prescribe.
+                </Notice>
               )
             }
           </Show>
@@ -99,7 +129,8 @@ export default function PatientChartPage({ params }: { params: Promise<{ id: str
                       <Link href={`/invoices/${inv.id}`} className="text-teal-800 underline">
                         Invoice of {formatDateTime(inv.created_at)}
                       </Link>{" "}
-                      — {humanise(inv.payment_status)}, due {formatMoney(inv.net_due_minor, inv.currency)}
+                      — {humanise(inv.payment_status)}, due{" "}
+                      {formatMoney(inv.net_due_minor, inv.currency)}
                     </li>
                   ))}
                 </ul>

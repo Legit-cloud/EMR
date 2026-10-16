@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-import { Field, Loading, NoAccess } from "@/components/ui";
+import { Field, Loading, NoAccess } from "@/components/legacy-ui";
 import { api, type Schemas } from "@/lib/api";
 import { formatDate } from "@/lib/format";
 
@@ -54,10 +54,18 @@ export default function PatientsPage() {
             <caption className="sr-only">Patients</caption>
             <thead className="bg-slate-50 text-slate-700">
               <tr>
-                <th scope="col" className="p-3">MRN</th>
-                <th scope="col" className="p-3">Name</th>
-                <th scope="col" className="p-3">Date of birth</th>
-                <th scope="col" className="p-3">Phone</th>
+                <th scope="col" className="p-3">
+                  MRN
+                </th>
+                <th scope="col" className="p-3">
+                  Name
+                </th>
+                <th scope="col" className="p-3">
+                  Date of birth
+                </th>
+                <th scope="col" className="p-3">
+                  Phone
+                </th>
               </tr>
             </thead>
             <tbody>

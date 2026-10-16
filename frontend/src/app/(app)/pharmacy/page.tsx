@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
+import { Button, Dialog, Field, Loading, NoAccess, Notice } from "@/components/legacy-ui";
 import { PatientName } from "@/components/PatientName";
-import { Button, Dialog, Field, Loading, NoAccess, Notice } from "@/components/ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime, humanise } from "@/lib/format";
 
@@ -19,7 +19,9 @@ export default function PharmacyPage() {
   async function load() {
     const [authorised, partial] = await Promise.all([
       api.GET("/api/pharmacy/prescriptions/", { params: { query: { status: "authorised" } } }),
-      api.GET("/api/pharmacy/prescriptions/", { params: { query: { status: "partially_dispensed" } } }),
+      api.GET("/api/pharmacy/prescriptions/", {
+        params: { query: { status: "partially_dispensed" } },
+      }),
     ]);
     if (authorised.response.status === 403) return setWorklist("forbidden");
     setWorklist([...(authorised.data?.results ?? []), ...(partial.data?.results ?? [])]);
@@ -47,11 +49,19 @@ export default function PharmacyPage() {
       ) : (
         <ul className="flex flex-col gap-3">
           {worklist.map((p) => (
-            <li key={p.id} data-testid="to-dispense" className="rounded-lg border border-slate-200 bg-white p-4">
+            <li
+              key={p.id}
+              data-testid="to-dispense"
+              className="rounded-lg border border-slate-200 bg-white p-4"
+            >
               <div className="flex flex-wrap items-center gap-3">
                 <PatientName id={p.patient} />
-                <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold">{humanise(p.status)}</span>
-                <span className="text-sm text-slate-600">Signed {formatDateTime(p.authorised_at)}</span>
+                <span className="rounded bg-slate-100 px-2 py-0.5 text-xs font-semibold">
+                  {humanise(p.status)}
+                </span>
+                <span className="text-sm text-slate-600">
+                  Signed {formatDateTime(p.authorised_at)}
+                </span>
                 <Button className="ml-auto" onClick={() => setDispensing(p)}>
                   Dispense
                 </Button>
@@ -59,8 +69,8 @@ export default function PharmacyPage() {
               <ul className="mt-2 text-sm">
                 {p.items.map((item) => (
                   <li key={item.id}>
-                    {item.drug_name}: {item.dose}, {item.frequency}, {item.duration_days} days — {item.quantity_dispensed} of{" "}
-                    {item.quantity} given
+                    {item.drug_name}: {item.dose}, {item.frequency}, {item.duration_days} days —{" "}
+                    {item.quantity_dispensed} of {item.quantity} given
                   </li>
                 ))}
               </ul>
@@ -100,10 +110,14 @@ function DispenseDialog({
     setError(null);
     setSignature("checking");
     setQuantities(
-      Object.fromEntries(prescription.items.map((i) => [i.id, String(i.quantity - (i.quantity_dispensed ?? 0))])),
+      Object.fromEntries(
+        prescription.items.map((i) => [i.id, String(i.quantity - (i.quantity_dispensed ?? 0))]),
+      ),
     );
     api
-      .GET("/api/pharmacy/prescriptions/{id}/verify/", { params: { path: { id: prescription.id } } })
+      .GET("/api/pharmacy/prescriptions/{id}/verify/", {
+        params: { path: { id: prescription.id } },
+      })
       .then(({ data }) => setSignature(data?.valid ? "valid" : "invalid"));
   }, [prescription]);
 
@@ -127,9 +141,17 @@ function DispenseDialog({
     <Dialog open={prescription !== null} title="Dispense" onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         {signature === "checking" && <p role="status">Checking the prescriber&apos;s signature…</p>}
-        {signature === "valid" && <Notice tone="success" title="Signature verified: the prescription is unchanged since signing." />}
+        {signature === "valid" && (
+          <Notice
+            tone="success"
+            title="Signature verified: the prescription is unchanged since signing."
+          />
+        )}
         {signature === "invalid" && (
-          <Notice tone="error" title="The signature does not verify. Do not dispense; contact the prescriber." />
+          <Notice
+            tone="error"
+            title="The signature does not verify. Do not dispense; contact the prescriber."
+          />
         )}
         {error && <Notice tone="error" title={error} />}
         {prescription?.items.map((item) => (

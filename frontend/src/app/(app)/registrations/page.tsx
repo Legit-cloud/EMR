@@ -2,14 +2,20 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
+import { Button, Dialog, Loading, NoAccess, Notice, TextArea } from "@/components/legacy-ui";
 import { PatientName } from "@/components/PatientName";
-import { Button, Dialog, Loading, NoAccess, Notice, TextArea } from "@/components/ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDate, formatDateTime } from "@/lib/format";
 
 type Review = Schemas["DuplicateReview"];
 type Candidate = { patient_id: string; mrn: string; score: number };
-type Payload = { first_name?: string; last_name?: string; date_of_birth?: string; phone?: string; national_id?: string };
+type Payload = {
+  first_name?: string;
+  last_name?: string;
+  date_of_birth?: string;
+  phone?: string;
+  national_id?: string;
+};
 
 /**
  * Registrations held as possible duplicates. A person decides: it is a new patient, it is
@@ -21,7 +27,9 @@ export default function RegistrationReviewsPage() {
   const [message, setMessage] = useState<string | null>(null);
 
   async function load() {
-    const { data, response } = await api.GET("/api/patients/duplicate-reviews/", { params: { query: { status: "pending" } } });
+    const { data, response } = await api.GET("/api/patients/duplicate-reviews/", {
+      params: { query: { status: "pending" } },
+    });
     setReviews(response.status === 403 ? "forbidden" : (data?.results ?? []));
   }
 
@@ -44,12 +52,17 @@ export default function RegistrationReviewsPage() {
           {reviews.map((review) => {
             const p = review.payload as Payload;
             return (
-              <li key={review.id} data-testid="review" className="rounded-lg border border-slate-200 bg-white p-4">
+              <li
+                key={review.id}
+                data-testid="review"
+                className="rounded-lg border border-slate-200 bg-white p-4"
+              >
                 <p className="font-medium">
                   {p.first_name} {p.last_name}, born {formatDate(p.date_of_birth)}
                 </p>
                 <p className="text-sm text-slate-600">
-                  Held {formatDateTime(review.created_at)} · best match {Math.round(review.top_score * 100)}%
+                  Held {formatDateTime(review.created_at)} · best match{" "}
+                  {Math.round(review.top_score * 100)}%
                 </p>
                 <Button className="mt-2" onClick={() => setDeciding(review)}>
                   Review
@@ -93,7 +106,12 @@ function DecisionDialog({
     setError(null);
   }, [review]);
 
-  if (!review) return <Dialog open={false} title="" onClose={onClose}>{null}</Dialog>;
+  if (!review)
+    return (
+      <Dialog open={false} title="" onClose={onClose}>
+        {null}
+      </Dialog>
+    );
   const p = review.payload as Payload;
   const candidates = review.candidates as Candidate[];
 
@@ -129,7 +147,10 @@ function DecisionDialog({
         <fieldset className="flex flex-col gap-2">
           <legend className="text-sm font-semibold">Decision</legend>
           {candidates.map((c) => (
-            <label key={c.patient_id} className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50">
+            <label
+              key={c.patient_id}
+              className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50"
+            >
               <input
                 type="radio"
                 name="decision"
@@ -140,20 +161,36 @@ function DecisionDialog({
                 }}
               />
               <span>
-                Same person as <PatientName id={c.patient_id} link={false} /> ({Math.round(c.score * 100)}% match)
+                Same person as <PatientName id={c.patient_id} link={false} /> (
+                {Math.round(c.score * 100)}% match)
               </span>
             </label>
           ))}
           <label className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50">
-            <input type="radio" name="decision" checked={decision === "created_new"} onChange={() => setDecision("created_new")} />
+            <input
+              type="radio"
+              name="decision"
+              checked={decision === "created_new"}
+              onChange={() => setDecision("created_new")}
+            />
             A different person: register as a new patient
           </label>
           <label className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50">
-            <input type="radio" name="decision" checked={decision === "rejected"} onChange={() => setDecision("rejected")} />
+            <input
+              type="radio"
+              name="decision"
+              checked={decision === "rejected"}
+              onChange={() => setDecision("rejected")}
+            />
             Reject the registration
           </label>
         </fieldset>
-        <TextArea label="Note" value={note} onChange={(e) => setNote(e.target.value)} hint="For example how the identity was checked." />
+        <TextArea
+          label="Note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          hint="For example how the identity was checked."
+        />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel

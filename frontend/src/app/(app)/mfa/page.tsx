@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 
-import { Button, Field, Notice } from "@/components/ui";
+import { Button, Field, Notice } from "@/components/legacy-ui";
 import { api, apiError } from "@/lib/api";
 
 /** Authenticator set-up for users whose role requires MFA and who have no device yet. */
@@ -32,8 +32,8 @@ export default function MfaSetupPage() {
     <div className="mx-auto flex max-w-lg flex-col gap-4">
       <h1 className="text-2xl font-semibold">Set up your authenticator</h1>
       <p className="text-slate-700">
-        Your role requires a second step at sign-in. Add this account to an authenticator app,
-        then enter the code it shows.
+        Your role requires a second step at sign-in. Add this account to an authenticator app, then
+        enter the code it shows.
       </p>
       {error && <Notice tone="error" title={error} />}
       {!configUrl ? (
@@ -41,7 +41,9 @@ export default function MfaSetupPage() {
       ) : (
         <form onSubmit={confirm} className="flex flex-col gap-4">
           <div>
-            <p className="text-sm font-medium">Set-up key (enter it in your app, or open on this device)</p>
+            <p className="text-sm font-medium">
+              Set-up key (enter it in your app, or open on this device)
+            </p>
             <a href={configUrl} className="break-all text-sm text-teal-800 underline">
               {configUrl}
             </a>

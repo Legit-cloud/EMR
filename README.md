@@ -22,17 +22,20 @@ Open http://localhost:8080 for the web app. For synthetic demo data (development
 Next.js app in `frontend/`. Node runs in containers, so nothing needs installing.
 
 ```sh
-make openapi   # after any API change: export the schema and regenerate the typed client
-make e2e       # browser tests (Playwright) against the compose stack, with fresh seed data
+make openapi         # after any API change: export the schema and regenerate the typed client
+make frontend-tools  # frontend lint and unit tests in a container
+make e2e             # browser tests (Playwright) against the compose stack, with fresh seed data
 ```
 
 ## Checks
 
-Exactly two checks: `ruff` (lint and format) and `pytest`.
+Backend: `ruff` (lint and format) then `pytest`. Frontend: ESLint plus a Prettier check, then Vitest.
+Playwright runs on demand (`make e2e`).
 
 ```sh
-make check                                  # host with uv and make
-docker compose run --rm web make check      # anywhere with Docker
+make check                                              # host with uv, pnpm and make
+docker compose run --rm web make lint test              # backend, anywhere with Docker
+docker compose --profile tools run --rm frontend-tools  # frontend, anywhere with Docker
 ```
 
 Activate the pre-push hook once per clone (`make install` does this too):
@@ -41,7 +44,7 @@ Activate the pre-push hook once per clone (`make install` does this too):
 git config core.hooksPath .githooks
 ```
 
-There is no CI service. The hook runs `make check` before every push.
+There is no CI service. The hook runs the checks before every push.
 
 ## Deploy
 

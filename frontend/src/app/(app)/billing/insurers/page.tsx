@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Field, Loading, NoAccess, Notice } from "@/components/ui";
+import { Button, Card, Field, Loading, NoAccess, Notice } from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 
 /** HMOs and insurers that pay part of patients' bills. */
@@ -43,9 +43,26 @@ export default function InsurersPage() {
       <h1 className="text-2xl font-semibold">Insurers</h1>
       <Card title="Add insurer">
         <form onSubmit={add} className="grid gap-3 sm:grid-cols-2">
-          {failure && <div className="sm:col-span-2"><Notice tone="error" title={failure} /></div>}
-          <Field label="Name" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} error={errors.name} />
-          <Field label="Short code" required value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} error={errors.code} hint="Letters, numbers and hyphens" />
+          {failure && (
+            <div className="sm:col-span-2">
+              <Notice tone="error" title={failure} />
+            </div>
+          )}
+          <Field
+            label="Name"
+            required
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            error={errors.name}
+          />
+          <Field
+            label="Short code"
+            required
+            value={form.code}
+            onChange={(e) => setForm({ ...form, code: e.target.value })}
+            error={errors.code}
+            hint="Letters, numbers and hyphens"
+          />
           <div className="sm:col-span-2">
             <Button type="submit">Add insurer</Button>
           </div>

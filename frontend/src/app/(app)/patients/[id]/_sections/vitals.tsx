@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Dialog, Field, Notice, ReasonDialog } from "@/components/ui";
+import { Button, Card, Dialog, Field, Notice, ReasonDialog } from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime } from "@/lib/format";
 import { useLoad } from "@/lib/useLoad";
@@ -12,7 +12,13 @@ import { RowAction, Show } from "./common";
 type VitalSigns = Schemas["VitalSigns"];
 
 /** Vital-sign sets, newest first. BMI is calculated by the server, never entered. */
-export function VitalsSection({ patientId, encounterId }: { patientId: string; encounterId?: string }) {
+export function VitalsSection({
+  patientId,
+  encounterId,
+}: {
+  patientId: string;
+  encounterId?: string;
+}) {
   const [sets, reload] = useLoad<VitalSigns[]>(
     () => api.GET("/api/clinical/vitals/", { params: { query: { patient: patientId } } }),
     [patientId],
@@ -23,7 +29,9 @@ export function VitalsSection({ patientId, encounterId }: { patientId: string; e
   return (
     <Card
       title="Vital signs"
-      actions={encounterId ? <Button onClick={() => setRecording(true)}>Record vitals</Button> : null}
+      actions={
+        encounterId ? <Button onClick={() => setRecording(true)}>Record vitals</Button> : null
+      }
     >
       <Show value={sets}>
         {(rows) =>
@@ -35,9 +43,15 @@ export function VitalsSection({ patientId, encounterId }: { patientId: string; e
                 <caption className="sr-only">Vital signs, most recent first</caption>
                 <thead className="text-slate-700">
                   <tr>
-                    <th scope="col" className="p-2">Recorded</th>
-                    <th scope="col" className="p-2">Readings</th>
-                    <th scope="col" className="p-2"><span className="sr-only">Actions</span></th>
+                    <th scope="col" className="p-2">
+                      Recorded
+                    </th>
+                    <th scope="col" className="p-2">
+                      Readings
+                    </th>
+                    <th scope="col" className="p-2">
+                      <span className="sr-only">Actions</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -116,7 +130,9 @@ function RecordVitalsDialog({
 
   useEffect(() => {
     if (!open) return setValues({});
-    api.GET("/api/clinical/codes/loinc/").then(({ data }) => setCodes((data ?? []).filter((c) => !c.derived)));
+    api
+      .GET("/api/clinical/codes/loinc/")
+      .then(({ data }) => setCodes((data ?? []).filter((c) => !c.derived)));
   }, [open]);
 
   async function submit(event: FormEvent) {
@@ -148,7 +164,9 @@ function RecordVitalsDialog({
             </ul>
           </Notice>
         )}
-        <p className="text-sm text-slate-700">Fill in what was measured. BMI is calculated from weight and height.</p>
+        <p className="text-sm text-slate-700">
+          Fill in what was measured. BMI is calculated from weight and height.
+        </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {codes.map((code) => (
             <Field

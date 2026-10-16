@@ -1,9 +1,10 @@
 # Commands run through `uv run` on a host with uv installed.
 # Inside the dev container RUN is empty because the virtualenv is already on PATH.
 RUN ?= uv run
+PNPM ?= pnpm
 COMPOSE ?= docker compose
 
-.PHONY: install run worker beat lint format test check seed shell up down
+.PHONY: install run worker beat lint format test frontend-check check seed shell up down
 
 install:
 	uv sync
@@ -29,7 +30,11 @@ format:
 test:
 	$(RUN) pytest
 
-check: lint test
+# Backend: ruff, then pytest. Frontend: ESLint and Prettier, then Vitest.
+frontend-check:
+	$(PNPM) --dir frontend check
+
+check: lint test frontend-check
 
 seed:
 	$(RUN) python manage.py seed_demo_data
@@ -44,12 +49,14 @@ down:
 	$(COMPOSE) down
 
 # Frontend (Node runs in containers; nothing to install on the host).
-NODE_IMAGE ?= node:22-bookworm-slim
-
-.PHONY: openapi e2e
+.PHONY: openapi e2e frontend-tools
 openapi:
 	$(COMPOSE) run --rm web python manage.py spectacular --validate --fail-on-warn --file frontend/openapi.yaml
-	docker run --rm -v "$(CURDIR)/frontend:/app" -w /app $(NODE_IMAGE) npm run gen:api
+	$(COMPOSE) --profile tools run --rm frontend-tools pnpm api:gen
+
+# The frontend checks in a container, for hosts without Node.
+frontend-tools:
+	$(COMPOSE) --profile tools run --rm frontend-tools
 
 e2e:
 	$(COMPOSE) --profile e2e up -d --build web worker frontend edge

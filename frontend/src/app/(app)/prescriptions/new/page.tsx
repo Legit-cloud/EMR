@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 
-import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/ui";
+import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { humanise } from "@/lib/format";
 
@@ -12,7 +12,15 @@ type Item = Schemas["PrescriptionItemRequest"];
 type Alert = Schemas["SafetyAlert"];
 
 const MIN_REASON = 15;
-const NEW_ITEM: Item = { drug: "", dose: "", frequency: "", route: "oral", duration_days: 5, quantity: 1, instructions: "" };
+const NEW_ITEM: Item = {
+  drug: "",
+  dose: "",
+  frequency: "",
+  route: "oral",
+  duration_days: 5,
+  quantity: 1,
+  instructions: "",
+};
 
 export default function NewPrescriptionPage() {
   return (
@@ -37,9 +45,11 @@ function PrescriptionEditor() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api.GET("/api/pharmacy/drugs/", { params: { query: { formulary: "true" } } }).then(({ data, response }) =>
-      setDrugs(response.status === 403 ? "forbidden" : (data?.results ?? [])),
-    );
+    api
+      .GET("/api/pharmacy/drugs/", { params: { query: { formulary: "true" } } })
+      .then(({ data, response }) =>
+        setDrugs(response.status === 403 ? "forbidden" : (data?.results ?? [])),
+      );
   }, []);
 
   const update = (index: number, change: Partial<Item>) =>
@@ -48,7 +58,10 @@ function PrescriptionEditor() {
   async function saveDraft(): Promise<Schemas["Prescription"] | null> {
     const body = { encounter, items };
     const { data, error: failure } = prescription
-      ? await api.PATCH("/api/pharmacy/prescriptions/{id}/", { params: { path: { id: prescription.id } }, body })
+      ? await api.PATCH("/api/pharmacy/prescriptions/{id}/", {
+          params: { path: { id: prescription.id } },
+          body,
+        })
       : await api.POST("/api/pharmacy/prescriptions/", { body });
     if (!data) {
       setError(apiError(failure).message);
@@ -81,7 +94,8 @@ function PrescriptionEditor() {
     setError(problem.message);
   }
 
-  if (!encounter) return <Notice tone="error" title="Open a patient's chart to start a prescription." />;
+  if (!encounter)
+    return <Notice tone="error" title="Open a patient's chart to start a prescription." />;
   if (drugs === null) return <Loading />;
   if (drugs === "forbidden") return <NoAccess />;
 
@@ -91,11 +105,13 @@ function PrescriptionEditor() {
         <Notice tone="success" title={`Prescription ${humanise(prescription.status)}`}>
           Signed and sent to the pharmacy. Signature key {prescription.signing_key_id}.
         </Notice>
-        {prescription.alerts.filter((a) => a.override_reason).map((a) => (
-          <p key={a.key} className="text-sm text-slate-700">
-            Override recorded for “{a.message}”: {a.override_reason}
-          </p>
-        ))}
+        {prescription.alerts
+          .filter((a) => a.override_reason)
+          .map((a) => (
+            <p key={a.key} className="text-sm text-slate-700">
+              Override recorded for “{a.message}”: {a.override_reason}
+            </p>
+          ))}
         <Link href={`/patients/${prescription.patient}`} className="text-teal-800 underline">
           Back to the chart
         </Link>
@@ -111,9 +127,17 @@ function PrescriptionEditor() {
       <h1 className="text-2xl font-semibold">New prescription</h1>
       {error && <Notice tone="error" title={error} />}
       {items.map((item, index) => (
-        <fieldset key={index} className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2">
+        <fieldset
+          key={index}
+          className="grid gap-3 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2"
+        >
           <legend className="px-1 text-sm font-semibold">Item {index + 1}</legend>
-          <Select label="Medicine" value={item.drug} onChange={(e) => update(index, { drug: e.target.value })} required>
+          <Select
+            label="Medicine"
+            value={item.drug}
+            onChange={(e) => update(index, { drug: e.target.value })}
+            required
+          >
             <option value="">Choose…</option>
             {drugs.map((d) => (
               <option key={d.id} value={d.id}>
@@ -121,18 +145,49 @@ function PrescriptionEditor() {
               </option>
             ))}
           </Select>
-          <Field label="Dose" value={item.dose} onChange={(e) => update(index, { dose: e.target.value })} placeholder="1 tablet" required />
-          <Field label="Frequency" value={item.frequency} onChange={(e) => update(index, { frequency: e.target.value })} placeholder="three times daily" required />
-          <Field label="Duration (days)" type="number" min={1} value={item.duration_days} onChange={(e) => update(index, { duration_days: Number(e.target.value) })} />
-          <Field label="Quantity to dispense" type="number" min={1} value={item.quantity} onChange={(e) => update(index, { quantity: Number(e.target.value) })} />
-          <Field label="Instructions" value={item.instructions} onChange={(e) => update(index, { instructions: e.target.value })} />
+          <Field
+            label="Dose"
+            value={item.dose}
+            onChange={(e) => update(index, { dose: e.target.value })}
+            placeholder="1 tablet"
+            required
+          />
+          <Field
+            label="Frequency"
+            value={item.frequency}
+            onChange={(e) => update(index, { frequency: e.target.value })}
+            placeholder="three times daily"
+            required
+          />
+          <Field
+            label="Duration (days)"
+            type="number"
+            min={1}
+            value={item.duration_days}
+            onChange={(e) => update(index, { duration_days: Number(e.target.value) })}
+          />
+          <Field
+            label="Quantity to dispense"
+            type="number"
+            min={1}
+            value={item.quantity}
+            onChange={(e) => update(index, { quantity: Number(e.target.value) })}
+          />
+          <Field
+            label="Instructions"
+            value={item.instructions}
+            onChange={(e) => update(index, { instructions: e.target.value })}
+          />
         </fieldset>
       ))}
       <div className="flex flex-wrap gap-2">
         <Button variant="secondary" onClick={() => setItems([...items, { ...NEW_ITEM }])}>
           Add another medicine
         </Button>
-        <Button onClick={() => sign()} disabled={busy || items.some((i) => !i.drug || !i.dose || !i.frequency)}>
+        <Button
+          onClick={() => sign()}
+          disabled={busy || items.some((i) => !i.drug || !i.dose || !i.frequency)}
+        >
           {busy ? "Checking…" : "Save and sign"}
         </Button>
       </div>
@@ -140,8 +195,8 @@ function PrescriptionEditor() {
       <Dialog open={alerts !== null} title="Safety check" onClose={() => setAlerts(null)}>
         <div className="flex flex-col gap-4">
           <p className="text-sm text-slate-700">
-            The prescription has not been signed. Review each alert. Alerts marked “must
-            override” need a reason, which is recorded with your signature.
+            The prescription has not been signed. Review each alert. Alerts marked “must override”
+            need a reason, which is recorded with your signature.
           </p>
           <ul className="flex flex-col gap-3">
             {(alerts ?? []).map((alert) => (

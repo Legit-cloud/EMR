@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { authFile, loadSeed } from "./helpers";
-
-const seed = loadSeed();
+import { authFile } from "./helpers";
 
 test.describe("pharmacist", () => {
   test.use({ storageState: authFile("pharmacist") });
@@ -16,7 +14,9 @@ test.describe("pharmacist", () => {
     const dialog = page.getByRole("dialog", { name: "Dispense" });
     await expect(dialog).toContainText("Signature verified");
     await dialog.getByRole("button", { name: "Dispense" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Dispensed" })).toContainText("now dispensed");
+    await expect(page.getByRole("status").filter({ hasText: "Dispensed" })).toContainText(
+      "now dispensed",
+    );
     await expect(page.getByTestId("to-dispense").filter({ hasText: "Ngozi Eze" })).toHaveCount(0);
   });
 
@@ -54,7 +54,9 @@ test.describe("front desk", () => {
     await dialog.getByRole("radio", { name: /Same person as Ngozi Eze/ }).check();
     await dialog.getByLabel("Note").fill("Same NIN card shown at the desk");
     await dialog.getByRole("button", { name: "Record decision" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Linked to the existing patient" })).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Linked to the existing patient" }),
+    ).toBeVisible();
     await expect(page.getByTestId("review").filter({ hasText: "Ngozi Ezeh" })).toHaveCount(0);
   });
 });

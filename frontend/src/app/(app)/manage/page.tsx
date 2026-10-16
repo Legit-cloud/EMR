@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/ui";
+import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 import { humanise } from "@/lib/format";
 
@@ -59,15 +59,27 @@ export default function ManageUsersPage() {
   };
 
   async function removeRole(a: Assignment) {
-    const { error } = await api.DELETE("/api/accounts/role-assignments/{id}/", { params: { path: { id: a.id } } });
-    setMessage(error ? { tone: "error", text: apiError(error).message } : { tone: "success", text: "Role removed." });
+    const { error } = await api.DELETE("/api/accounts/role-assignments/{id}/", {
+      params: { path: { id: a.id } },
+    });
+    setMessage(
+      error
+        ? { tone: "error", text: apiError(error).message }
+        : { tone: "success", text: "Role removed." },
+    );
     load();
   }
 
   async function deactivate(user: User) {
     if (!window.confirm(`Deactivate ${user.username}? They will be signed out everywhere.`)) return;
-    const { error } = await api.POST("/api/accounts/users/{id}/deactivate/", { params: { path: { id: user.id } } });
-    setMessage(error ? { tone: "error", text: apiError(error).message } : { tone: "success", text: `${user.username} deactivated.` });
+    const { error } = await api.POST("/api/accounts/users/{id}/deactivate/", {
+      params: { path: { id: user.id } },
+    });
+    setMessage(
+      error
+        ? { tone: "error", text: apiError(error).message }
+        : { tone: "success", text: `${user.username} deactivated.` },
+    );
     load();
   }
 
@@ -79,7 +91,9 @@ export default function ManageUsersPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Users and roles</h1>
         <div className="flex gap-3">
-          <Link href="/manage/staff" className="self-center text-teal-800 underline">Staff and licences</Link>
+          <Link href="/manage/staff" className="self-center text-teal-800 underline">
+            Staff and licences
+          </Link>
           <Button onClick={() => setInviting(true)}>Invite user</Button>
         </div>
       </div>
@@ -88,20 +102,42 @@ export default function ManageUsersPage() {
         {users.map((user) => {
           const own = assignments.filter((a) => a.user === user.id);
           return (
-            <li key={user.id} data-testid="user" className="rounded-lg border border-slate-200 bg-white p-4">
+            <li
+              key={user.id}
+              data-testid="user"
+              className="rounded-lg border border-slate-200 bg-white p-4"
+            >
               <div className="flex flex-wrap items-center gap-3">
-                <span className="font-medium">{[user.first_name, user.last_name].filter(Boolean).join(" ") || user.username}</span>
+                <span className="font-medium">
+                  {[user.first_name, user.last_name].filter(Boolean).join(" ") || user.username}
+                </span>
                 <span className="font-mono text-xs text-slate-600">{user.username}</span>
-                {!user.is_active && <span className="rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold">Deactivated</span>}
+                {!user.is_active && (
+                  <span className="rounded bg-slate-200 px-2 py-0.5 text-xs font-semibold">
+                    Deactivated
+                  </span>
+                )}
                 <span className="ml-auto flex gap-2">
-                  {user.is_active && <Button variant="secondary" onClick={() => setAssigning(user)}>Add role</Button>}
-                  {user.is_active && <Button variant="secondary" onClick={() => deactivate(user)}>Deactivate</Button>}
+                  {user.is_active && (
+                    <Button variant="secondary" onClick={() => setAssigning(user)}>
+                      Add role
+                    </Button>
+                  )}
+                  {user.is_active && (
+                    <Button variant="secondary" onClick={() => deactivate(user)}>
+                      Deactivate
+                    </Button>
+                  )}
                 </span>
               </div>
               {own.length > 0 && (
                 <ul className="mt-2 flex flex-wrap gap-2">
                   {own.map((a) => (
-                    <li key={a.id} data-testid="role" className="flex items-center gap-1 rounded-full bg-teal-50 px-3 py-1 text-sm text-teal-900">
+                    <li
+                      key={a.id}
+                      data-testid="role"
+                      className="flex items-center gap-1 rounded-full bg-teal-50 px-3 py-1 text-sm text-teal-900"
+                    >
                       {humanise(a.role)} · {scope(a)}
                       <button
                         type="button"
@@ -124,7 +160,10 @@ export default function ManageUsersPage() {
         onClose={() => setInviting(false)}
         onDone={(username) => {
           setInviting(false);
-          setMessage({ tone: "success", text: `${username} invited. They will get an email to set a password.` });
+          setMessage({
+            tone: "success",
+            text: `${username} invited. They will get an email to set a password.`,
+          });
           load();
         }}
       />
@@ -143,7 +182,15 @@ export default function ManageUsersPage() {
   );
 }
 
-function InviteDialog({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: (username: string) => void }) {
+function InviteDialog({
+  open,
+  onClose,
+  onDone,
+}: {
+  open: boolean;
+  onClose: () => void;
+  onDone: (username: string) => void;
+}) {
   const blank = { username: "", email: "", first_name: "", last_name: "" };
   const [form, setForm] = useState(blank);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -172,12 +219,36 @@ function InviteDialog({ open, onClose, onDone }: { open: boolean; onClose: () =>
     <Dialog open={open} title="Invite user" onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-3">
         {failure && <Notice tone="error" title={failure} />}
-        <Field label="Username" required value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })} error={errors.username} />
-        <Field label="Email" type="email" required value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} error={errors.email} hint="The invitation to set a password goes here." />
-        <Field label="First name" value={form.first_name} onChange={(e) => setForm({ ...form, first_name: e.target.value })} />
-        <Field label="Last name" value={form.last_name} onChange={(e) => setForm({ ...form, last_name: e.target.value })} />
+        <Field
+          label="Username"
+          required
+          value={form.username}
+          onChange={(e) => setForm({ ...form, username: e.target.value })}
+          error={errors.username}
+        />
+        <Field
+          label="Email"
+          type="email"
+          required
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          error={errors.email}
+          hint="The invitation to set a password goes here."
+        />
+        <Field
+          label="First name"
+          value={form.first_name}
+          onChange={(e) => setForm({ ...form, first_name: e.target.value })}
+        />
+        <Field
+          label="Last name"
+          value={form.last_name}
+          onChange={(e) => setForm({ ...form, last_name: e.target.value })}
+        />
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit">Send invitation</Button>
         </div>
       </form>
@@ -235,24 +306,47 @@ function RoleDialog({
         {error && <Notice tone="error" title={error} />}
         <Select label="Role" value={role} onChange={(e) => setRole(e.target.value)}>
           {ROLES.map((r) => (
-            <option key={r} value={r}>{humanise(r)}</option>
+            <option key={r} value={r}>
+              {humanise(r)}
+            </option>
           ))}
         </Select>
-        <Select label="Limited to facility" value={facility} onChange={(e) => { setFacility(e.target.value); setDepartment(""); }}>
+        <Select
+          label="Limited to facility"
+          value={facility}
+          onChange={(e) => {
+            setFacility(e.target.value);
+            setDepartment("");
+          }}
+        >
           <option value="">Whole organisation</option>
           {facilities.map((f) => (
-            <option key={f.id} value={f.id}>{f.name}</option>
+            <option key={f.id} value={f.id}>
+              {f.name}
+            </option>
           ))}
         </Select>
-        <Select label="Limited to department" value={department} onChange={(e) => setDepartment(e.target.value)}>
+        <Select
+          label="Limited to department"
+          value={department}
+          onChange={(e) => setDepartment(e.target.value)}
+        >
           <option value="">Whole facility</option>
-          {departments.filter((d) => !facility || d.facility === facility).map((d) => (
-            <option key={d.id} value={d.id}>{d.name}</option>
-          ))}
+          {departments
+            .filter((d) => !facility || d.facility === facility)
+            .map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
         </Select>
-        <p className="text-sm text-slate-600">Access is narrowed by these limits for every action the role allows.</p>
+        <p className="text-sm text-slate-600">
+          Access is narrowed by these limits for every action the role allows.
+        </p>
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit">Add role</Button>
         </div>
       </form>

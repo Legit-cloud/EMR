@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { Loading } from "@/components/ui";
+import { Loading } from "@/components/legacy-ui";
 import { api } from "@/lib/api";
 import { SessionContext, type Me } from "@/lib/session";
 

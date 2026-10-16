@@ -90,5 +90,7 @@ export function toMajorText(minor: number, currency = "NGN"): string {
   const digits = MINOR_DIGITS[currency] ?? 2;
   const scale = 10n ** BigInt(digits);
   const units = BigInt(minor);
-  return digits ? `${units / scale}.${(units % scale).toString().padStart(digits, "0")}` : `${units}`;
+  return digits
+    ? `${units / scale}.${(units % scale).toString().padStart(digits, "0")}`
+    : `${units}`;
 }

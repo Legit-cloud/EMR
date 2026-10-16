@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, type FormEvent } from "react";
 
-import { Button, Field, Notice, Select } from "@/components/ui";
+import { Button, Field, Notice, Select } from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 
 type Candidate = { patient_id: string; mrn: string; score: number };
@@ -55,7 +55,8 @@ export default function RegisterPatientPage() {
       requestAnimationFrame(() => warningRef.current?.focus());
       return;
     }
-    if (response.status === 403) return setFailure("You do not have permission to register patients.");
+    if (response.status === 403)
+      return setFailure("You do not have permission to register patients.");
     setErrors(fieldErrors(problem));
     if (problem.code !== "validation_error") setFailure(problem.message);
   }
@@ -86,20 +87,71 @@ export default function RegisterPatientPage() {
         </div>
       )}
       {failure && <Notice tone="error" title={failure} />}
-      <form onSubmit={submit} className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2" noValidate>
-        <Field label="First name" required value={form.first_name} onChange={set("first_name")} error={errors.first_name} autoComplete="off" />
-        <Field label="Last name" required value={form.last_name} onChange={set("last_name")} error={errors.last_name} autoComplete="off" />
-        <Field label="Middle name" value={form.middle_name} onChange={set("middle_name")} error={errors.middle_name} autoComplete="off" />
-        <Field label="Date of birth" type="date" required value={form.date_of_birth} onChange={set("date_of_birth")} error={errors.date_of_birth} />
+      <form
+        onSubmit={submit}
+        className="grid gap-4 rounded-lg border border-slate-200 bg-white p-4 sm:grid-cols-2"
+        noValidate
+      >
+        <Field
+          label="First name"
+          required
+          value={form.first_name}
+          onChange={set("first_name")}
+          error={errors.first_name}
+          autoComplete="off"
+        />
+        <Field
+          label="Last name"
+          required
+          value={form.last_name}
+          onChange={set("last_name")}
+          error={errors.last_name}
+          autoComplete="off"
+        />
+        <Field
+          label="Middle name"
+          value={form.middle_name}
+          onChange={set("middle_name")}
+          error={errors.middle_name}
+          autoComplete="off"
+        />
+        <Field
+          label="Date of birth"
+          type="date"
+          required
+          value={form.date_of_birth}
+          onChange={set("date_of_birth")}
+          error={errors.date_of_birth}
+        />
         <Select label="Sex" value={form.sex} onChange={set("sex")} error={errors.sex}>
           <option value="female">Female</option>
           <option value="male">Male</option>
           <option value="other">Other</option>
           <option value="unknown">Unknown</option>
         </Select>
-        <Field label="Phone" type="tel" value={form.phone} onChange={set("phone")} error={errors.phone} hint="Local numbers such as 0803… are accepted." />
-        <Field label="National ID (NIN)" value={form.national_id} onChange={set("national_id")} error={errors.national_id} hint="Optional" />
-        <Field label="Email" type="email" value={form.email} onChange={set("email")} error={errors.email} hint="Optional" />
+        <Field
+          label="Phone"
+          type="tel"
+          value={form.phone}
+          onChange={set("phone")}
+          error={errors.phone}
+          hint="Local numbers such as 0803… are accepted."
+        />
+        <Field
+          label="National ID (NIN)"
+          value={form.national_id}
+          onChange={set("national_id")}
+          error={errors.national_id}
+          hint="Optional"
+        />
+        <Field
+          label="Email"
+          type="email"
+          value={form.email}
+          onChange={set("email")}
+          error={errors.email}
+          hint="Optional"
+        />
         <div className="sm:col-span-2">
           <Button type="submit" disabled={busy}>
             {busy ? "Registering…" : "Register"}

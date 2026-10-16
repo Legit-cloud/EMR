@@ -104,16 +104,30 @@ export function Notice({
     success: "border-emerald-400 bg-emerald-50 text-emerald-900",
   }[tone];
   return (
-    <div role={tone === "error" || tone === "warning" ? "alert" : "status"} className={`rounded-md border p-4 ${styles}`}>
+    <div
+      role={tone === "error" || tone === "warning" ? "alert" : "status"}
+      className={`rounded-md border p-4 ${styles}`}
+    >
       {title && <p className="font-semibold">{title}</p>}
       {children && <div className="mt-1 text-sm">{children}</div>}
     </div>
   );
 }
 
-export function Card({ title, children, actions }: { title: string; children: ReactNode; actions?: ReactNode }) {
+export function Card({
+  title,
+  children,
+  actions,
+}: {
+  title: string;
+  children: ReactNode;
+  actions?: ReactNode;
+}) {
   return (
-    <section aria-label={title} className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+    <section
+      aria-label={title}
+      className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+    >
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
         {actions}
@@ -245,7 +259,12 @@ export function ReasonDialog({
       >
         <p className="text-sm text-slate-700">{explanation}</p>
         {error && <Notice tone="error" title={error} />}
-        <TextArea label="Reason" required value={reason} onChange={(e) => setReason(e.target.value)} />
+        <TextArea
+          label="Reason"
+          required
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+        />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel

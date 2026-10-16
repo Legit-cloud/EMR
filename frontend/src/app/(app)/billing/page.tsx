@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+import { Loading, NoAccess } from "@/components/legacy-ui";
 import { PatientName } from "@/components/PatientName";
-import { Loading, NoAccess } from "@/components/ui";
 import { api, type Schemas } from "@/lib/api";
 import { formatDateTime, formatMoney, humanise } from "@/lib/format";
 
@@ -25,10 +25,13 @@ export default function BillingPage() {
 
   useEffect(() => {
     setInvoices(null);
-    const query = filter === "estate_review" ? { estate_review: "true" } : { payment_status: filter };
-    api.GET("/api/billing/invoices/", { params: { query } }).then(({ data, response }) =>
-      setInvoices(response.status === 403 ? "forbidden" : (data?.results ?? [])),
-    );
+    const query =
+      filter === "estate_review" ? { estate_review: "true" } : { payment_status: filter };
+    api
+      .GET("/api/billing/invoices/", { params: { query } })
+      .then(({ data, response }) =>
+        setInvoices(response.status === 403 ? "forbidden" : (data?.results ?? [])),
+      );
   }, [filter]);
 
   return (
@@ -66,22 +69,41 @@ export default function BillingPage() {
               <caption className="sr-only">Invoices</caption>
               <thead className="bg-slate-50 text-slate-700">
                 <tr>
-                  <th scope="col" className="p-3">Patient</th>
-                  <th scope="col" className="p-3">Opened</th>
-                  <th scope="col" className="p-3">Status</th>
-                  <th scope="col" className="p-3 text-right">Total</th>
-                  <th scope="col" className="p-3 text-right">Still due</th>
-                  <th scope="col" className="p-3"><span className="sr-only">Open</span></th>
+                  <th scope="col" className="p-3">
+                    Patient
+                  </th>
+                  <th scope="col" className="p-3">
+                    Opened
+                  </th>
+                  <th scope="col" className="p-3">
+                    Status
+                  </th>
+                  <th scope="col" className="p-3 text-right">
+                    Total
+                  </th>
+                  <th scope="col" className="p-3 text-right">
+                    Still due
+                  </th>
+                  <th scope="col" className="p-3">
+                    <span className="sr-only">Open</span>
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {invoices.map((inv) => (
                   <tr key={inv.id} data-testid="invoice-row" className="border-t border-slate-100">
-                    <td className="p-3"><PatientName id={inv.patient} link={false} /></td>
+                    <td className="p-3">
+                      <PatientName id={inv.patient} link={false} />
+                    </td>
                     <td className="p-3">{formatDateTime(inv.created_at)}</td>
-                    <td className="p-3">{humanise(inv.payment_status)}{inv.estate_review ? " · estate review" : ""}</td>
+                    <td className="p-3">
+                      {humanise(inv.payment_status)}
+                      {inv.estate_review ? " · estate review" : ""}
+                    </td>
                     <td className="p-3 text-right">{formatMoney(inv.total_minor, inv.currency)}</td>
-                    <td className="p-3 text-right">{formatMoney(inv.net_due_minor, inv.currency)}</td>
+                    <td className="p-3 text-right">
+                      {formatMoney(inv.net_due_minor, inv.currency)}
+                    </td>
                     <td className="p-3">
                       <Link href={`/invoices/${inv.id}`} className="text-teal-800 underline">
                         Open

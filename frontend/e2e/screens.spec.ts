@@ -99,7 +99,9 @@ test.describe("doctor", () => {
     expect(response.ok()).toBeTruthy();
     await desk.dispose();
 
-    await expect(page.getByTestId("queue-entry").filter({ hasText: seed.queued_patient })).toBeVisible();
+    await expect(
+      page.getByTestId("queue-entry").filter({ hasText: seed.queued_patient }),
+    ).toBeVisible();
   });
 
   test("prescribes through the allergy alert with an override reason", async ({ page }) => {
@@ -116,10 +118,14 @@ test.describe("doctor", () => {
     await expect(alert).toContainText("must override");
     const sign = dialog.getByRole("button", { name: "Override and sign" });
     await expect(sign).toBeDisabled();
-    await dialog.getByLabel("Reason for overriding").fill("Allergy history disputed; test dose supervised");
+    await dialog
+      .getByLabel("Reason for overriding")
+      .fill("Allergy history disputed; test dose supervised");
     await sign.click();
 
-    await expect(page.getByRole("status").filter({ hasText: "Prescription Authorised" })).toBeVisible();
+    await expect(
+      page.getByRole("status").filter({ hasText: "Prescription Authorised" }),
+    ).toBeVisible();
     await expect(page.getByText("Allergy history disputed; test dose supervised")).toBeVisible();
   });
 });

@@ -1,0 +1,6 @@
+/*
+ * Design tokens from docs/DESIGN.md Section 10 (filled in by F1).
+ * Components use these tokens only: no raw hex values anywhere else.
+ */
+:root {
+}

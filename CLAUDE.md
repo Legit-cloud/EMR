@@ -21,7 +21,7 @@
 - No real patient data anywhere: not in code, tests, fixtures, logs, prompts or screenshots. Seed data is synthetic.
 - Never paste secrets into prompts, files or logs. Secrets live in environment variables only.
 - **No GitHub Actions and no other CI service.** Do not create `.github/workflows`. Checks run locally and in git hooks only (see Section 8).
-- **Exactly two checks, never more:** (1) `ruff` (lint and format check) and (2) `pytest`. Do not add mypy, import-linter, pip-audit, coverage gates, Dependabot or any other check or gate. Rules that would need a tool (module boundaries, migration drift) are written as ordinary pytest tests instead.
+- **These checks, never more:** backend (1) `ruff` (lint and format check) and (2) `pytest`; frontend (3) ESLint plus a Prettier check and (4) Vitest. Playwright browser tests run on demand (`make e2e`), not in `make check`. Do not add mypy, import-linter, pip-audit, coverage gates, Dependabot or any other check or gate. Rules that would need a tool (module boundaries, migration drift) are written as ordinary pytest tests instead.
 - Run `make check` before saying a task is done. If something cannot be verified, say so plainly.
 - Prefer boring, standard Django. Do not add a dependency without stating why in the pull request.
 
@@ -160,7 +160,7 @@ Super admin (platform), Tenant admin, Doctor, Nurse, Pharmacist, Lab / imaging t
 
 ## 8. Quality bar and definition of done
 
-- Every requirement implemented has tests; all tests pass; `make check` is green. It runs exactly two checks: `ruff` (lint plus format check) and `pytest`. The test suite includes the module-boundary test and a migration-drift test (`makemigrations --check --dry-run` must report no changes).
+- Every requirement implemented has tests; all tests pass; `make check` is green. It runs the backend checks, `ruff` (lint plus format check) then `pytest`, then the frontend checks, ESLint plus Prettier then Vitest. The test suite includes the module-boundary test and a migration-drift test (`makemigrations --check --dry-run` must report no changes).
 - Authorisation and tenant-isolation tests exist for every endpoint.
 - Migrations are reversible where possible and never edited after merge.
 - Clinical, pharmacy and billing logic is reviewed by a human with clinical or finance responsibility before release. AI review does not replace this.
@@ -214,7 +214,7 @@ Target layout:
 ├── railway.toml                   # build and deploy config (web); worker/beat set per service
 ├── .env.example                   # every variable, with safe dummy values
 ├── .gitignore  .dockerignore  .editorconfig
-├── .githooks/pre-push             # runs `make check` (activated by `make install`)
+├── .githooks/pre-push             # runs the checks (activated by `make install`)
 ├── .github/
 │   ├── pull_request_template.md   # templates only; NO workflows folder
 │   └── CODEOWNERS
@@ -237,7 +237,8 @@ Target layout:
 
 - Python 3.12, **uv** for dependency management, Django 5.x LTS-compatible stack, DRF, `drf-spectacular` (OpenAPI), `django-environ` or `environs`, `psycopg[binary]`, `celery`, `redis`, `channels`, `channels-redis`, `uvicorn` with `gunicorn`, `whitenoise`, `django-otp`, `django-storages[s3]`, `sentry-sdk`.
 - Dev: `pytest`, `pytest-django`, `factory-boy`, `ruff` (lint and format). Nothing else: no mypy, import-linter, pip-audit or pre-commit framework.
-- `make` targets: `install` (also runs `git config core.hooksPath .githooks`), `run`, `worker`, `beat`, `lint` (ruff check plus ruff format --check), `format`, `test` (pytest), `check` (**lint then test, only these two**), `seed`, `shell`, `up`, `down`.
+- Frontend (`frontend/`): pnpm, ESLint (Next.js config, jsx-a11y) plus Prettier, Vitest with Testing Library and MSW, Playwright for browser tests. Node runs in containers: `docker compose --profile tools run --rm frontend-tools` runs `pnpm check` on a host without Node.
+- `make` targets: `install` (also runs `git config core.hooksPath .githooks`), `run`, `worker`, `beat`, `lint` (ruff check plus ruff format --check), `format`, `test` (pytest), `frontend-check` (`pnpm --dir frontend check`: ESLint and Prettier, then Vitest), `check` (**lint, test, then frontend-check, only these**), `seed`, `shell`, `up`, `down`, `openapi` (schema and typed client), `e2e` (Playwright, on demand).
 
 ### Railway setup (human does the clicks; Claude prepares the files)
 
@@ -249,7 +250,7 @@ Target layout:
    - beat: `celery -A config beat -l info` (**exactly one replica**)
 4. Web pre-deploy command: `python manage.py migrate --noinput`. Health check path: `/healthz` (returns 200 only if the database and Redis respond).
 5. Variables per environment (never committed): `DJANGO_SETTINGS_MODULE=config.settings.production`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `S3_*` (endpoint, bucket, key, secret, region), `FIELD_ENCRYPTION_KEY`, `SENTRY_DSN`, SMS and email provider keys.
-6. Deploy the `staging` environment from the `staging` branch automatically on every push to it (the pre-push hook has already run the two checks locally). Deploy `production` by manual promotion or a protected tag.
+6. Deploy the `staging` environment from the `staging` branch automatically on every push to it (the pre-push hook has already run the checks locally). Deploy `production` by manual promotion or a protected tag.
 7. Before any real patient data: confirm Railway region and terms against data-residency rules (DG-06), enable and test backups, set up an encrypted off-platform backup copy (SEC-08).
 
 ### GitHub setup (human)

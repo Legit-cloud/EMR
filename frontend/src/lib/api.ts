@@ -31,7 +31,11 @@ const csrf: Middleware = {
   },
 };
 
-export const api = createClient<paths>({ baseUrl: "", credentials: "same-origin" });
+export const api = createClient<paths>({
+  // Empty means the same origin: the edge proxy serves the app and the API together.
+  baseUrl: process.env.NEXT_PUBLIC_API_URL ?? "",
+  credentials: "same-origin",
+});
 api.use(csrf);
 
 /** The standard error body of the API: {"error": {"code", "message", "details"}}. */

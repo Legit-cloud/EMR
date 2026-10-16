@@ -84,7 +84,11 @@ test("lists invoices by status", async ({ page }) => {
   await page.getByRole("tab", { name: "Paid", exact: true }).click();
   await expect(page.getByTestId("invoice-row").filter({ hasText: "Ngozi Eze" })).toHaveCount(1);
   await expect(page.getByTestId("invoice-row").filter({ hasText: "Bisi Lawal" })).toHaveCount(1);
-  await page.getByTestId("invoice-row").filter({ hasText: "Bisi Lawal" }).getByRole("link", { name: "Open" }).click();
+  await page
+    .getByTestId("invoice-row")
+    .filter({ hasText: "Bisi Lawal" })
+    .getByRole("link", { name: "Open" })
+    .click();
   await expect(page.getByTestId("payment-status")).toHaveText("Paid");
 });
 

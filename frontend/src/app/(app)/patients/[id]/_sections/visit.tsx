@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Dialog, Notice, Select, TextArea } from "@/components/ui";
+import { Button, Card, Dialog, Notice, Select, TextArea } from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime, humanise } from "@/lib/format";
 
@@ -52,7 +52,9 @@ export function VisitPanel({
           {openEncounter.reason ? ` — ${openEncounter.reason}` : ""}.
         </p>
       ) : (
-        <p className="text-sm text-slate-700">No visit in progress. Start one to record vitals, diagnoses, notes or prescriptions.</p>
+        <p className="text-sm text-slate-700">
+          No visit in progress. Start one to record vitals, diagnoses, notes or prescriptions.
+        </p>
       )}
       <StartVisitDialog
         open={starting}
@@ -80,7 +82,12 @@ function StartVisitDialog({
 }) {
   const [facilities, setFacilities] = useState<Schemas["Facility"][]>([]);
   const [departments, setDepartments] = useState<Schemas["Department"][]>([]);
-  const [form, setForm] = useState({ encounter_class: "outpatient", facility: "", department: "", reason: "" });
+  const [form, setForm] = useState({
+    encounter_class: "outpatient",
+    facility: "",
+    department: "",
+    reason: "",
+  });
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -94,11 +101,16 @@ function StartVisitDialog({
 
   useEffect(() => {
     if (!form.facility) return;
-    api.GET("/api/tenants/departments/", { params: { query: { facility: form.facility } } }).then(({ data }) => {
-      const list = data?.results ?? [];
-      setDepartments(list);
-      setForm((f) => ({ ...f, department: list.some((d) => d.id === f.department) ? f.department : (list[0]?.id ?? "") }));
-    });
+    api
+      .GET("/api/tenants/departments/", { params: { query: { facility: form.facility } } })
+      .then(({ data }) => {
+        const list = data?.results ?? [];
+        setDepartments(list);
+        setForm((f) => ({
+          ...f,
+          department: list.some((d) => d.id === f.department) ? f.department : (list[0]?.id ?? ""),
+        }));
+      });
   }, [form.facility]);
 
   async function submit(event: FormEvent) {
@@ -120,20 +132,32 @@ function StartVisitDialog({
     <Dialog open={open} title="Start visit" onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         {error && <Notice tone="error" title={error} />}
-        <Select label="Type of visit" value={form.encounter_class} onChange={(e) => setForm({ ...form, encounter_class: e.target.value })}>
+        <Select
+          label="Type of visit"
+          value={form.encounter_class}
+          onChange={(e) => setForm({ ...form, encounter_class: e.target.value })}
+        >
           <option value="outpatient">Outpatient</option>
           <option value="emergency">Emergency</option>
           <option value="inpatient">Inpatient</option>
           <option value="virtual">Virtual</option>
         </Select>
-        <Select label="Facility" value={form.facility} onChange={(e) => setForm({ ...form, facility: e.target.value })}>
+        <Select
+          label="Facility"
+          value={form.facility}
+          onChange={(e) => setForm({ ...form, facility: e.target.value })}
+        >
           {facilities.map((f) => (
             <option key={f.id} value={f.id}>
               {f.name}
             </option>
           ))}
         </Select>
-        <Select label="Department" value={form.department} onChange={(e) => setForm({ ...form, department: e.target.value })}>
+        <Select
+          label="Department"
+          value={form.department}
+          onChange={(e) => setForm({ ...form, department: e.target.value })}
+        >
           <option value="">None</option>
           {departments.map((d) => (
             <option key={d.id} value={d.id}>
@@ -141,7 +165,11 @@ function StartVisitDialog({
             </option>
           ))}
         </Select>
-        <TextArea label="Reason for the visit" value={form.reason} onChange={(e) => setForm({ ...form, reason: e.target.value })} />
+        <TextArea
+          label="Reason for the visit"
+          value={form.reason}
+          onChange={(e) => setForm({ ...form, reason: e.target.value })}
+        />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel

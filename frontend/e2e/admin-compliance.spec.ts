@@ -63,7 +63,9 @@ test.describe("compliance officer", () => {
 
   test("reviews a break-glass access and finds it in the audit log", async ({ page }) => {
     await page.goto("/compliance");
-    const grant = page.getByTestId("grant").filter({ hasText: "Covering the emergency department overnight" });
+    const grant = page
+      .getByTestId("grant")
+      .filter({ hasText: "Covering the emergency department overnight" });
     await grant.getByRole("button", { name: "Review" }).click();
     const dialog = page.getByRole("dialog", { name: "Review break-glass access" });
     await dialog.getByLabel("Outcome").selectOption("inappropriate");
@@ -72,12 +74,16 @@ test.describe("compliance officer", () => {
     await expect(page.getByRole("status").filter({ hasText: "inappropriate" })).toBeVisible();
 
     await page.getByLabel("Show").selectOption("inappropriate");
-    await expect(page.getByTestId("grant").filter({ hasText: "Patient was not in the emergency department" })).toBeVisible();
+    await expect(
+      page.getByTestId("grant").filter({ hasText: "Patient was not in the emergency department" }),
+    ).toBeVisible();
 
     await page.goto("/compliance/audit");
     await page.getByLabel("Action").selectOption("break_glass_review");
     await page.getByRole("button", { name: "Filter" }).click();
-    await expect(page.getByTestId("audit-entry").first()).toContainText("Patient was not in the emergency department");
+    await expect(page.getByTestId("audit-entry").first()).toContainText(
+      "Patient was not in the emergency department",
+    );
   });
 
   test("cannot manage users", async ({ page }) => {

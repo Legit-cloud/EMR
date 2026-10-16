@@ -2,7 +2,16 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Dialog, Field, Notice, ReasonDialog, Select, TextArea } from "@/components/ui";
+import {
+  Button,
+  Card,
+  Dialog,
+  Field,
+  Notice,
+  ReasonDialog,
+  Select,
+  TextArea,
+} from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDate, humanise, lagosToday } from "@/lib/format";
 import { useLoad } from "@/lib/useLoad";
@@ -18,7 +27,13 @@ const CURRENT = new Set(["active", "recurrence"]);
  * Diagnoses: the problem list (current, not refuted) and past diagnoses. Status changes
  * follow the server's transition rules; the buttons only offer the usual next steps.
  */
-export function DiagnosesSection({ patientId, encounterId }: { patientId: string; encounterId?: string }) {
+export function DiagnosesSection({
+  patientId,
+  encounterId,
+}: {
+  patientId: string;
+  encounterId?: string;
+}) {
   const [rows, reload] = useLoad<Diagnosis[]>(
     () => api.GET("/api/clinical/diagnoses/", { params: { query: { patient: patientId } } }),
     [patientId],
@@ -44,10 +59,14 @@ export function DiagnosesSection({ patientId, encounterId }: { patientId: string
     return true;
   }
 
-  const isCurrent = (d: Diagnosis) => CURRENT.has(d.clinical_status ?? "active") && d.verification_status !== "refuted";
+  const isCurrent = (d: Diagnosis) =>
+    CURRENT.has(d.clinical_status ?? "active") && d.verification_status !== "refuted";
 
   return (
-    <Card title="Problem list" actions={encounterId ? <Button onClick={() => setAdding(true)}>Add diagnosis</Button> : null}>
+    <Card
+      title="Problem list"
+      actions={encounterId ? <Button onClick={() => setAdding(true)}>Add diagnosis</Button> : null}
+    >
       {error && <Notice tone="error" title={error} />}
       <Show value={rows}>
         {(all) => {
@@ -56,11 +75,23 @@ export function DiagnosesSection({ patientId, encounterId }: { patientId: string
           return (
             <div className="flex flex-col gap-3">
               {current.length === 0 && <p className="text-slate-600">No current diagnoses.</p>}
-              <DiagnosisList rows={current} onPatch={patch} onResolve={setResolving} onErroneous={setErroneous} />
+              <DiagnosisList
+                rows={current}
+                onPatch={patch}
+                onResolve={setResolving}
+                onErroneous={setErroneous}
+              />
               {past.length > 0 && (
                 <details>
-                  <summary className="cursor-pointer text-sm font-medium text-slate-700">Past and refuted ({past.length})</summary>
-                  <DiagnosisList rows={past} onPatch={patch} onResolve={setResolving} onErroneous={setErroneous} />
+                  <summary className="cursor-pointer text-sm font-medium text-slate-700">
+                    Past and refuted ({past.length})
+                  </summary>
+                  <DiagnosisList
+                    rows={past}
+                    onPatch={patch}
+                    onResolve={setResolving}
+                    onErroneous={setErroneous}
+                  />
                 </details>
               )}
             </div>
@@ -82,7 +113,11 @@ export function DiagnosesSection({ patientId, encounterId }: { patientId: string
         diagnosis={resolving}
         onClose={() => setResolving(null)}
         onResolve={async (date) => {
-          if (resolving && (await patch(resolving, { clinical_status: "resolved", abatement_date: date }))) setResolving(null);
+          if (
+            resolving &&
+            (await patch(resolving, { clinical_status: "resolved", abatement_date: date }))
+          )
+            setResolving(null);
         }}
       />
       <ReasonDialog
@@ -92,10 +127,13 @@ export function DiagnosesSection({ patientId, encounterId }: { patientId: string
         confirmLabel="Mark as entered in error"
         onClose={() => setErroneous(null)}
         onConfirm={async (reason) => {
-          const { error: failure } = await api.POST("/api/clinical/diagnoses/{id}/entered-in-error/", {
-            params: { path: { id: erroneous!.id } },
-            body: { reason },
-          });
+          const { error: failure } = await api.POST(
+            "/api/clinical/diagnoses/{id}/entered-in-error/",
+            {
+              params: { path: { id: erroneous!.id } },
+              body: { reason },
+            },
+          );
           if (failure) return apiError(failure).message;
           setErroneous(null);
           reload();
@@ -123,7 +161,11 @@ function DiagnosisList({
         const clinical = d.clinical_status ?? "active";
         const verification = d.verification_status ?? "unconfirmed";
         return (
-          <li key={d.id} data-testid="diagnosis" className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2">
+          <li
+            key={d.id}
+            data-testid="diagnosis"
+            className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2"
+          >
             <span className="font-mono text-sm">{d.code}</span>
             <span className="font-medium">{d.display}</span>
             <span className="text-sm text-slate-600">
@@ -131,11 +173,25 @@ function DiagnosisList({
               {d.abatement_date ? `, abated ${formatDate(d.abatement_date)}` : ""}
             </span>
             <span className="ml-auto flex flex-wrap gap-1">
-              {verification === "unconfirmed" && <RowAction onClick={() => onPatch(d, { verification_status: "confirmed" })}>Confirm</RowAction>}
-              {verification !== "refuted" && <RowAction onClick={() => onPatch(d, { verification_status: "refuted" })}>Refute</RowAction>}
+              {verification === "unconfirmed" && (
+                <RowAction onClick={() => onPatch(d, { verification_status: "confirmed" })}>
+                  Confirm
+                </RowAction>
+              )}
+              {verification !== "refuted" && (
+                <RowAction onClick={() => onPatch(d, { verification_status: "refuted" })}>
+                  Refute
+                </RowAction>
+              )}
               {CURRENT.has(clinical) && <RowAction onClick={() => onResolve(d)}>Resolve</RowAction>}
               {!CURRENT.has(clinical) && (
-                <RowAction onClick={() => onPatch(d, { clinical_status: "recurrence", abatement_date: null })}>Recurrence</RowAction>
+                <RowAction
+                  onClick={() =>
+                    onPatch(d, { clinical_status: "recurrence", abatement_date: null })
+                  }
+                >
+                  Recurrence
+                </RowAction>
               )}
               <RowAction onClick={() => onErroneous(d)}>Entered in error</RowAction>
             </span>
@@ -157,7 +213,11 @@ function ResolveDialog({
 }) {
   const [date, setDate] = useState(lagosToday());
   return (
-    <Dialog open={diagnosis !== null} title={`Resolve ${diagnosis?.display ?? ""}`} onClose={onClose}>
+    <Dialog
+      open={diagnosis !== null}
+      title={`Resolve ${diagnosis?.display ?? ""}`}
+      onClose={onClose}
+    >
       <form
         className="flex flex-col gap-4"
         onSubmit={(event) => {
@@ -165,7 +225,14 @@ function ResolveDialog({
           onResolve(date);
         }}
       >
-        <Field label="Date the condition resolved" type="date" required value={date} max={lagosToday()} onChange={(e) => setDate(e.target.value)} />
+        <Field
+          label="Date the condition resolved"
+          type="date"
+          required
+          value={date}
+          max={lagosToday()}
+          onChange={(e) => setDate(e.target.value)}
+        />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>
             Cancel
@@ -209,7 +276,9 @@ function AddDiagnosisDialog({
   useEffect(() => {
     if (query.trim().length < 2) return setMatches([]);
     const timer = setTimeout(async () => {
-      const { data } = await api.GET("/api/clinical/codes/icd10/", { params: { query: { q: query } } });
+      const { data } = await api.GET("/api/clinical/codes/icd10/", {
+        params: { query: { q: query } },
+      });
       setMatches(data?.results ?? []);
     }, 250);
     return () => clearTimeout(timer);
@@ -235,25 +304,51 @@ function AddDiagnosisDialog({
     <Dialog open={open} title="Add diagnosis" onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         {error && <Notice tone="error" title={error} />}
-        <Field label="Search ICD-10 (code or words)" type="search" value={query} onChange={(e) => setQuery(e.target.value)} autoFocus />
+        <Field
+          label="Search ICD-10 (code or words)"
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          autoFocus
+        />
         {matches.length > 0 && (
           <fieldset>
             <legend className="text-sm font-medium">Choose the code</legend>
             <div className="mt-1 flex max-h-56 flex-col gap-1 overflow-y-auto">
               {matches.map((m) => (
-                <label key={m.code} className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50">
-                  <input type="radio" name="icd10" value={m.code} checked={code === m.code} onChange={() => setCode(m.code)} />
+                <label
+                  key={m.code}
+                  className="flex min-h-11 items-center gap-2 rounded px-2 hover:bg-slate-50"
+                >
+                  <input
+                    type="radio"
+                    name="icd10"
+                    value={m.code}
+                    checked={code === m.code}
+                    onChange={() => setCode(m.code)}
+                  />
                   <span className="font-mono text-sm">{m.code}</span> {m.display}
                 </label>
               ))}
             </div>
           </fieldset>
         )}
-        <Select label="Verification" value={verification} onChange={(e) => setVerification(e.target.value)}>
+        <Select
+          label="Verification"
+          value={verification}
+          onChange={(e) => setVerification(e.target.value)}
+        >
           <option value="unconfirmed">Unconfirmed / suspected</option>
           <option value="confirmed">Confirmed</option>
         </Select>
-        <Field label="Onset date" type="date" value={onset} max={lagosToday()} onChange={(e) => setOnset(e.target.value)} hint="Optional" />
+        <Field
+          label="Onset date"
+          type="date"
+          value={onset}
+          max={lagosToday()}
+          onChange={(e) => setOnset(e.target.value)}
+          hint="Optional"
+        />
         <TextArea label="Note" value={note} onChange={(e) => setNote(e.target.value)} />
         <div className="flex justify-end gap-2">
           <Button variant="secondary" onClick={onClose}>

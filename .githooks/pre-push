@@ -1,10 +1,12 @@
 #!/bin/sh
-# Runs the two project checks (ruff, pytest) before every push.
-# Uses make on the host when uv and make are installed, otherwise the dev container.
+# Runs the project checks before every push: ruff and pytest for the backend,
+# then ESLint, Prettier and Vitest for the frontend.
+# Uses make on the host when make, uv and pnpm are installed, otherwise containers.
 set -e
 
-if command -v make >/dev/null 2>&1 && command -v uv >/dev/null 2>&1; then
+if command -v make >/dev/null 2>&1 && command -v uv >/dev/null 2>&1 && command -v pnpm >/dev/null 2>&1; then
     make check
 else
-    docker compose run --rm --build web make check
+    docker compose run --rm --build web make lint test
+    docker compose --profile tools run --rm frontend-tools
 fi

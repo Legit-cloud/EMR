@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import { Loading, NoAccess, Select } from "@/components/ui";
+import { Loading, NoAccess, Select } from "@/components/legacy-ui";
 import { api, type Schemas } from "@/lib/api";
 import { formatTime, humanise } from "@/lib/format";
 import { useMe } from "@/lib/session";
@@ -16,7 +16,9 @@ type Connection = "connecting" | "live" | "reconnecting" | "refused";
  */
 export default function QueuePage() {
   const me = useMe();
-  const [physicians, setPhysicians] = useState<Schemas["StaffProfile"][] | "forbidden" | null>(null);
+  const [physicians, setPhysicians] = useState<Schemas["StaffProfile"][] | "forbidden" | null>(
+    null,
+  );
   const [physician, setPhysician] = useState("");
   const [queue, setQueue] = useState<Entry[] | null>(null);
   const [connection, setConnection] = useState<Connection>("connecting");
@@ -24,13 +26,15 @@ export default function QueuePage() {
   const retry = useRef(0);
 
   useEffect(() => {
-    api.GET("/api/staff/profiles/", { params: { query: { staff_type: "physician" } } }).then(({ data, response }) => {
-      if (response.status === 403) return setPhysicians("forbidden");
-      const list = data?.results ?? [];
-      setPhysicians(list);
-      const own = list.find((p) => p.user === me.id);
-      setPhysician(own?.user ?? list[0]?.user ?? "");
-    });
+    api
+      .GET("/api/staff/profiles/", { params: { query: { staff_type: "physician" } } })
+      .then(({ data, response }) => {
+        if (response.status === 403) return setPhysicians("forbidden");
+        const list = data?.results ?? [];
+        setPhysicians(list);
+        const own = list.find((p) => p.user === me.id);
+        setPhysician(own?.user ?? list[0]?.user ?? "");
+      });
   }, [me.id]);
 
   useEffect(() => {
@@ -40,9 +44,11 @@ export default function QueuePage() {
     let stopped = false;
 
     // A first load over HTTP, so the page is useful even before the socket connects.
-    api.GET("/api/scheduling/appointments/queue/", { params: { query: { physician } } }).then(({ data }) => {
-      if (data && !stopped) setQueue(data);
-    });
+    api
+      .GET("/api/scheduling/appointments/queue/", { params: { query: { physician } } })
+      .then(({ data }) => {
+        if (data && !stopped) setQueue(data);
+      });
 
     function connect() {
       const scheme = window.location.protocol === "https:" ? "wss" : "ws";
@@ -85,7 +91,14 @@ export default function QueuePage() {
             aria-hidden
             className={`mr-2 inline-block h-2.5 w-2.5 rounded-full ${connection === "live" ? "bg-emerald-600" : connection === "refused" ? "bg-red-600" : "bg-amber-500"}`}
           />
-          {{ connecting: "Connecting…", live: "Live", reconnecting: "Reconnecting…", refused: "Live updates not allowed" }[connection]}
+          {
+            {
+              connecting: "Connecting…",
+              live: "Live",
+              reconnecting: "Reconnecting…",
+              refused: "Live updates not allowed",
+            }[connection]
+          }
         </p>
       </div>
       <div className="max-w-sm">

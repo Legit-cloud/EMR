@@ -1,0 +1,11 @@
+.next
+node_modules
+pnpm-lock.yaml
+openapi.yaml
+src/lib/schema.d.ts
+public/mockServiceWorker.js
+playwright-report
+test-results
+e2e/.seed.json
+e2e/.auth
+.pnpm-store

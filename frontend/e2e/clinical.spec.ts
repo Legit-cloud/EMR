@@ -6,7 +6,11 @@ const seed = loadSeed();
 
 test.use({ storageState: authFile("doctor") });
 
-async function markEnteredInError(page: Page, row: ReturnType<Page["getByTestId"]>, reason: string) {
+async function markEnteredInError(
+  page: Page,
+  row: ReturnType<Page["getByTestId"]>,
+  reason: string,
+) {
   await row.getByRole("button", { name: "Entered in error" }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("Reason").fill(reason);
@@ -57,7 +61,9 @@ test("a doctor runs a visit: vitals, diagnosis, allergy, notes, finish", async (
   await diagnosis.getByRole("button", { name: "Resolve" }).click();
   await page.getByRole("dialog").getByRole("button", { name: "Resolve" }).click();
   await page.getByText(/Past and refuted/).click();
-  await expect(page.getByTestId("diagnosis").filter({ hasText: "B54" })).toContainText("Resolved, Confirmed");
+  await expect(page.getByTestId("diagnosis").filter({ hasText: "B54" })).toContainText(
+    "Resolved, Confirmed",
+  );
 
   // Allergy added, then corrected as entered in error.
   await page.getByRole("button", { name: "Add allergy" }).click();
@@ -86,7 +92,9 @@ test("a doctor runs a visit: vitals, diagnosis, allergy, notes, finish", async (
   const addendum = page.getByRole("dialog", { name: "Addendum" });
   await addendum.getByLabel("Assessment").fill("RDT positive");
   await addendum.getByRole("button", { name: "Save note" }).click();
-  await expect(page.getByTestId("note").filter({ hasText: "RDT positive" })).toContainText("Addendum");
+  await expect(page.getByTestId("note").filter({ hasText: "RDT positive" })).toContainText(
+    "Addendum",
+  );
 
   // Finish the visit.
   await page.getByRole("button", { name: "Finish visit" }).click();

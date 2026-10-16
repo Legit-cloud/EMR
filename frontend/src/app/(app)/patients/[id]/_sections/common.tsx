@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 
-import { Loading, NoAccess } from "@/components/ui";
+import { Loading, NoAccess } from "@/components/legacy-ui";
 import type { Loaded } from "@/lib/useLoad";
 
 /** Render a section's data, or its loading / no-access state. */

@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Dialog, Field, Notice, ReasonDialog, Select } from "@/components/ui";
+import { Button, Card, Dialog, Field, Notice, ReasonDialog, Select } from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 import { humanise } from "@/lib/format";
 import { useLoad } from "@/lib/useLoad";
@@ -27,7 +27,12 @@ export function AllergiesSection({ patientId }: { patientId: string }) {
   const [erroneous, setErroneous] = useState<Allergy | null>(null);
 
   return (
-    <Card title="Allergies" actions={rows !== "forbidden" ? <Button onClick={() => setAdding(true)}>Add allergy</Button> : null}>
+    <Card
+      title="Allergies"
+      actions={
+        rows !== "forbidden" ? <Button onClick={() => setAdding(true)}>Add allergy</Button> : null
+      }
+    >
       <Show value={rows}>
         {(list) =>
           list.length === 0 ? (
@@ -37,7 +42,9 @@ export function AllergiesSection({ patientId }: { patientId: string }) {
               {list.map((a) => (
                 <li key={a.id} data-testid="allergy" className="flex flex-wrap items-center gap-2">
                   <span className="font-medium">{a.substance}</span>
-                  <span className={`rounded px-2 py-0.5 text-xs font-semibold ${SEVERITY_STYLE[a.severity] ?? ""}`}>
+                  <span
+                    className={`rounded px-2 py-0.5 text-xs font-semibold ${SEVERITY_STYLE[a.severity] ?? ""}`}
+                  >
                     {humanise(a.severity)}
                   </span>
                   <span className="text-sm text-slate-700">{a.reaction}</span>
@@ -128,15 +135,36 @@ function AddAllergyDialog({
     <Dialog open={open} title="Add allergy" onClose={onClose}>
       <form onSubmit={submit} className="flex flex-col gap-4">
         {failure && <Notice tone="error" title={failure} />}
-        <Field label="Substance" required value={form.substance} onChange={(e) => setForm({ ...form, substance: e.target.value })} error={errors.substance} hint="For a medicine, use the ingredient or class (for example Penicillin)." />
-        <Select label="Category" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })}>
+        <Field
+          label="Substance"
+          required
+          value={form.substance}
+          onChange={(e) => setForm({ ...form, substance: e.target.value })}
+          error={errors.substance}
+          hint="For a medicine, use the ingredient or class (for example Penicillin)."
+        />
+        <Select
+          label="Category"
+          value={form.category}
+          onChange={(e) => setForm({ ...form, category: e.target.value })}
+        >
           <option value="medication">Medication</option>
           <option value="food">Food</option>
           <option value="environment">Environment</option>
           <option value="biologic">Biologic</option>
         </Select>
-        <Field label="Reaction" required value={form.reaction} onChange={(e) => setForm({ ...form, reaction: e.target.value })} error={errors.reaction} />
-        <Select label="Severity" value={form.severity} onChange={(e) => setForm({ ...form, severity: e.target.value })}>
+        <Field
+          label="Reaction"
+          required
+          value={form.reaction}
+          onChange={(e) => setForm({ ...form, reaction: e.target.value })}
+          error={errors.reaction}
+        />
+        <Select
+          label="Severity"
+          value={form.severity}
+          onChange={(e) => setForm({ ...form, severity: e.target.value })}
+        >
           <option value="mild">Mild</option>
           <option value="moderate">Moderate</option>
           <option value="severe">Severe</option>

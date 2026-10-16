@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Loading, NoAccess, Notice, Select, TextArea } from "@/components/ui";
+import {
+  Button,
+  Dialog,
+  Loading,
+  NoAccess,
+  Notice,
+  Select,
+  TextArea,
+} from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime, humanise } from "@/lib/format";
 
@@ -33,19 +41,34 @@ export default function CompliancePage() {
 
   useEffect(() => {
     // Names are a convenience: compliance may not have user directory access.
-    api.GET("/api/accounts/users/").then(({ data }) =>
-      setUsers(Object.fromEntries((data?.results ?? []).map((u) => [u.id, [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username]))),
-    );
+    api
+      .GET("/api/accounts/users/")
+      .then(({ data }) =>
+        setUsers(
+          Object.fromEntries(
+            (data?.results ?? []).map((u) => [
+              u.id,
+              [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username,
+            ]),
+          ),
+        ),
+      );
   }, []);
 
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Break-glass review</h1>
-        <Link href="/compliance/audit" className="text-teal-800 underline">Audit log</Link>
+        <Link href="/compliance/audit" className="text-teal-800 underline">
+          Audit log
+        </Link>
       </div>
       <div className="max-w-xs">
-        <Select label="Show" value={status} onChange={(e) => setStatus(e.target.value as typeof status)}>
+        <Select
+          label="Show"
+          value={status}
+          onChange={(e) => setStatus(e.target.value as typeof status)}
+        >
           <option value="pending">Waiting for review</option>
           <option value="appropriate">Reviewed: appropriate</option>
           <option value="inappropriate">Reviewed: inappropriate</option>
@@ -61,19 +84,28 @@ export default function CompliancePage() {
       ) : (
         <ul className="flex flex-col gap-3">
           {grants.map((g) => (
-            <li key={g.id} data-testid="grant" className="rounded-lg border border-slate-200 bg-white p-4">
+            <li
+              key={g.id}
+              data-testid="grant"
+              className="rounded-lg border border-slate-200 bg-white p-4"
+            >
               <p className="font-medium">
-                {users[g.user] ?? "A clinician"} opened a {humanise(g.resource.split(".").pop() ?? "record")} record
+                {users[g.user] ?? "A clinician"} opened a{" "}
+                {humanise(g.resource.split(".").pop() ?? "record")} record
               </p>
               <p className="text-sm text-slate-700">“{g.reason}”</p>
               <p className="text-sm text-slate-600">
-                {formatDateTime(g.created_at)} · record {g.object_id.slice(0, 8)} · access until {formatDateTime(g.expires_at)}
+                {formatDateTime(g.created_at)} · record {g.object_id.slice(0, 8)} · access until{" "}
+                {formatDateTime(g.expires_at)}
               </p>
               {g.review_status === "pending" ? (
-                <Button className="mt-2" onClick={() => setReviewing(g)}>Review</Button>
+                <Button className="mt-2" onClick={() => setReviewing(g)}>
+                  Review
+                </Button>
               ) : (
                 <p className="mt-1 text-sm">
-                  {humanise(g.review_status)} {g.reviewed_at ? `on ${formatDateTime(g.reviewed_at)}` : ""}
+                  {humanise(g.review_status)}{" "}
+                  {g.reviewed_at ? `on ${formatDateTime(g.reviewed_at)}` : ""}
                   {g.review_note ? `: ${g.review_note}` : ""}
                 </p>
               )}
@@ -94,7 +126,15 @@ export default function CompliancePage() {
   );
 }
 
-function ReviewDialog({ grant, onClose, onDone }: { grant: Grant | null; onClose: () => void; onDone: (outcome: string) => void }) {
+function ReviewDialog({
+  grant,
+  onClose,
+  onDone,
+}: {
+  grant: Grant | null;
+  onClose: () => void;
+  onDone: (outcome: string) => void;
+}) {
   const [outcome, setOutcome] = useState<"appropriate" | "inappropriate">("appropriate");
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -121,13 +161,24 @@ function ReviewDialog({ grant, onClose, onDone }: { grant: Grant | null; onClose
       <form onSubmit={submit} className="flex flex-col gap-3">
         {error && <Notice tone="error" title={error} />}
         <p className="text-sm text-slate-700">Reason given: “{grant?.reason}”</p>
-        <Select label="Outcome" value={outcome} onChange={(e) => setOutcome(e.target.value as typeof outcome)}>
+        <Select
+          label="Outcome"
+          value={outcome}
+          onChange={(e) => setOutcome(e.target.value as typeof outcome)}
+        >
           <option value="appropriate">Appropriate</option>
           <option value="inappropriate">Inappropriate</option>
         </Select>
-        <TextArea label="Note" value={note} onChange={(e) => setNote(e.target.value)} hint="For example what you checked, or the follow-up agreed." />
+        <TextArea
+          label="Note"
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          hint="For example what you checked, or the follow-up agreed."
+        />
         <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>Cancel</Button>
+          <Button variant="secondary" onClick={onClose}>
+            Cancel
+          </Button>
           <Button type="submit">Record review</Button>
         </div>
       </form>
