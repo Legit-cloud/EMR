@@ -33,6 +33,8 @@ type ToneSpec = {
   tokens: { text: string; tint: string; solid: string };
   /** Status text on white or on the tint. */
   text: string;
+  /** Tint fill alone: icon tiles and tinted surfaces. */
+  tint: string;
   /** Status pill and table tag: tint fill, text-safe text. */
   pill: string;
   /** Calendar card: tint fill and a 1 px border at 40% of the solid. */
@@ -47,6 +49,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   blue: {
     tokens: { text: "blue-600", tint: "blue-100", solid: "blue-600" },
     text: "text-blue-600",
+    tint: "bg-blue-100",
     pill: "bg-blue-100 text-blue-600",
     card: "bg-blue-100 border border-blue-600/40",
     dot: "bg-blue-600",
@@ -55,6 +58,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   sky: {
     tokens: { text: "sky-text", tint: "sky-tint", solid: "sky" },
     text: "text-sky-text",
+    tint: "bg-sky-tint",
     pill: "bg-sky-tint text-sky-text",
     card: "bg-sky-tint border border-sky/40",
     dot: "bg-sky",
@@ -63,6 +67,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   teal: {
     tokens: { text: "teal-text", tint: "teal-tint", solid: "teal" },
     text: "text-teal-text",
+    tint: "bg-teal-tint",
     pill: "bg-teal-tint text-teal-text",
     card: "bg-teal-tint border border-teal/40",
     dot: "bg-teal",
@@ -71,6 +76,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   purple: {
     tokens: { text: "purple-text", tint: "purple-tint", solid: "purple" },
     text: "text-purple-text",
+    tint: "bg-purple-tint",
     pill: "bg-purple-tint text-purple-text",
     card: "bg-purple-tint border border-purple/40",
     dot: "bg-purple",
@@ -79,6 +85,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   green: {
     tokens: { text: "green-text", tint: "green-tint", solid: "green" },
     text: "text-green-text",
+    tint: "bg-green-tint",
     pill: "bg-green-tint text-green-text",
     card: "bg-green-tint border border-green/40",
     dot: "bg-green",
@@ -87,6 +94,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   amber: {
     tokens: { text: "amber-text", tint: "amber-tint", solid: "amber" },
     text: "text-amber-text",
+    tint: "bg-amber-tint",
     pill: "bg-amber-tint text-amber-text",
     card: "bg-amber-tint border border-amber/40",
     dot: "bg-amber",
@@ -95,6 +103,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   pink: {
     tokens: { text: "pink-text", tint: "pink-tint", solid: "pink" },
     text: "text-pink-text",
+    tint: "bg-pink-tint",
     pill: "bg-pink-tint text-pink-text",
     card: "bg-pink-tint border border-pink/40",
     dot: "bg-pink",
@@ -103,6 +112,7 @@ export const TONES: Record<Tone, ToneSpec> = {
   grey: {
     tokens: { text: "ink-600", tint: "pill-grey", solid: "ink-400" },
     text: "text-ink-600",
+    tint: "bg-pill-grey",
     pill: "bg-pill-grey text-ink-600",
     card: "bg-pill-grey border border-ink-400/40",
     dot: "bg-ink-400",

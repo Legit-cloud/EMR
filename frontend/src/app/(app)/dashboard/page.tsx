@@ -4,7 +4,7 @@ import Link from "next/link";
 
 import { visibleNav } from "@/components/layout/nav-config";
 import { PageGreeting } from "@/components/layout/page-container";
-import { FOCUS_RING } from "@/components/layout/sidebar";
+import { FOCUS_RING } from "@/components/ui/focus";
 import { useMe } from "@/lib/session";
 
 /** The greeting and shortcuts to the screens this user works in. */

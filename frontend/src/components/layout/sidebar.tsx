@@ -4,6 +4,8 @@ import { Buildings, CaretDown, CaretLeft, CaretRight, Check } from "@phosphor-ic
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import Link from "next/link";
 
+import { FOCUS_RING } from "@/components/ui/focus";
+
 import { LogoMark, PRODUCT_NAME } from "./logo";
 import { activeItem, type NavGroup } from "./nav-config";
 
@@ -28,9 +30,6 @@ type Props = {
   onToggleCollapsed?: () => void;
   onNavigate?: () => void;
 };
-
-export const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600";
 
 /** The staff app sidebar (docs/DESIGN.md Section 6). */
 export function Sidebar({

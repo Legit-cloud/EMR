@@ -1,4 +1,10 @@
-/** Initials on a coloured circle (docs/DESIGN.md Section 5). Photos come with the component library. */
+"use client";
+
+import { useState } from "react";
+
+import { cx } from "@/lib/cx";
+
+/** Photo, or initials on a coloured circle (docs/DESIGN.md Section 5). */
 
 // Tint fill with the text-safe shade, so the initials stay readable.
 const COLOURS = [
@@ -22,11 +28,38 @@ export function avatarColour(name: string): string {
   return COLOURS[hash % COLOURS.length];
 }
 
-export function Avatar({ name, size = 32 }: { name: string; size?: 32 | 40 }) {
+type Props = {
+  name: string;
+  size?: 32 | 40;
+  /** Photo URL (staff photos are short-lived signed URLs). Patients default to initials. */
+  src?: string;
+  /** Set when the name is not shown next to the avatar, so screen readers still get it. */
+  labelled?: boolean;
+};
+
+export function Avatar({ name, size = 32, src, labelled = false }: Props) {
+  const [broken, setBroken] = useState(false);
+  const box = size === 40 ? "size-10" : "size-8";
+  const a11y = labelled ? { role: "img", "aria-label": name } : { "aria-hidden": true };
+
+  if (src && !broken) {
+    return (
+      <span {...a11y} className={cx("inline-block shrink-0 overflow-hidden rounded-full", box)}>
+        {/* Signed storage URLs change on every request, so next/image cannot cache them. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" className="size-full object-cover" onError={() => setBroken(true)} />
+      </span>
+    );
+  }
+
   return (
     <span
-      aria-hidden
-      className={`text-small inline-grid shrink-0 place-items-center rounded-full font-bold ${avatarColour(name)} ${size === 40 ? "size-10" : "size-8"}`}
+      {...a11y}
+      className={cx(
+        "text-small inline-grid shrink-0 place-items-center rounded-full font-bold",
+        avatarColour(name),
+        box,
+      )}
     >
       {initials(name)}
     </span>

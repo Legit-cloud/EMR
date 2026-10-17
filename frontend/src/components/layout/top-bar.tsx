@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useEffect, useRef, useSyncExternalStore } from "react";
 
 import { Avatar } from "@/components/ui/avatar";
+import { FOCUS_RING } from "@/components/ui/focus";
+import { MENU_CONTENT, MENU_ITEM } from "@/components/ui/menu";
 
 import type { QuickCreateItem } from "./nav-config";
-import { FOCUS_RING } from "./sidebar";
 
 type Props = {
   title: string;
@@ -20,10 +21,6 @@ type Props = {
   /** Tenant setup steps; the chip hides when absent or complete. */
   setup?: { done: number; total: number };
 };
-
-const MENU_CONTENT = "rounded-menu border-line bg-surface shadow-pop z-50 min-w-48 border p-1";
-const MENU_ITEM =
-  "rounded-control text-body text-ink-900 data-[highlighted]:bg-nav-hover flex h-10 cursor-pointer items-center gap-2 px-3 outline-none";
 
 function subscribeNever() {
   return () => {};
