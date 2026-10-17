@@ -116,3 +116,43 @@
 @utility tnum {
   font-variant-numeric: tabular-nums;
 }
+
+/*
+ * Motion (Section 4): 150 ms ease-out for menus, dialogs and toasts, a 220 ms slide for
+ * drawers. Components add motion-reduce:animate-none so reduced-motion users get none.
+ */
+@theme {
+  --animate-fade-in: fade-in 150ms ease-out;
+  --animate-pop-in: pop-in 150ms ease-out;
+  --animate-drawer-in: drawer-in 220ms ease-out;
+  --animate-toast-in: toast-in 150ms ease-out;
+  --animate-skeleton: skeleton 1.4s ease-in-out infinite;
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes pop-in {
+    from {
+      opacity: 0;
+      transform: translateY(4px) scale(0.98);
+    }
+  }
+  @keyframes drawer-in {
+    from {
+      transform: translateX(100%);
+    }
+  }
+  @keyframes toast-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+  @keyframes skeleton {
+    50% {
+      opacity: 0.55;
+    }
+  }
+}

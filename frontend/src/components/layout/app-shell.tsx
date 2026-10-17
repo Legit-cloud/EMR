@@ -5,9 +5,11 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { usePathname } from "next/navigation";
 import { type ReactNode, useState } from "react";
 
+import { FOCUS_RING } from "@/components/ui/focus";
+
 import { PRODUCT_NAME } from "./logo";
 import { activeItem, roleLabel, visibleNav, visibleQuickCreate } from "./nav-config";
-import { type FacilitySwitch, FOCUS_RING, Sidebar } from "./sidebar";
+import { type FacilitySwitch, Sidebar } from "./sidebar";
 import { TopBar } from "./top-bar";
 import { useCollapsed } from "./use-collapsed";
 

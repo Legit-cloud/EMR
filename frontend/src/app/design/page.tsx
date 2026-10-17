@@ -2,14 +2,15 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 
+import { Card } from "@/components/ui/card";
 import { AA_TEXT, contrastRatio } from "@/lib/contrast";
 import { parseTokens, TEXT_PAIRS } from "@/lib/design-tokens";
 
+import { ComponentSamples } from "./component-samples";
 import { StatusSamples } from "./status-samples";
 
-export const metadata: Metadata = { title: "Design tokens", robots: { index: false } };
+export const metadata: Metadata = { title: "Design system", robots: { index: false } };
 export const dynamic = "force-static";
 
 // Full class names so Tailwind generates them.
@@ -61,20 +62,6 @@ const COLOUR_GROUPS = [
   { title: "Chart", match: (n: string) => n.startsWith("chart-") },
 ];
 
-function Card({ id, title, children }: { id: string; title: string; children: ReactNode }) {
-  return (
-    <section
-      aria-labelledby={id}
-      className="rounded-card border-line bg-surface shadow-card flex flex-col gap-4 border p-5"
-    >
-      <h2 id={id} className="text-card-title text-ink-900">
-        {title}
-      </h2>
-      {children}
-    </section>
-  );
-}
-
 /** Pass or fail is shown only for text pairs: most tokens are fills, never text. */
 function Ratio({ value }: { value: number }) {
   const pass = value >= AA_TEXT;
@@ -85,7 +72,7 @@ function Ratio({ value }: { value: number }) {
   );
 }
 
-/** Every design token and, as they are built, every component. Not linked from the app. */
+/** Every design token and every component. Not linked from the app. */
 export default function DesignPage() {
   const tokens = parseTokens(
     readFileSync(join(process.cwd(), "src", "styles", "tokens.css"), "utf-8"),
@@ -94,16 +81,17 @@ export default function DesignPage() {
   const white = tokens["surface"];
 
   return (
-    <main className="mx-auto flex max-w-[1440px] flex-col gap-5 p-6">
+    <main className="mx-auto flex max-w-[1440px] flex-col gap-5 p-4 sm:p-6">
       <header className="flex flex-col gap-1">
-        <h1 className="text-page-title text-ink-900">Design tokens</h1>
+        <h1 className="text-page-title text-ink-900">Design system</h1>
         <p className="text-body text-ink-600">
-          Values from src/styles/tokens.css, as specified in docs/DESIGN.md.
+          Tokens from src/styles/tokens.css and the components in src/components/ui, as specified in
+          docs/DESIGN.md. Sample data is synthetic.
         </p>
       </header>
 
-      {COLOUR_GROUPS.map((group, i) => (
-        <Card key={group.title} id={`colours-${i}`} title={group.title}>
+      {COLOUR_GROUPS.map((group) => (
+        <Card key={group.title} title={group.title}>
           <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {colours
               .filter(([name]) => group.match(name))
@@ -127,12 +115,12 @@ export default function DesignPage() {
         </Card>
       ))}
 
-      <Card id="text-pairs" title="Text pairs">
+      <Card title="Text pairs">
         <p className="text-small text-ink-600">
           Every text colour on each background DESIGN.md puts it on. All must reach 4.5:1; the unit
           tests fail if one does not.
         </p>
-        <div className="overflow-x-auto">
+        <div className="max-w-full min-w-0 overflow-x-auto">
           <table className="text-body w-full text-left">
             <caption className="sr-only">Text colour pairs and their contrast</caption>
             <thead className="bg-surface-muted text-label-caps text-ink-500 uppercase">
@@ -179,7 +167,7 @@ export default function DesignPage() {
         </div>
       </Card>
 
-      <Card id="type" title="Type scale">
+      <Card title="Type scale">
         <ul className="flex flex-col gap-3">
           {TYPE_SCALE.map((style) => (
             <li key={style.name} className="grid items-baseline gap-2 sm:grid-cols-[160px_1fr]">
@@ -190,7 +178,7 @@ export default function DesignPage() {
         </ul>
       </Card>
 
-      <Card id="shape" title="Radii and shadows">
+      <Card title="Radii and shadows">
         <div className="flex flex-wrap gap-6">
           {RADII.map((r) => (
             <div key={r.name} className="flex flex-col items-center gap-2">
@@ -207,9 +195,12 @@ export default function DesignPage() {
         </div>
       </Card>
 
-      <Card id="status" title="Status colours">
+      <Card title="Status colours">
         <StatusSamples />
       </Card>
+
+      <h2 className="text-page-title text-ink-900 mt-4">Components</h2>
+      <ComponentSamples />
     </main>
   );
 }

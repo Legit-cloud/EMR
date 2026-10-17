@@ -11,5 +11,8 @@ export default defineConfig({
     setupFiles: ["./vitest.setup.ts"],
     include: ["src/**/*.test.{ts,tsx}"],
     css: false,
+    // The checks run in Docker over a bind-mounted folder; with every file running in
+    // parallel, a file's first test (which also loads jsdom and the icon set) can pass 5 s.
+    testTimeout: 15_000,
   },
 });

@@ -1,5 +1,6 @@
 "use client";
 
+import { StatusPill } from "@/components/ui/status-pill";
 import {
   APPOINTMENT_STATUS,
   BED_STATUS,
@@ -24,18 +25,9 @@ export function StatusSamples() {
         <div key={title} className="flex flex-col gap-3">
           <h3 className="text-label-caps text-ink-500 uppercase">{title}</h3>
           <div className="flex flex-wrap gap-2">
-            {Object.entries(map).map(([key, spec]) => {
-              const tone = TONES[spec.tone];
-              return (
-                <span
-                  key={key}
-                  className={`text-pill rounded-tag inline-flex items-center gap-1.5 px-2 py-1 uppercase ${tone.pill}`}
-                >
-                  <span aria-hidden className={`size-1.5 rounded-full ${tone.dot}`} />
-                  {spec.label}
-                </span>
-              );
-            })}
+            {Object.entries(map).map(([key, spec]) => (
+              <StatusPill key={key} status={spec} />
+            ))}
           </div>
           <div className="flex flex-wrap gap-2">
             {Object.entries(map).map(([key, spec]) => {
