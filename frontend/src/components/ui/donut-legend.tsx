@@ -5,7 +5,7 @@ export type LegendItem = { label: string; value: number };
 
 /**
  * Legend for a donut chart: dot, name and percent, coloured in the Section 2.3 series order.
- * The donut itself comes with the charts in F4 and uses the same order.
+ * DonutChart (components/charts) pairs it with the ring in the same order.
  */
 export function DonutLegend({ items, label }: { items: LegendItem[]; label: string }) {
   const shares = percentages(items.map((item) => item.value));

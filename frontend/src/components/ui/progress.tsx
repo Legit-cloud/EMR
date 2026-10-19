@@ -3,6 +3,8 @@ import { useId } from "react";
 import { percentages, type SeriesFill } from "@/lib/chart-colours";
 import { cx } from "@/lib/cx";
 
+import { Loading, Skeleton } from "./skeleton";
+
 type ProgressProps = {
   /** Screen-reader name, for example "Items received". */
   label: string;
@@ -47,10 +49,36 @@ export function ProgressBar({ label, value, max, showFraction = true }: Progress
 
 export type Segment = { label: string; value: number; fill: SeriesFill };
 
+type SegmentedProps = {
+  label: string;
+  segments: Segment[];
+  loading?: boolean;
+  /** Shown instead of an empty bar when every segment is zero. */
+  emptyText?: string;
+};
+
 /** 6 px bar split into coloured segments, with a dot legend and counts below. */
-export function SegmentedStatBar({ label, segments }: { label: string; segments: Segment[] }) {
+export function SegmentedStatBar({
+  label,
+  segments,
+  loading = false,
+  emptyText = "Nothing recorded yet.",
+}: SegmentedProps) {
   const id = useId();
   const shares = percentages(segments.map((s) => s.value));
+  if (loading) {
+    return (
+      <Loading label={`Loading ${label.toLowerCase()}`}>
+        <div className="flex flex-col gap-3">
+          <Skeleton className="rounded-pill h-1.5 w-full" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+      </Loading>
+    );
+  }
+  if (segments.every((segment) => segment.value <= 0)) {
+    return <p className="text-small text-ink-600">{emptyText}</p>;
+  }
   return (
     <figure aria-labelledby={id} className="flex flex-col gap-3">
       <figcaption id={id} className="sr-only">

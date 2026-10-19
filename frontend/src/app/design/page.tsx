@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { AA_TEXT, contrastRatio } from "@/lib/contrast";
 import { parseTokens, TEXT_PAIRS } from "@/lib/design-tokens";
 
+import { ChartSamples } from "./chart-samples";
 import { ComponentSamples } from "./component-samples";
 import { StatusSamples } from "./status-samples";
 
@@ -201,6 +202,9 @@ export default function DesignPage() {
 
       <h2 className="text-page-title text-ink-900 mt-4">Components</h2>
       <ComponentSamples />
+
+      <h2 className="text-page-title text-ink-900 mt-4">Charts</h2>
+      <ChartSamples />
     </main>
   );
 }
