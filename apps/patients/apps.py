@@ -16,8 +16,11 @@ class PatientsConfig(AppConfig):
         view, create, update, remove = Action.VIEW, Action.CREATE, Action.UPDATE, Action.DELETE
         clinicians = {Role.DOCTOR, Role.NURSE}
         policy.register(
-            "patients.patient",
+            policy.PATIENT_RESOURCE,
             model=Patient,
+            # A break-glass grant on a patient opens all of that patient's clinical records.
+            break_glass=True,
+            patient_field="pk",
             grants=[
                 policy.grant(
                     {

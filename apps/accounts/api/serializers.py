@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.core.roles import Role
@@ -40,20 +41,44 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
     new_password = serializers.CharField(max_length=128, trim_whitespace=False)
 
 
+class AssignmentSerializer(serializers.Serializer):
+    role = serializers.CharField()
+    facility = serializers.UUIDField(allow_null=True, source="facility_id")
+    department = serializers.UUIDField(allow_null=True, source="department_id")
+
+
 class MeSerializer(serializers.ModelSerializer):
+    """The signed-in user and the attributes the web app uses to tailor menus and buttons.
+
+    These are hints for the interface only; every request is still authorised server-side.
+    """
+
     roles = serializers.SerializerMethodField()
     mfa_enabled = serializers.SerializerMethodField()
+    assignments = serializers.SerializerMethodField()
+    on_duty = serializers.SerializerMethodField()
+    can_break_glass = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ["id", "username", "email", "first_name", "last_name", "tenant", "roles"]
-        fields += ["mfa_enabled"]
+        fields += ["mfa_enabled", "assignments", "on_duty", "can_break_glass"]
 
     def get_roles(self, user) -> list[str]:
-        return sorted(self.context["roles"])
+        return sorted(self.context["subject"].roles)
 
     def get_mfa_enabled(self, user) -> bool:
         return self.context["mfa_enabled"]
+
+    @extend_schema_field(AssignmentSerializer(many=True))
+    def get_assignments(self, user):
+        return AssignmentSerializer(self.context["subject"].assignments, many=True).data
+
+    def get_on_duty(self, user) -> bool:
+        return self.context["subject"].on_duty()
+
+    def get_can_break_glass(self, user) -> bool:
+        return self.context["subject"].can_break_glass()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -101,3 +126,12 @@ class BreakGlassReviewSerializer(serializers.Serializer):
         choices=[BreakGlassReview.APPROPRIATE, BreakGlassReview.INAPPROPRIATE]
     )
     note = serializers.CharField(max_length=2000, allow_blank=True, default="")
+
+
+class PatientBreakGlassSerializer(serializers.Serializer):
+    """Whether part of a patient's chart is outside the user's access, and any open grant."""
+
+    patient = serializers.UUIDField()
+    hidden_records = serializers.BooleanField()
+    can_break_glass = serializers.BooleanField()
+    grant = BreakGlassGrantSerializer(allow_null=True)

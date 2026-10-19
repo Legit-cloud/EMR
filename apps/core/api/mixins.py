@@ -225,6 +225,12 @@ class PolicyViewSetMixin(TenantScopedAPIMixin):
             ids = [str(row.get("id")) for row in rows if isinstance(row, dict)]
             details["object_ids"] = ids[:MAX_AUDITED_IDS]
             details["count"] = len(ids)
+            used = policy.break_glass_grants_used(
+                self.policy_subject(), self.get_policy_resource(), ids
+            )
+            if used:
+                details["break_glass_grant_ids"] = used
+                reason = "break_glass"
         decision = self.policy_decision
         if decision is not None and decision.break_glass_grant_id:
             details["break_glass_grant_id"] = str(decision.break_glass_grant_id)

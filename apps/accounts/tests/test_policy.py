@@ -59,7 +59,8 @@ def test_sec_02_doctor_in_a_department_sees_only_that_department(
     assert client.get(f"{RECORDS}{org['r1'].id}/").status_code == 200
     response = client.get(f"{RECORDS}{org['r2'].id}/")
     assert response.status_code == 403
-    assert response.json()["error"]["code"] == "permission_denied"
+    # Still refused, but a clinician is told the record can be opened with break-glass.
+    assert response.json()["error"]["code"] == "break_glass_available"
 
 
 def test_sec_02_doctor_assigned_to_a_facility_sees_its_departments(

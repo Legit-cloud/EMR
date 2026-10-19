@@ -2,14 +2,16 @@
 
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePathname, useRouter } from "next/navigation";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
+import { IdleWarning } from "@/components/auth/idle-warning";
 import { AppShell } from "@/components/layout/app-shell";
 import { PageContainer } from "@/components/layout/page-container";
 import type { Facility } from "@/components/layout/sidebar";
 import { Loading } from "@/components/legacy-ui";
-import { api } from "@/lib/api";
+import { api, setSignedOutHandler } from "@/lib/api";
 import { SessionContext } from "@/lib/session";
+import { useIdleTimeout } from "@/lib/use-idle-timeout";
 
 const FACILITY_KEY = "emr.facility";
 
@@ -52,16 +54,46 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   // filtered by it yet: the API has no "current facility" setting.
   const [facilityId, setFacilityId] = useState(storedFacility);
 
+  // Set once this layout has sent the user to sign in, so clearing the cache (which makes
+  // /me answer "no session") does not redirect a second time and lose the reason.
+  const leaving = useRef(false);
   const signedOut = me.isSuccess && me.data === null;
   useEffect(() => {
-    if (signedOut) router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    if (signedOut && !leaving.current) {
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
+    }
   }, [signedOut, router, pathname]);
 
-  async function signOut() {
-    await api.POST("/api/accounts/auth/logout/");
-    queryClient.clear();
-    router.replace("/login");
-  }
+  // Any request that finds the session gone (expired, revoked, signed out in another tab)
+  // sends the user to sign in and back here afterwards.
+  const here = useRef(pathname);
+  useEffect(() => {
+    here.current = pathname;
+  }, [pathname]);
+  // Armed only once signed in: a first visit without a session is not an "ended" session.
+  const signedIn = !!me.data;
+  useEffect(() => {
+    if (!signedIn) return;
+    setSignedOutHandler(() => {
+      if (leaving.current) return;
+      leaving.current = true;
+      router.replace(`/login?reason=expired&next=${encodeURIComponent(here.current)}`);
+      queryClient.clear();
+    });
+    return () => setSignedOutHandler(null);
+  }, [signedIn, queryClient, router]);
+
+  const signOut = useCallback(
+    async (reason?: "idle") => {
+      leaving.current = true;
+      setSignedOutHandler(null);
+      await api.POST("/api/accounts/auth/logout/");
+      router.replace(reason ? `/login?reason=${reason}` : "/login");
+      queryClient.clear();
+    },
+    [queryClient, router],
+  );
+  const idle = useIdleTimeout({ onTimeout: () => signOut("idle") });
 
   if (!me.data) {
     return (
@@ -88,10 +120,17 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             setFacilityId(f.id);
           },
         }}
-        onSignOut={signOut}
+        onSignOut={() => signOut()}
       >
         <PageContainer>{children}</PageContainer>
       </AppShell>
+      {idle.warning && (
+        <IdleWarning
+          deadline={idle.deadline}
+          onStay={idle.stayActive}
+          onSignOut={() => signOut()}
+        />
+      )}
     </SessionContext.Provider>
   );
 }

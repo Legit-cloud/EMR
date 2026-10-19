@@ -1,15 +1,24 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useState, type ReactNode } from "react";
 
-import { ToastProvider } from "@/components/ui/toast";
+import { ToastProvider, useToast } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { startMocks, useMocks } from "@/lib/mocks";
+import { createQueryClient } from "@/lib/query";
 
-/** App-wide providers. Query defaults (retries, stale times) are set in F5. */
+/** Inside ToastProvider so failed saves and refreshes can raise a toast. */
+function QueryProvider({ children }: { children: ReactNode }) {
+  const toast = useToast();
+  const [client] = useState(() =>
+    createQueryClient((message) => toast({ title: message, tone: "error" })),
+  );
+  return <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+}
+
+/** App-wide providers: toasts, query defaults (src/lib/query.ts) and tooltips. */
 export function Providers({ children }: { children: ReactNode }) {
-  const [client] = useState(() => new QueryClient());
   const [ready, setReady] = useState(!useMocks);
 
   useEffect(() => {
@@ -18,10 +27,10 @@ export function Providers({ children }: { children: ReactNode }) {
 
   if (!ready) return null;
   return (
-    <QueryClientProvider client={client}>
-      <TooltipProvider>
-        <ToastProvider>{children}</ToastProvider>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ToastProvider>
+      <QueryProvider>
+        <TooltipProvider>{children}</TooltipProvider>
+      </QueryProvider>
+    </ToastProvider>
   );
 }

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { use } from "react";
 
+import { PatientAccessNotice, usePatientBreakGlass } from "@/components/auth/break-glass";
 import { Card, Notice } from "@/components/legacy-ui";
 import { api, type Schemas } from "@/lib/api";
 import { ageFrom, formatDate, formatDateTime, formatMoney, humanise } from "@/lib/format";
@@ -19,8 +20,7 @@ import { VitalsSection } from "./_sections/vitals";
  * The patient chart. Each section loads its own data and shows "no access" when the
  * API refuses it, so every role sees what it may see and nothing is hidden client-side.
  */
-export default function PatientChartPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+function ChartBody({ id }: { id: string }) {
   const [patient] = useLoad<Schemas["Patient"]>(
     () => api.GET("/api/patients/patients/{id}/", { params: { path: { id } } }),
     [id],
@@ -139,6 +139,18 @@ export default function PatientChartPage({ params }: { params: Promise<{ id: str
           </Show>
         </Card>
       </div>
+    </div>
+  );
+}
+
+export default function PatientChartPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  // Opening break-glass changes what the API returns: remount the chart so it reloads.
+  const grant = usePatientBreakGlass(id).status.data?.grant?.id ?? "none";
+  return (
+    <div className="flex flex-col gap-4">
+      <PatientAccessNotice patientId={id} />
+      <ChartBody key={grant} id={id} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ from rest_framework.permissions import BasePermission
 
 from apps.accounts.selectors import is_mfa_verified, mfa_required
 from apps.core import policy
+from apps.core.errors import DomainError
 
 
 class MFARequired(exceptions.PermissionDenied):
@@ -13,6 +14,13 @@ class MFARequired(exceptions.PermissionDenied):
 class NoTenant(exceptions.PermissionDenied):
     default_detail = "This action needs an organisation account."
     default_code = "no_tenant"
+
+
+class BreakGlassAvailable(DomainError):
+    """This record is outside your normal access. You can open it with break-glass."""
+
+    code = "break_glass_available"
+    status_code = 403
 
 
 def require_verified_tenant_user(request) -> None:
@@ -44,12 +52,22 @@ class PolicyPermission(BasePermission):
         return policy.can(view.policy_subject(), view.get_policy_resource(), view.policy_action)
 
     def has_object_permission(self, request, view, obj):
+        subject, resource = view.policy_subject(), view.get_policy_resource()
         decision = policy.check_object(
-            view.policy_subject(),
-            view.get_policy_resource(),
-            view.policy_action,
-            obj,
-            view.get_base_queryset(),
+            subject, resource, view.policy_action, obj, view.get_base_queryset()
         )
         view.policy_decision = decision
+        if (
+            not decision.allowed
+            and decision.reason == "out_of_scope"
+            and resource.break_glass
+            and view.policy_action == policy.Action.VIEW
+            and subject.can_break_glass()
+        ):
+            patient_id = policy.patient_id_of(resource, obj)
+            raise BreakGlassAvailable(
+                details={"resource": policy.PATIENT_RESOURCE, "object_id": patient_id}
+                if patient_id
+                else {"resource": resource.name, "object_id": str(obj.pk)}
+            )
         return decision.allowed

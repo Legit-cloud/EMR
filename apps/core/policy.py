@@ -23,8 +23,10 @@ A grant gives roles some actions within a scope:
 - ``CARE_TEAM``: rows the model's ``care_team_q(user_id)`` says the user cares for.
 
 Grants marked ``on_duty`` apply only while the user is on shift. Resources marked
-``break_glass`` let eligible clinicians open a single record outside their scope after
-giving a reason (see ``accounts.services.request_break_glass``).
+``break_glass`` let eligible clinicians view records outside their scope after giving a
+reason (see ``accounts.services.request_break_glass``): either one record, or, with a
+grant on ``patients.patient``, every break-glass record of that patient. Break-glass only
+widens *where* a role may view; it never lets a role view a resource it has no grant for.
 """
 
 import uuid
@@ -32,6 +34,7 @@ from collections.abc import Callable, Iterable
 from dataclasses import dataclass, field
 from enum import StrEnum
 
+from django.conf import settings
 from django.core.exceptions import ImproperlyConfigured
 from django.db.models import Q, QuerySet
 
@@ -75,6 +78,13 @@ class Resource:
     break_glass: bool = False
     facility_field: str | None = None
     department_field: str | None = None
+    # How a row names its patient for patient-level break-glass: "patient" (a foreign key)
+    # or "pk" (the patient itself). None when the resource is not tied to one patient.
+    patient_field: str | None = None
+
+
+# A break-glass grant on this resource opens all of one patient's break-glass records.
+PATIENT_RESOURCE = "patients.patient"
 
 
 @dataclass(frozen=True)
@@ -92,6 +102,7 @@ class Subject:
     tenant_id: uuid.UUID | None
     assignments: tuple[Assignment, ...]
     _on_duty: bool | None = field(default=None, repr=False)
+    _patient_grants: dict[str, uuid.UUID] | None = field(default=None, repr=False)
 
     @property
     def roles(self) -> frozenset[str]:
@@ -101,6 +112,17 @@ class Subject:
         if self._on_duty is None:
             self._on_duty = bool(_on_duty_provider and _on_duty_provider(self.user_id))
         return self._on_duty
+
+    def can_break_glass(self) -> bool:
+        return bool(self.roles & set(settings.BREAK_GLASS_ROLES))
+
+    def patient_grants(self) -> dict[str, uuid.UUID]:
+        """Active patient-level break-glass grants, as {patient id: grant id}."""
+        if self._patient_grants is None:
+            from apps.accounts.selectors import active_patient_grants
+
+            self._patient_grants = active_patient_grants(self.user_id) if self.tenant_id else {}
+        return self._patient_grants
 
 
 @dataclass(frozen=True)
@@ -123,8 +145,12 @@ def register(
     break_glass: bool = False,
     facility_field: str | None = None,
     department_field: str | None = None,
+    patient_field: str | None = None,
 ) -> Resource:
     grants = tuple(grants)
+    if break_glass and patient_field is None:
+        fields = {f.name for f in model._meta.get_fields()}
+        patient_field = "patient" if "patient" in fields else None
     scopes = {g.scope for g in grants}
     if Scope.FACILITY in scopes and not facility_field:
         raise ImproperlyConfigured(f"{name}: facility scope needs facility_field")
@@ -132,7 +158,9 @@ def register(
         raise ImproperlyConfigured(f"{name}: department scope needs department_field")
     if Scope.CARE_TEAM in scopes and not hasattr(model, "care_team_q"):
         raise ImproperlyConfigured(f"{name}: care-team scope needs {model.__name__}.care_team_q")
-    resource = Resource(name, model, grants, phi, break_glass, facility_field, department_field)
+    resource = Resource(
+        name, model, grants, phi, break_glass, facility_field, department_field, patient_field
+    )
     _resources[name] = resource
     return resource
 
@@ -227,9 +255,40 @@ def scope_q(subject: Subject, resource: Resource, action: Action) -> Q | None:
     return _any(parts)
 
 
-def filter_queryset(subject: Subject, resource: Resource, action: Action, queryset: QuerySet):
+def _break_glass_applies(subject: Subject, resource: Resource, action: Action) -> bool:
+    return resource.break_glass and action == Action.VIEW and can(subject, resource, action)
+
+
+def _patient_grant_q(subject: Subject, resource: Resource) -> Q | None:
+    granted = subject.patient_grants()
+    if not granted or not resource.patient_field:
+        return None
+    return Q(**{f"{resource.patient_field}__in": list(granted)})
+
+
+def visible_q(subject: Subject, resource: Resource, action: Action) -> Q | None:
+    """``scope_q`` plus the rows of patients opened with patient-level break-glass."""
     q = scope_q(subject, resource, action)
+    if q == Q() or not _break_glass_applies(subject, resource, action):
+        return q
+    granted = _patient_grant_q(subject, resource)
+    if granted is None:
+        return q
+    return granted if q is None else q | granted
+
+
+def filter_queryset(subject: Subject, resource: Resource, action: Action, queryset: QuerySet):
+    q = visible_q(subject, resource, action)
     return queryset.none() if q is None else queryset.filter(q)
+
+
+def patient_id_of(resource: Resource, obj) -> str | None:
+    if resource.patient_field == "pk":
+        return str(obj.pk)
+    if resource.patient_field:
+        value = getattr(obj, f"{resource.patient_field}_id", None)
+        return str(value) if value else None
+    return None
 
 
 def check_object(
@@ -239,10 +298,44 @@ def check_object(
     q = scope_q(subject, resource, action)
     if q is not None and base_queryset.filter(q).filter(pk=obj.pk).exists():
         return Decision(True, "granted")
-    if resource.break_glass and action == Action.VIEW:
+    if _break_glass_applies(subject, resource, action):
         from apps.accounts.selectors import active_break_glass_grant_id
 
         grant_id = active_break_glass_grant_id(subject.user_id, resource.name, str(obj.pk))
+        if not grant_id:
+            grant_id = subject.patient_grants().get(patient_id_of(resource, obj) or "")
         if grant_id:
             return Decision(True, "break_glass", grant_id)
     return Decision(False, "out_of_scope" if can(subject, resource, action) else "not_permitted")
+
+
+def break_glass_grants_used(subject: Subject, resource: Resource, ids: list[str]) -> list[str]:
+    """Patient-level grants that made any of these listed rows visible, for the audit log."""
+    granted = _patient_grant_q(subject, resource) if resource.break_glass else None
+    if granted is None or not ids:
+        return []
+    rows = resource.model.objects.filter(granted, pk__in=ids)
+    q = scope_q(subject, resource, Action.VIEW)
+    if q == Q():
+        return []
+    if q is not None:
+        rows = rows.exclude(q)
+    patients = {str(p) for p in rows.values_list(resource.patient_field, flat=True)}
+    return sorted(str(subject.patient_grants()[p]) for p in patients)
+
+
+def has_hidden_records(subject: Subject, patient_id) -> bool:
+    """Whether the patient has break-glass records the subject's roles could view but its
+    scope hides: the cue to offer patient-level break-glass."""
+    for resource in _resources.values():
+        if resource.patient_field in (None, "pk"):
+            continue
+        if not _break_glass_applies(subject, resource, Action.VIEW):
+            continue
+        q = scope_q(subject, resource, Action.VIEW)
+        if q == Q():
+            continue
+        rows = resource.model.objects.filter(**{resource.patient_field: patient_id})
+        if (rows if q is None else rows.exclude(q)).exists():
+            return True
+    return False

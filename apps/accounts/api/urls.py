@@ -26,5 +26,10 @@ urlpatterns = [
         name="auth-password-reset-confirm",
     ),
     path("break-glass/", views.BreakGlassRequestView.as_view(), name="break-glass-request"),
+    path(
+        "break-glass/patients/<uuid:patient_id>/",
+        views.PatientBreakGlassView.as_view(),
+        name="break-glass-patient",
+    ),
     *router.urls,
 ]
