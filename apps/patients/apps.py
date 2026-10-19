@@ -30,6 +30,7 @@ class PatientsConfig(AppConfig):
                         Role.LAB_TECHNICIAN,
                         Role.FRONT_DESK,
                         Role.BILLING_OFFICER,
+                        Role.TENANT_ADMIN,
                     },
                     {view},
                 ),
@@ -55,5 +56,8 @@ class PatientsConfig(AppConfig):
         policy.register(
             "patients.duplicatereview",
             model=DuplicateReview,
-            grants=[policy.grant({Role.FRONT_DESK, Role.DOCTOR}, {view, update})],
+            grants=[
+                policy.grant({Role.FRONT_DESK, Role.DOCTOR}, {view, update}),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
+            ],
         )

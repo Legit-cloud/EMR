@@ -27,6 +27,7 @@ class SchedulingConfig(AppConfig):
                 policy.grant({Role.NURSE}, {view, update}, Scope.DEPARTMENT),
                 policy.grant({Role.DOCTOR}, {view, update}, Scope.CARE_TEAM),
                 policy.grant({Role.DOCTOR}, {view}, Scope.DEPARTMENT),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
             ],
             facility_field="facility",
             department_field="department",

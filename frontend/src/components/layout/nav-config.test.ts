@@ -30,6 +30,23 @@ describe("visibleNav", () => {
     ]);
   });
 
+  it("shows a tenant admin every oversight screen, but not dispensing (SEC-02)", () => {
+    expect(labels(["tenant_admin"])).toEqual([
+      "Dashboard",
+      "Appointments",
+      "Queue",
+      "Patients",
+      "Duplicate review",
+      "Staff list",
+      "Invoices",
+      "Insurers",
+      "Formulary",
+      "Users and roles",
+      "Break-glass review",
+      "Audit log",
+    ]);
+  });
+
   it("combines the screens of every role a user holds", () => {
     const seen = labels(["pharmacist", "hr"]);
     expect(seen).toEqual(expect.arrayContaining(["Pharmacy", "Formulary", "Staff list"]));

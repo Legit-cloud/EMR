@@ -23,13 +23,13 @@ class BillingConfig(AppConfig):
             model=Invoice,
             grants=[
                 policy.grant({Role.BILLING_OFFICER}, {view, update}),
-                policy.grant({Role.FINANCE, Role.FRONT_DESK}, {view}),
+                policy.grant({Role.FINANCE, Role.FRONT_DESK, Role.TENANT_ADMIN}, {view}),
             ],
         )
         policy.register(
             "billing.payment",
             model=Payment,
-            grants=[policy.grant({Role.BILLING_OFFICER, Role.FINANCE}, {view})],
+            grants=[policy.grant({Role.BILLING_OFFICER, Role.FINANCE, Role.TENANT_ADMIN}, {view})],
         )
         policy.register(
             "billing.insurer",
@@ -43,12 +43,12 @@ class BillingConfig(AppConfig):
         policy.register(
             "billing.ledger",
             model=Account,
-            grants=[policy.grant({Role.FINANCE}, {view})],
+            grants=[policy.grant({Role.FINANCE, Role.TENANT_ADMIN}, {view})],
             phi=False,
         )
         policy.register(
             "billing.journalentry",
             model=JournalEntry,
-            grants=[policy.grant({Role.FINANCE}, {view})],
+            grants=[policy.grant({Role.FINANCE, Role.TENANT_ADMIN}, {view})],
             phi=False,
         )

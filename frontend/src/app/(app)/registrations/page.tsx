@@ -6,6 +6,7 @@ import { Button, Dialog, Loading, NoAccess, Notice, TextArea } from "@/component
 import { PatientName } from "@/components/PatientName";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { usePermissions } from "@/lib/permissions";
 
 type Review = Schemas["DuplicateReview"];
 type Candidate = { patient_id: string; mrn: string; score: number };
@@ -22,6 +23,8 @@ type Payload = {
  * an existing patient, or the registration is rejected.
  */
 export default function RegistrationReviewsPage() {
+  // Tenant admins see held registrations for oversight; desk staff and doctors decide.
+  const canDecide = usePermissions().hasRole("front_desk", "doctor");
   const [reviews, setReviews] = useState<Review[] | "forbidden" | null>(null);
   const [deciding, setDeciding] = useState<Review | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -64,9 +67,11 @@ export default function RegistrationReviewsPage() {
                   Held {formatDateTime(review.created_at)} · best match{" "}
                   {Math.round(review.top_score * 100)}%
                 </p>
-                <Button className="mt-2" onClick={() => setDeciding(review)}>
-                  Review
-                </Button>
+                {canDecide && (
+                  <Button className="mt-2" onClick={() => setDeciding(review)}>
+                    Review
+                  </Button>
+                )}
               </li>
             );
           })}
