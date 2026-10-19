@@ -268,6 +268,31 @@ paths:
               schema:
                 $ref: '#/components/schemas/BreakGlassGrant'
           description: ''
+  /api/accounts/break-glass/patients/{patient_id}/:
+    get:
+      operationId: accounts_break_glass_patients_retrieve
+      description: |-
+        Tells the chart whether some of a patient's records are outside the user's access,
+        so it can offer patient-level break-glass, and shows any grant already open.
+      parameters:
+      - in: path
+        name: patient_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - accounts
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientBreakGlass'
+          description: ''
   /api/accounts/role-assignments/:
     get:
       operationId: accounts_role_assignments_list
@@ -4503,6 +4528,23 @@ components:
         reason:
           type: string
           maxLength: 500
+    Assignment:
+      type: object
+      properties:
+        role:
+          type: string
+        facility:
+          type: string
+          format: uuid
+          nullable: true
+        department:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - department
+      - facility
+      - role
     Attachment:
       type: object
       properties:
@@ -5980,6 +6022,10 @@ components:
       - unit_price_minor
     Me:
       type: object
+      description: |-
+        The signed-in user and the attributes the web app uses to tailor menus and buttons.
+
+        These are hints for the interface only; every request is still authorised server-side.
       properties:
         id:
           type: string
@@ -6017,9 +6063,23 @@ components:
         mfa_enabled:
           type: boolean
           readOnly: true
+        assignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Assignment'
+          readOnly: true
+        on_duty:
+          type: boolean
+          readOnly: true
+        can_break_glass:
+          type: boolean
+          readOnly: true
       required:
+      - assignments
+      - can_break_glass
       - id
       - mfa_enabled
+      - on_duty
       - roles
       - username
     MfaEnabled:
@@ -7235,6 +7295,27 @@ components:
       - mrn
       - record_state
       - status
+    PatientBreakGlass:
+      type: object
+      description: Whether part of a patient's chart is outside the user's access,
+        and any open grant.
+      properties:
+        patient:
+          type: string
+          format: uuid
+        hidden_records:
+          type: boolean
+        can_break_glass:
+          type: boolean
+        grant:
+          allOf:
+          - $ref: '#/components/schemas/BreakGlassGrant'
+          nullable: true
+      required:
+      - can_break_glass
+      - grant
+      - hidden_records
+      - patient
     PatientRequest:
       type: object
       properties:

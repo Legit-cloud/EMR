@@ -203,6 +203,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/break-glass/patients/{patient_id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Tells the chart whether some of a patient's records are outside the user's access,
+         *     so it can offer patient-level break-glass, and shows any grant already open.
+         */
+        get: operations["accounts_break_glass_patients_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/role-assignments/": {
         parameters: {
             query?: never;
@@ -2317,6 +2337,13 @@ export interface components {
         AppointmentUpdate: {
             reason?: string;
         };
+        Assignment: {
+            role: string;
+            /** Format: uuid */
+            facility: string | null;
+            /** Format: uuid */
+            department: string | null;
+        };
         Attachment: {
             /** Format: uuid */
             readonly id: string;
@@ -2988,6 +3015,11 @@ export interface components {
             delivered: boolean;
             idempotency_key?: string;
         };
+        /**
+         * @description The signed-in user and the attributes the web app uses to tailor menus and buttons.
+         *
+         *     These are hints for the interface only; every request is still authorised server-side.
+         */
         Me: {
             /** Format: uuid */
             readonly id: string;
@@ -3001,6 +3033,9 @@ export interface components {
             tenant?: string | null;
             readonly roles: string[];
             readonly mfa_enabled: boolean;
+            readonly assignments: components["schemas"]["Assignment"][];
+            readonly on_duty: boolean;
+            readonly can_break_glass: boolean;
         };
         MfaEnabled: {
             mfa_enabled: boolean;
@@ -3695,6 +3730,14 @@ export interface components {
             readonly record_state: components["schemas"]["RecordStateEnum"];
             /** Format: date-time */
             readonly created_at: string;
+        };
+        /** @description Whether part of a patient's chart is outside the user's access, and any open grant. */
+        PatientBreakGlass: {
+            /** Format: uuid */
+            patient: string;
+            hidden_records: boolean;
+            can_break_glass: boolean;
+            grant: components["schemas"]["BreakGlassGrant"] | null;
         };
         PatientRequest: {
             first_name: string;
@@ -4424,6 +4467,27 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BreakGlassGrant"];
+                };
+            };
+        };
+    };
+    accounts_break_glass_patients_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                patient_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PatientBreakGlass"];
                 };
             };
         };

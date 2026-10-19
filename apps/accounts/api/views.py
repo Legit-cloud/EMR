@@ -8,10 +8,12 @@ from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers, status
 from rest_framework.authentication import SessionAuthentication
 from rest_framework.decorators import action
+from rest_framework.exceptions import NotFound
 from rest_framework.response import Response
 from rest_framework.throttling import ScopedRateThrottle
 from rest_framework.views import APIView
 
+from apps.core import policy
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet
 from apps.core.api.permissions import TenantUserPermission
 from apps.core.policy import Action
@@ -82,7 +84,7 @@ class MeView(APIView):
     def get(self, request):
         user = request.user
         context = {
-            "roles": selectors.roles_of(user.pk) if get_current_tenant_id() else set(),
+            "subject": policy.subject_for(user, get_current_tenant_id()),
             "mfa_enabled": selectors.confirmed_totp_device(user) is not None,
         }
         return Response(s.MeSerializer(user, context=context).data)
@@ -155,6 +157,30 @@ class BreakGlassRequestView(APIView):
             reason=data.validated_data["reason"],
         )
         return Response(s.BreakGlassGrantSerializer(grant).data, status=status.HTTP_201_CREATED)
+
+
+class PatientBreakGlassView(APIView):
+    """Tells the chart whether some of a patient's records are outside the user's access,
+    so it can offer patient-level break-glass, and shows any grant already open."""
+
+    permission_classes = [TenantUserPermission]
+
+    @extend_schema(responses=s.PatientBreakGlassSerializer)
+    def get(self, request, patient_id):
+        if (
+            not policy.get_resource(policy.PATIENT_RESOURCE)
+            .model.objects.filter(pk=patient_id)
+            .exists()
+        ):
+            raise NotFound()
+        subject = policy.subject_for(request.user, request.tenant_id)
+        data = {
+            "patient": patient_id,
+            "hidden_records": policy.has_hidden_records(subject, patient_id),
+            "can_break_glass": subject.can_break_glass(),
+            "grant": selectors.active_patient_grant(request.user.pk, patient_id),
+        }
+        return Response(s.PatientBreakGlassSerializer(data).data)
 
 
 class BreakGlassGrantViewSet(TenantReadOnlyViewSet):

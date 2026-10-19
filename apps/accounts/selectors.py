@@ -6,7 +6,7 @@ from django.conf import settings
 from django.utils import timezone
 from django_otp.plugins.otp_totp.models import TOTPDevice
 
-from apps.core.policy import Assignment
+from apps.core.policy import PATIENT_RESOURCE, Assignment
 
 from .models import ApiToken, BreakGlassGrant, RoleAssignment
 
@@ -34,6 +34,27 @@ def active_break_glass_grant_id(user_id, resource: str, object_id: str) -> uuid.
             expires_at__gt=timezone.now(),
         )
         .values_list("id", flat=True)
+        .first()
+    )
+
+
+def active_patient_grants(user_id) -> dict[str, uuid.UUID]:
+    """The user's unexpired patient-level break-glass grants, as {patient id: grant id}."""
+    rows = BreakGlassGrant.objects.filter(
+        user_id=user_id, resource=PATIENT_RESOURCE, expires_at__gt=timezone.now()
+    ).values_list("object_id", "id")
+    return dict(rows)
+
+
+def active_patient_grant(user_id, patient_id) -> BreakGlassGrant | None:
+    return (
+        BreakGlassGrant.objects.filter(
+            user_id=user_id,
+            resource=PATIENT_RESOURCE,
+            object_id=str(patient_id),
+            expires_at__gt=timezone.now(),
+        )
+        .order_by("-expires_at")
         .first()
     )
 
