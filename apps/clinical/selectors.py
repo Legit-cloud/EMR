@@ -1,6 +1,13 @@
 """Read-only clinical queries that other modules may use."""
 
-from .models import ClinicalStatus, Diagnosis, Observation, VerificationStatus
+from .models import (
+    ClinicalStatus,
+    ConsultationNote,
+    Diagnosis,
+    NoteStatus,
+    Observation,
+    VerificationStatus,
+)
 
 
 def active_problem_list(patient_id) -> list[dict]:
@@ -29,3 +36,8 @@ def latest_observation(patient_id, loinc_code: str) -> dict | None:
         .values("value", "unit", "vital_signs__recorded_at")
         .first()
     )
+
+
+def open_note_count(author_id) -> int:
+    """Consultation notes this clinician has not closed (signed off) yet."""
+    return ConsultationNote.objects.filter(created_by_id=author_id, status=NoteStatus.OPEN).count()

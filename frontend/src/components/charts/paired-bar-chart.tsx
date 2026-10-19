@@ -28,20 +28,26 @@ type Props = {
   loading?: boolean;
   emptyText?: string;
   height?: number;
+  /** Series names, for example billed and collected. The green series comes first. */
+  names?: { income: string; expense: string };
 };
 
-const SERIES = [
-  { key: "income", name: "Income", ...INCOME_EXPENSE_SERIES.income },
-  { key: "expense", name: "Expense", ...INCOME_EXPENSE_SERIES.expense },
-] as const;
+const DEFAULT_NAMES = { income: "Income", expense: "Expense" };
 
 const RESTING_OPACITY = 0.45;
 
-function summarise(data: PairedPoint[], format: (value: number) => string): string {
+function summarise(
+  data: PairedPoint[],
+  format: (value: number) => string,
+  names: { income: string; expense: string },
+): string {
   const income = data.reduce((sum, d) => sum + d.income, 0);
   const expense = data.reduce((sum, d) => sum + d.expense, 0);
   const span = data.length === 1 ? data[0].label : `${data[0].label} to ${data.at(-1)!.label}`;
-  return `${span}. Total income ${format(income)}; total expense ${format(expense)}.`;
+  return (
+    `${span}. Total ${names.income.toLowerCase()} ${format(income)}; ` +
+    `total ${names.expense.toLowerCase()} ${format(expense)}.`
+  );
 }
 
 /**
@@ -57,19 +63,24 @@ export function PairedBarChart({
   loading,
   emptyText = "No income or expenses for this period.",
   height = 240,
+  names = DEFAULT_NAMES,
 }: Props) {
   const [active, setActive] = useState<number | null>(null);
+  const SERIES = [
+    { key: "income", name: names.income, ...INCOME_EXPENSE_SERIES.income },
+    { key: "expense", name: names.expense, ...INCOME_EXPENSE_SERIES.expense },
+  ] as const;
   const hovered = active === null ? undefined : data[active];
 
   return (
     <ChartFrame
       label={label}
-      summary={data.length ? summarise(data, formatValue) : "No data."}
+      summary={data.length ? summarise(data, formatValue, names) : "No data."}
       rows={data}
       columns={[
         { header: "Period", cell: (row) => row.label },
-        { header: "Income", cell: (row) => formatValue(row.income) },
-        { header: "Expense", cell: (row) => formatValue(row.expense) },
+        { header: names.income, cell: (row) => formatValue(row.income) },
+        { header: names.expense, cell: (row) => formatValue(row.expense) },
       ]}
       rowKey={(row) => row.label}
       loading={loading}

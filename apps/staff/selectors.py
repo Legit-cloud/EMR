@@ -23,3 +23,12 @@ def physician(user_id) -> dict | None:
         "consultation_fee": profile.consultation_fee,
         "licence_flag": profile.licence_flag,
     }
+
+
+def licence_expiry(user_id):
+    """The date the user's practising licence expires, or None if none is recorded."""
+    return (
+        StaffProfile.objects.filter(user_id=user_id)
+        .values_list("licence_expires_on", flat=True)
+        .first()
+    )

@@ -75,6 +75,8 @@ class Drug(TenantModel):
     unit_price_minor = models.BigIntegerField()
     currency = models.CharField(max_length=3, default="NGN")
     on_formulary = models.BooleanField(default=True)
+    # Units available at or below which the drug counts as low stock and should be ordered.
+    reorder_level = models.PositiveIntegerField(default=20)
 
     class Meta(TenantModel.Meta):
         ordering = ["name"]

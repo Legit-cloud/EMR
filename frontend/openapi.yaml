@@ -3143,6 +3143,35 @@ paths:
               schema:
                 $ref: '#/components/schemas/StockBatch'
           description: ''
+  /api/reports/dashboard/:
+    get:
+      operationId: reports_dashboard_retrieve
+      description: Totals for the dashboard cards the user may see (see ``reports.services``).
+      parameters:
+      - in: query
+        name: range
+        schema:
+          enum:
+          - 12m
+          - 30d
+          type: string
+          default: 12m
+          minLength: 1
+        description: |-
+          * `12m` - Last 12 months
+          * `30d` - Last 30 days
+      tags:
+      - reports
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dashboard'
+          description: ''
   /api/scheduling/appointments/:
     get:
       operationId: scheduling_appointments_list
@@ -5027,6 +5056,40 @@ components:
           type: string
       required:
       - csrf_token
+    Dashboard:
+      type: object
+      description: Each card is null when the user's role does not see its data tenant-wide.
+      properties:
+        range:
+          type: string
+        finance:
+          allOf:
+          - $ref: '#/components/schemas/Finance'
+          nullable: true
+        patients:
+          allOf:
+          - $ref: '#/components/schemas/PatientMix'
+          nullable: true
+        popular_services:
+          type: array
+          items:
+            $ref: '#/components/schemas/ServiceCount'
+          nullable: true
+        stock:
+          allOf:
+          - $ref: '#/components/schemas/Stock'
+          nullable: true
+        my_day:
+          allOf:
+          - $ref: '#/components/schemas/MyDay'
+          nullable: true
+      required:
+      - finance
+      - my_day
+      - patients
+      - popular_services
+      - range
+      - stock
     DecisionEnum:
       enum:
       - created_new
@@ -5258,6 +5321,10 @@ components:
           maxLength: 3
         on_formulary:
           type: boolean
+        reorder_level:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
       required:
       - form
       - id
@@ -5310,6 +5377,10 @@ components:
           maxLength: 3
         on_formulary:
           type: boolean
+        reorder_level:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
       required:
       - form
       - ingredients
@@ -5578,6 +5649,47 @@ components:
       required:
       - code
       - name
+    Finance:
+      type: object
+      properties:
+        currency:
+          type: string
+        periods:
+          type: array
+          items:
+            $ref: '#/components/schemas/FinancePeriod'
+        collected_minor:
+          type: integer
+        previous_collected_minor:
+          type: integer
+          description: Collected in the same length of time just before the range.
+        revenue_mix:
+          type: array
+          items:
+            $ref: '#/components/schemas/RevenueShare'
+      required:
+      - collected_minor
+      - currency
+      - periods
+      - previous_collected_minor
+      - revenue_mix
+    FinancePeriod:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+          description: First day of the month, or the day.
+        collected_minor:
+          type: integer
+          description: Payments received.
+        billed_minor:
+          type: integer
+          description: Charges raised (not voided).
+      required:
+      - billed_minor
+      - collected_minor
+      - start
     FreeSlot:
       type: object
       properties:
@@ -5993,6 +6105,23 @@ components:
       - max_value
       - min_value
       - unit
+    LowStock:
+      type: object
+      properties:
+        drug:
+          type: string
+          format: uuid
+        name:
+          type: string
+        available:
+          type: integer
+        reorder_level:
+          type: integer
+      required:
+      - available
+      - drug
+      - name
+      - reorder_level
     ManualChargeRequest:
       type: object
       properties:
@@ -6097,6 +6226,22 @@ components:
       description: |-
         * `session` - session
         * `token` - token
+    MyDay:
+      type: object
+      properties:
+        open_notes:
+          type: integer
+        draft_prescriptions:
+          type: integer
+        licence_expires_on:
+          type: string
+          format: date
+          nullable: true
+          description: Set only when the licence expires within 60 days.
+      required:
+      - draft_prescriptions
+      - licence_expires_on
+      - open_notes
     NoteStatusEnum:
       enum:
       - open
@@ -7006,6 +7151,10 @@ components:
           maxLength: 3
         on_formulary:
           type: boolean
+        reorder_level:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
     PatchedEncounterRequest:
       type: object
       description: |-
@@ -7316,6 +7465,18 @@ components:
       - grant
       - hidden_records
       - patient
+    PatientMix:
+      type: object
+      properties:
+        new:
+          type: integer
+          description: Seen in the range and registered in it.
+        returning:
+          type: integer
+          description: Seen in the range, registered before it.
+      required:
+      - new
+      - returning
     PatientRequest:
       type: object
       properties:
@@ -7862,6 +8023,19 @@ components:
         * `ward` - Ward and bed
         * `procedure` - Procedures
         * `other` - Other services
+    RevenueShare:
+      type: object
+      properties:
+        category:
+          type: string
+        label:
+          type: string
+        amount_minor:
+          type: integer
+      required:
+      - amount_minor
+      - category
+      - label
     ReviewStatusEnum:
       enum:
       - pending
@@ -7960,6 +8134,16 @@ components:
       - kind
       - message
       - severity
+    ServiceCount:
+      type: object
+      properties:
+        name:
+          type: string
+        count:
+          type: integer
+      required:
+      - count
+      - name
     SeverityEnum:
       enum:
       - mild
@@ -8156,6 +8340,34 @@ components:
         * `radiographer` - Radiographer
         * `other_clinical` - Other clinical
         * `non_clinical` - Non-clinical
+    Stock:
+      type: object
+      properties:
+        currency:
+          type: string
+        value_minor:
+          type: integer
+          description: Units available at selling price.
+        products:
+          type: integer
+        in_stock:
+          type: integer
+        low:
+          type: integer
+        out:
+          type: integer
+        low_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LowStock'
+      required:
+      - currency
+      - in_stock
+      - low
+      - low_items
+      - out
+      - products
+      - value_minor
     StockBatch:
       type: object
       description: |-

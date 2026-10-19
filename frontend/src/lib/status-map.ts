@@ -160,3 +160,9 @@ export const BED_STATUS: Record<BedStatus, StatusSpec> = {
   cleaning: { label: "Cleaning", tone: "amber", icon: Broom },
   out_of_service: { label: "Out of service", tone: "grey", icon: Prohibit },
 };
+
+/** Stock level of one drug (DESIGN.md Section 2.2: amber low stock, pink out of stock). */
+export const STOCK_LEVEL = {
+  low: { label: "Low", tone: "amber", icon: WarningCircle },
+  out: { label: "Out", tone: "pink", icon: XCircle },
+} as const satisfies Record<string, StatusSpec>;

@@ -8,6 +8,7 @@ import type { Schemas } from "@/lib/api";
  *
  *   ada.doctor / synthetic-password-1, authenticator code 123456 (MFA on)
  *   tunde.desk / synthetic-password-1 (no MFA set up yet)
+ *   bisi.finance / synthetic-password-1 (tenant admin, no MFA set up yet)
  */
 export const MOCK_PASSWORD = "synthetic-password-1";
 export const MOCK_OTP = "123456";
@@ -36,6 +37,19 @@ export const MOCK_USERS: Record<string, Schemas["Me"]> = {
     on_duty: true,
     can_break_glass: true,
   },
+  "bisi.finance": {
+    id: "8a5e2f8c-0000-4000-8000-000000000012",
+    username: "bisi.finance",
+    email: "bisi.finance@example.test",
+    first_name: "Bisi",
+    last_name: "Tester",
+    tenant: TENANT,
+    roles: ["tenant_admin"],
+    mfa_enabled: false,
+    assignments: [{ role: "tenant_admin", facility: null, department: null }],
+    on_duty: false,
+    can_break_glass: false,
+  },
   "tunde.desk": {
     id: "8a5e2f8c-0000-4000-8000-000000000011",
     username: "tunde.desk",
@@ -59,6 +73,11 @@ const state: { user: string | null; grant: Schemas["BreakGlassGrant"] | null } =
   user: null,
   grant: null,
 };
+
+/** The signed-in mock user, for other mock handlers. */
+export function mockSignedIn(): Schemas["Me"] | null {
+  return state.user ? MOCK_USERS[state.user] : null;
+}
 
 export function resetAuthMocks(user: string | null = null): void {
   state.user = user;

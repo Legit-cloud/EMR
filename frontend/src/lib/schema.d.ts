@@ -1663,6 +1663,23 @@ export interface paths {
         patch: operations["pharmacy_stock_partial_update"];
         trace?: never;
     };
+    "/api/reports/dashboard/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Totals for the dashboard cards the user may see (see ``reports.services``). */
+        get: operations["reports_dashboard_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scheduling/appointments/": {
         parameters: {
             query?: never;
@@ -2562,6 +2579,15 @@ export interface components {
         CsrfToken: {
             csrf_token: string;
         };
+        /** @description Each card is null when the user's role does not see its data tenant-wide. */
+        Dashboard: {
+            range: string;
+            finance: components["schemas"]["Finance"] | null;
+            patients: components["schemas"]["PatientMix"] | null;
+            popular_services: components["schemas"]["ServiceCount"][] | null;
+            stock: components["schemas"]["Stock"] | null;
+            my_day: components["schemas"]["MyDay"] | null;
+        };
         /**
          * @description * `created_new` - created_new
          *     * `duplicate` - duplicate
@@ -2681,6 +2707,7 @@ export interface components {
             unit_price_minor: number;
             currency?: string;
             on_formulary?: boolean;
+            reorder_level?: number;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -2700,6 +2727,7 @@ export interface components {
             unit_price_minor: number;
             currency?: string;
             on_formulary?: boolean;
+            reorder_level?: number;
         };
         DuplicateReview: {
             /** Format: uuid */
@@ -2828,6 +2856,25 @@ export interface components {
         FacilityRequest: {
             name: string;
             code: string;
+        };
+        Finance: {
+            currency: string;
+            periods: components["schemas"]["FinancePeriod"][];
+            collected_minor: number;
+            /** @description Collected in the same length of time just before the range. */
+            previous_collected_minor: number;
+            revenue_mix: components["schemas"]["RevenueShare"][];
+        };
+        FinancePeriod: {
+            /**
+             * Format: date
+             * @description First day of the month, or the day.
+             */
+            start: string;
+            /** @description Payments received. */
+            collected_minor: number;
+            /** @description Charges raised (not voided). */
+            billed_minor: number;
         };
         FreeSlot: {
             /** Format: date-time */
@@ -3006,6 +3053,13 @@ export interface components {
             /** @description Computed, never entered (BMI). */
             derived?: boolean;
         };
+        LowStock: {
+            /** Format: uuid */
+            drug: string;
+            name: string;
+            available: number;
+            reorder_level: number;
+        };
         ManualChargeRequest: {
             description: string;
             quantity: number;
@@ -3046,6 +3100,15 @@ export interface components {
          * @enum {string}
          */
         ModeEnum: "session" | "token";
+        MyDay: {
+            open_notes: number;
+            draft_prescriptions: number;
+            /**
+             * Format: date
+             * @description Set only when the licence expires within 60 days.
+             */
+            licence_expires_on: string | null;
+        };
         /**
          * @description * `open` - Open
          *     * `closed` - Closed
@@ -3599,6 +3662,7 @@ export interface components {
             unit_price_minor?: number;
             currency?: string;
             on_formulary?: boolean;
+            reorder_level?: number;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -3738,6 +3802,12 @@ export interface components {
             hidden_records: boolean;
             can_break_glass: boolean;
             grant: components["schemas"]["BreakGlassGrant"] | null;
+        };
+        PatientMix: {
+            /** @description Seen in the range and registered in it. */
+            new: number;
+            /** @description Seen in the range, registered before it. */
+            returning: number;
         };
         PatientRequest: {
             first_name: string;
@@ -3958,6 +4028,11 @@ export interface components {
          * @enum {string}
          */
         RevenueCategoryEnum: "pharmacy" | "consultation" | "laboratory" | "imaging" | "ward" | "procedure" | "other";
+        RevenueShare: {
+            category: string;
+            label: string;
+            amount_minor: number;
+        };
         /**
          * @description * `pending` - Pending review
          *     * `appropriate` - Appropriate
@@ -4006,6 +4081,10 @@ export interface components {
             severity: string;
             blocking: boolean;
             message: string;
+        };
+        ServiceCount: {
+            name: string;
+            count: number;
         };
         /**
          * @description * `mild` - Mild
@@ -4099,6 +4178,16 @@ export interface components {
          * @enum {string}
          */
         StaffTypeEnum: "physician" | "nurse" | "pharmacist" | "lab_scientist" | "radiographer" | "other_clinical" | "non_clinical";
+        Stock: {
+            currency: string;
+            /** @description Units available at selling price. */
+            value_minor: number;
+            products: number;
+            in_stock: number;
+            low: number;
+            out: number;
+            low_items: components["schemas"]["LowStock"][];
+        };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -6628,6 +6717,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockBatch"];
+                };
+            };
+        };
+    };
+    reports_dashboard_retrieve: {
+        parameters: {
+            query?: {
+                /**
+                 * @description * `12m` - Last 12 months
+                 *     * `30d` - Last 30 days
+                 */
+                range?: "12m" | "30d";
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Dashboard"];
                 };
             };
         };

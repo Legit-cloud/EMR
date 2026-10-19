@@ -210,6 +210,13 @@ def can(subject: Subject, resource: Resource, action: Action) -> bool:
     return bool(_matching_grants(resource, subject, action))
 
 
+def can_tenant_wide(subject: Subject, resource: Resource, action: Action = Action.VIEW) -> bool:
+    """Whether a grant allows ``action`` on every row of the tenant. Totals across the
+    tenant (dashboard figures) are shown only to these subjects, since a scoped user's
+    totals would either leak rows outside their scope or be silently incomplete."""
+    return any(g.scope == Scope.TENANT for g in _matching_grants(resource, subject, action))
+
+
 def _grant_q(resource: Resource, g: Grant, subject: Subject) -> Q | None:
     if g.scope == Scope.TENANT:
         return Q()

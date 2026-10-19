@@ -1,6 +1,7 @@
 import type { HttpHandler } from "msw";
 
 import { authHandlers } from "./auth";
+import { dashboardHandlers } from "./dashboard";
 
 /**
  * Mock API handlers, shaped like the OpenAPI schema (src/lib/schema.d.ts).
@@ -9,4 +10,4 @@ import { authHandlers } from "./auth";
  * without a backend; screens whose backend is not built yet are left out rather than
  * mocked as if they worked.
  */
-export const handlers: HttpHandler[] = [...authHandlers];
+export const handlers: HttpHandler[] = [...authHandlers, ...dashboardHandlers];

@@ -28,6 +28,7 @@ class DrugSerializer(CleanModelSerializer):
             "unit_price_minor",
             "currency",
             "on_formulary",
+            "reorder_level",
         ]
         read_only_fields = ["id"]
 
