@@ -24,7 +24,7 @@ class PharmacyConfig(AppConfig):
             "pharmacy.drug",
             model=Drug,
             grants=[
-                policy.grant({Role.DOCTOR, Role.NURSE, Role.PHARMACIST}, {view}),
+                policy.grant({Role.DOCTOR, Role.NURSE, Role.PHARMACIST, Role.TENANT_ADMIN}, {view}),
                 policy.grant({Role.PHARMACIST}, {create, update}),
             ],
             phi=False,
@@ -32,7 +32,10 @@ class PharmacyConfig(AppConfig):
         policy.register(
             "pharmacy.stockbatch",
             model=StockBatch,
-            grants=[policy.grant({Role.PHARMACIST}, {view, create, update})],
+            grants=[
+                policy.grant({Role.PHARMACIST}, {view, create, update}),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
+            ],
             phi=False,
         )
         policy.register(

@@ -15,6 +15,6 @@ class AuditConfig(AppConfig):
         policy.register(
             "audit.auditentry",
             model=AuditEntry,
-            grants=[policy.grant({Role.COMPLIANCE_OFFICER}, {Action.VIEW})],
+            grants=[policy.grant({Role.COMPLIANCE_OFFICER, Role.TENANT_ADMIN}, {Action.VIEW})],
             phi=True,
         )

@@ -37,6 +37,9 @@ class AccountsConfig(AppConfig):
         policy.register(
             "accounts.breakglassgrant",
             model=BreakGlassGrant,
-            grants=[policy.grant({Role.COMPLIANCE_OFFICER}, {Action.VIEW, Action.UPDATE})],
+            grants=[
+                policy.grant({Role.COMPLIANCE_OFFICER}, {Action.VIEW, Action.UPDATE}),
+                policy.grant({Role.TENANT_ADMIN}, {Action.VIEW}),
+            ],
             phi=False,
         )

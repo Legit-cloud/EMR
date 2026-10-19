@@ -14,6 +14,7 @@ import {
 } from "@/components/legacy-ui";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime, humanise } from "@/lib/format";
+import { usePermissions } from "@/lib/permissions";
 
 type Grant = Schemas["BreakGlassGrant"];
 
@@ -22,6 +23,8 @@ type Grant = Schemas["BreakGlassGrant"];
  * the compliance role records whether it was appropriate.
  */
 export default function CompliancePage() {
+  // Tenant admins see the queue for oversight; only the compliance role records reviews.
+  const canReview = usePermissions().hasRole("compliance_officer");
   const [status, setStatus] = useState<"pending" | "appropriate" | "inappropriate">("pending");
   const [grants, setGrants] = useState<Grant[] | "forbidden" | null>(null);
   const [users, setUsers] = useState<Record<string, string>>({});
@@ -99,9 +102,13 @@ export default function CompliancePage() {
                 {formatDateTime(g.expires_at)}
               </p>
               {g.review_status === "pending" ? (
-                <Button className="mt-2" onClick={() => setReviewing(g)}>
-                  Review
-                </Button>
+                canReview ? (
+                  <Button className="mt-2" onClick={() => setReviewing(g)}>
+                    Review
+                  </Button>
+                ) : (
+                  <p className="mt-1 text-sm">Awaiting review</p>
+                )
               ) : (
                 <p className="mt-1 text-sm">
                   {humanise(g.review_status)}{" "}
