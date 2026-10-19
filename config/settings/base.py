@@ -41,6 +41,7 @@ LOCAL_APPS = [
     "apps.staff",
     "apps.billing",
     "apps.notifications",
+    "apps.reports",
 ]
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
@@ -177,6 +178,9 @@ SPECTACULAR_SETTINGS = {
 
 # Patients (CLAUDE.md Section 5)
 MRN_TIME_ZONE = env("MRN_TIME_ZONE", default="Africa/Lagos")
+# Dashboard figures are grouped by local day and month, in one currency.
+REPORTING_TIME_ZONE = env("REPORTING_TIME_ZONE", default="Africa/Lagos")
+REPORTING_CURRENCY = env("REPORTING_CURRENCY", default="NGN")
 MRN_SEQUENCE_DIGITS = 6
 PATIENT_DUPLICATE_THRESHOLD = 0.85
 DEFAULT_PHONE_COUNTRY_CODE = env("DEFAULT_PHONE_COUNTRY_CODE", default="234")

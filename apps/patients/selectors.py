@@ -39,3 +39,8 @@ def summaries(patient_ids) -> dict:
         row["id"]: {"name": f"{row['first_name']} {row['last_name']}", "mrn": row["mrn"]}
         for row in rows
     }
+
+
+def registered_before_count(patient_ids, moment) -> int:
+    """How many of these patients were registered before ``moment`` (returning patients)."""
+    return Patient.objects.filter(pk__in=patient_ids, created_at__lt=moment).count()
