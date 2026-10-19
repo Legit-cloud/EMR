@@ -15,6 +15,28 @@ export function formatMoney(minor: number, currency: string): string {
   return `${negative ? "-" : ""}${symbol}${whole}${fraction}`;
 }
 
+/**
+ * Short amounts for chart axes and tight spaces: "₦98k", "₦1.2m". Display only: use
+ * formatMoney wherever the exact amount matters.
+ */
+export function compactMoney(minor: number, currency: string): string {
+  const units = minor / 10 ** (MINOR_DIGITS[currency] ?? 2);
+  const symbol = currency === "NGN" ? "₦" : `${currency} `;
+  const sign = units < 0 ? "-" : "";
+  const size = Math.abs(units);
+  const short =
+    size >= 1_000_000
+      ? `${trimZero(size / 1_000_000)}m`
+      : size >= 1_000
+        ? `${trimZero(size / 1_000)}k`
+        : String(Math.round(size));
+  return `${sign}${symbol}${short}`;
+}
+
+function trimZero(value: number): string {
+  return (Math.round(value * 10) / 10).toString();
+}
+
 const LAGOS = "Africa/Lagos";
 
 export function formatDateTime(iso: string | null | undefined): string {

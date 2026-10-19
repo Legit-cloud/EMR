@@ -1,8 +1,11 @@
 import "@testing-library/jest-dom/vitest";
-import { cleanup } from "@testing-library/react";
+import { cleanup, configure } from "@testing-library/react";
 import { afterAll, afterEach, beforeAll } from "vitest";
 
 import { server } from "./src/mocks/server";
+
+// findBy and waitFor give up after 1 s by default; this host is often slower under load.
+configure({ asyncUtilTimeout: 5000 });
 
 // jsdom lacks the pointer-capture, scrolling and resize APIs Radix popovers call.
 if (!Element.prototype.hasPointerCapture) {

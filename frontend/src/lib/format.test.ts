@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatMoney, toMajorText, toMinor } from "./format";
+import { compactMoney, formatMoney, toMajorText, toMinor } from "./format";
 
 describe("toMinor: typed amounts to integer minor units, never floats", () => {
   it.each([
@@ -36,5 +36,15 @@ describe("formatMoney and toMajorText", () => {
 
   it("round-trips through the editable text form", () => {
     expect(toMinor(toMajorText(12050))).toBe(12050);
+  });
+});
+
+describe("compactMoney", () => {
+  it("shortens to thousands and millions for chart axes", () => {
+    expect(compactMoney(9_800_000, "NGN")).toBe("₦98k");
+    expect(compactMoney(123_456_789, "NGN")).toBe("₦1.2m");
+    expect(compactMoney(50_000, "NGN")).toBe("₦500");
+    expect(compactMoney(0, "NGN")).toBe("₦0");
+    expect(compactMoney(-250_000, "USD")).toBe("-USD 2.5k");
   });
 });
