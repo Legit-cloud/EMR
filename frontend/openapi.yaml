@@ -2324,6 +2324,7 @@ paths:
         name: status
         schema:
           type: string
+        description: Only rows with this status.
       tags:
       - patients
       security:
@@ -2401,10 +2402,20 @@ paths:
         (409).
       parameters:
       - in: query
+        name: allergy
+        schema:
+          type: string
+        description: true for only patients with a recorded allergy.
+      - in: query
         name: history
         schema:
           type: string
         description: true to include Entered-in-Error rows.
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Sort field, with a leading - for descending.
       - name: page
         required: false
         in: query
@@ -2412,10 +2423,20 @@ paths:
         schema:
           type: integer
       - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
         name: q
         schema:
           type: string
         description: Search text.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
       tags:
       - patients
       security:
@@ -2426,7 +2447,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedPatientList'
+                $ref: '#/components/schemas/PaginatedPatientListList'
           description: ''
     post:
       operationId: patients_patients_create
@@ -2438,13 +2459,13 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PatientRequest'
+              $ref: '#/components/schemas/PatientRegistrationRequest'
           application/x-www-form-urlencoded:
             schema:
-              $ref: '#/components/schemas/PatientRequest'
+              $ref: '#/components/schemas/PatientRegistrationRequest'
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/PatientRequest'
+              $ref: '#/components/schemas/PatientRegistrationRequest'
         required: true
       security:
       - bearerAuth: []
@@ -2454,7 +2475,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Patient'
+                $ref: '#/components/schemas/PatientRegistration'
           description: ''
   /api/patients/patients/{id}/:
     get:
@@ -2585,6 +2606,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Patient'
+          description: ''
+  /api/patients/patients/check-duplicates/:
+    post:
+      operationId: patients_patients_check_duplicates_create
+      description: |-
+        Possible matches for the person being registered, for the form to show as the
+        clerk types. Nothing is saved; matches above the hold threshold say so.
+      tags:
+      - patients
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateCheckRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DuplicateCheckRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DuplicateCheckRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DuplicateMatch'
           description: ''
   /api/pharmacy/drugs/:
     get:
@@ -2726,6 +2779,7 @@ paths:
         name: status
         schema:
           type: string
+        description: Only rows with this status.
       tags:
       - pharmacy
       security:
@@ -3204,6 +3258,7 @@ paths:
         name: status
         schema:
           type: string
+        description: Only rows with this status.
       tags:
       - scheduling
       security:
@@ -4299,7 +4354,7 @@ components:
           type: string
           maxLength: 500
         severity:
-          $ref: '#/components/schemas/SeverityEnum'
+          $ref: '#/components/schemas/AllergySeverityEnum'
         onset_date:
           type: string
           format: date
@@ -4335,6 +4390,16 @@ components:
         * `food` - Food
         * `environment` - Environment
         * `biologic` - Biologic
+    AllergyChip:
+      type: object
+      properties:
+        substance:
+          type: string
+        severity:
+          type: string
+      required:
+      - severity
+      - substance
     AllergyRequest:
       type: object
       properties:
@@ -4355,7 +4420,7 @@ components:
           minLength: 1
           maxLength: 500
         severity:
-          $ref: '#/components/schemas/SeverityEnum'
+          $ref: '#/components/schemas/AllergySeverityEnum'
         onset_date:
           type: string
           format: date
@@ -4368,6 +4433,16 @@ components:
       - reaction
       - severity
       - substance
+    AllergySeverityEnum:
+      enum:
+      - mild
+      - moderate
+      - severe
+      type: string
+      description: |-
+        * `mild` - Mild
+        * `moderate` - Moderate
+        * `severe` - Severe
     Appointment:
       type: object
       properties:
@@ -5387,6 +5462,61 @@ components:
       - name
       - strength
       - unit_price_minor
+    DuplicateCheckRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        national_id:
+          type: string
+          default: ''
+          maxLength: 32
+      required:
+      - date_of_birth
+      - first_name
+      - last_name
+    DuplicateMatch:
+      type: object
+      properties:
+        patient_id:
+          type: string
+          format: uuid
+        mrn:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        sex:
+          type: string
+        score:
+          type: number
+          format: double
+          description: 0 to 1; the form shows it as a percentage.
+        would_hold:
+          type: boolean
+          description: True when registering now would hold the registration for review.
+      required:
+      - date_of_birth
+      - first_name
+      - last_name
+      - mrn
+      - patient_id
+      - score
+      - sex
+      - would_hold
     DuplicateReview:
       type: object
       properties:
@@ -6713,7 +6843,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JournalEntry'
-    PaginatedPatientList:
+    PaginatedPatientListList:
       type: object
       required:
       - count
@@ -6735,7 +6865,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/Patient'
+            $ref: '#/components/schemas/PatientList'
     PaginatedPaymentList:
       type: object
       required:
@@ -6991,7 +7121,7 @@ components:
           minLength: 1
           maxLength: 500
         severity:
-          $ref: '#/components/schemas/SeverityEnum'
+          $ref: '#/components/schemas/AllergySeverityEnum'
         onset_date:
           type: string
           format: date
@@ -7465,6 +7595,104 @@ components:
       - grant
       - hidden_records
       - patient
+    PatientList:
+      type: object
+      description: 'A patient as a row of the register: adds active allergies and
+        the last visit.'
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        mrn:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          readOnly: true
+        middle_name:
+          type: string
+          readOnly: true
+        last_name:
+          type: string
+          readOnly: true
+        date_of_birth:
+          type: string
+          format: date
+          readOnly: true
+        sex:
+          allOf:
+          - $ref: '#/components/schemas/SexEnum'
+          readOnly: true
+        national_id:
+          type: string
+          readOnly: true
+        phone:
+          type: string
+          maxLength: 32
+        email:
+          type: string
+          format: email
+          readOnly: true
+        address_line:
+          type: string
+          readOnly: true
+        city:
+          type: string
+          readOnly: true
+        state:
+          type: string
+          readOnly: true
+        country:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PatientStatusEnum'
+          readOnly: true
+        deceased_at:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        record_state:
+          allOf:
+          - $ref: '#/components/schemas/RecordStateEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        allergies:
+          type: array
+          items:
+            $ref: '#/components/schemas/AllergyChip'
+          readOnly: true
+        last_visit:
+          type: string
+          format: date-time
+          nullable: true
+          readOnly: true
+      required:
+      - address_line
+      - allergies
+      - city
+      - country
+      - created_at
+      - date_of_birth
+      - deceased_at
+      - email
+      - first_name
+      - id
+      - last_name
+      - last_visit
+      - middle_name
+      - mrn
+      - national_id
+      - record_state
+      - sex
+      - state
+      - status
     PatientMix:
       type: object
       properties:
@@ -7477,8 +7705,94 @@ components:
       required:
       - new
       - returning
-    PatientRequest:
+    PatientRegistration:
       type: object
+      description: |-
+        Registration data: the patient, and optionally their allergies.
+
+        Allergies travel with a held registration, so they are not lost if it goes to
+        duplicate review and is created later.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        mrn:
+          type: string
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 100
+        middle_name:
+          type: string
+          maxLength: 100
+        last_name:
+          type: string
+          maxLength: 100
+        date_of_birth:
+          type: string
+          format: date
+        sex:
+          $ref: '#/components/schemas/SexEnum'
+        national_id:
+          type: string
+          maxLength: 32
+        phone:
+          type: string
+          maxLength: 32
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        address_line:
+          type: string
+          maxLength: 200
+        city:
+          type: string
+          maxLength: 100
+        state:
+          type: string
+          maxLength: 100
+        country:
+          type: string
+          maxLength: 2
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PatientStatusEnum'
+          readOnly: true
+        deceased_at:
+          type: string
+          format: date
+          readOnly: true
+          nullable: true
+        record_state:
+          allOf:
+          - $ref: '#/components/schemas/RecordStateEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - date_of_birth
+      - deceased_at
+      - first_name
+      - id
+      - last_name
+      - mrn
+      - record_state
+      - status
+    PatientRegistrationRequest:
+      type: object
+      description: |-
+        Registration data: the patient, and optionally their allergies.
+
+        Allergies travel with a held registration, so they are not lost if it goes to
+        duplicate review and is created later.
       properties:
         first_name:
           type: string
@@ -7522,6 +7836,11 @@ components:
           type: string
           minLength: 1
           maxLength: 2
+        allergies:
+          type: array
+          items:
+            $ref: '#/components/schemas/RegistrationAllergyRequest'
+          writeOnly: true
       required:
       - date_of_birth
       - first_name
@@ -7990,6 +8309,48 @@ components:
       required:
       - count
       - frequency
+    RegistrationAllergy:
+      type: object
+      description: An allergy recorded while registering, saved with the patient in
+        one transaction.
+      properties:
+        substance:
+          type: string
+          maxLength: 200
+        category:
+          $ref: '#/components/schemas/AllergyCategoryEnum'
+        reaction:
+          type: string
+          maxLength: 500
+        severity:
+          $ref: '#/components/schemas/AllergySeverityEnum'
+      required:
+      - category
+      - reaction
+      - severity
+      - substance
+    RegistrationAllergyRequest:
+      type: object
+      description: An allergy recorded while registering, saved with the patient in
+        one transaction.
+      properties:
+        substance:
+          type: string
+          minLength: 1
+          maxLength: 200
+        category:
+          $ref: '#/components/schemas/AllergyCategoryEnum'
+        reaction:
+          type: string
+          minLength: 1
+          maxLength: 500
+        severity:
+          $ref: '#/components/schemas/AllergySeverityEnum'
+      required:
+      - category
+      - reaction
+      - severity
+      - substance
     ResolveReviewRequest:
       type: object
       properties:
@@ -8144,16 +8505,6 @@ components:
       required:
       - count
       - name
-    SeverityEnum:
-      enum:
-      - mild
-      - moderate
-      - severe
-      type: string
-      description: |-
-        * `mild` - Mild
-        * `moderate` - Moderate
-        * `severe` - Severe
     SexEnum:
       enum:
       - female

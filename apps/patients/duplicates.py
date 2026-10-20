@@ -81,9 +81,9 @@ def combined_score(components: MatchComponents) -> float:
     return round(score, 4)
 
 
-def is_probable_duplicate(score: float) -> bool:
+def is_probable_duplicate(score: float, threshold: float | None = None) -> bool:
     """Strictly above the threshold: exactly 85% is not flagged."""
-    return score > settings.PATIENT_DUPLICATE_THRESHOLD
+    return score > (settings.PATIENT_DUPLICATE_THRESHOLD if threshold is None else threshold)
 
 
 def _normalized_national_id(value: str) -> str:
@@ -91,9 +91,18 @@ def _normalized_national_id(value: str) -> str:
 
 
 def find_probable_duplicates(
-    *, first_name: str, last_name: str, date_of_birth: date, national_id: str = ""
+    *,
+    first_name: str,
+    last_name: str,
+    date_of_birth: date,
+    national_id: str = "",
+    threshold: float | None = None,
 ) -> list[dict]:
-    """Candidates in the current tenant scoring above the threshold, best first."""
+    """Candidates in the current tenant scoring above the threshold, best first.
+
+    ``threshold`` defaults to the hold-for-review threshold. The live check on the
+    registration form passes the lower hint threshold to show "possible matches" early.
+    """
     first, last = name_key(first_name), name_key(last_name)
     national_id = _normalized_national_id(national_id)
     prefilter = (
@@ -131,7 +140,7 @@ def find_probable_duplicates(
             ),
         )
         score = combined_score(components)
-        if is_probable_duplicate(score):
+        if is_probable_duplicate(score, threshold):
             matches.append(
                 {
                     "patient_id": str(patient.pk),
