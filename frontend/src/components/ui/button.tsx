@@ -22,6 +22,17 @@ const VARIANTS: Record<ButtonVariant, string> = {
     "bg-green-btn text-surface hover:brightness-95 disabled:bg-disabled-fill disabled:text-ink-400",
 };
 
+/** The classes of a button, for links that look like one (see LinkButton). */
+export function buttonClass(variant: ButtonVariant, className?: string): string {
+  return cx(
+    "rounded-control text-body inline-flex shrink-0 items-center justify-center gap-2 font-semibold whitespace-nowrap transition-colors duration-150 ease-out",
+    variant === "ghost" ? "h-8" : "h-10 px-4",
+    VARIANTS[variant],
+    FOCUS_RING,
+    className,
+  );
+}
+
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
   /** primary, outline (blue), neutral (grey outline: "Today", "Filters"), ghost link, dashed, success. */
   variant?: ButtonVariant;
@@ -52,13 +63,7 @@ export function Button({
       type={type}
       disabled={disabled || loading}
       aria-busy={loading || undefined}
-      className={cx(
-        "rounded-control text-body inline-flex shrink-0 items-center justify-center gap-2 font-semibold whitespace-nowrap transition-colors duration-150 ease-out disabled:cursor-not-allowed",
-        variant === "ghost" ? "h-8" : "h-10 px-4",
-        VARIANTS[variant],
-        FOCUS_RING,
-        className,
-      )}
+      className={buttonClass(variant, cx("disabled:cursor-not-allowed", className))}
       {...props}
     >
       {Lead && (

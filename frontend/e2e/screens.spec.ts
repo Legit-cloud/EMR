@@ -1,8 +1,43 @@
-import { expect, test } from "@playwright/test";
+import { expect, type Locator, type Page, test } from "@playwright/test";
 
 import { apiPost, authFile, lettersFrom, loadSeed, totp } from "./helpers";
 
 const seed = loadSeed();
+
+/** The calendar on the seeded booking day, which has the physician's availability. */
+async function openTomorrow(page: Page) {
+  await page.goto("/appointments");
+  await page.getByRole("button", { name: "Next day" }).click();
+  await expect(page.locator(`[data-column="${seed.physician_id}"]`)).toBeVisible();
+}
+
+/** Book Ngozi Eze at the calendar slot `offset` pixels below 08:00 (60px is one hour). */
+async function bookAt(page: Page, offset: number) {
+  await page
+    .locator(`[data-column="${seed.physician_id}"]`)
+    .click({ position: { x: 40, y: offset + 4 } });
+  const wizard = page.getByRole("dialog", { name: "New appointment" });
+  await wizard.getByRole("button", { name: "Next" }).click();
+  await wizard.getByLabel("Find patient").fill("Ngozi");
+  await page
+    .getByRole("option", { name: /Ngozi Eze/ })
+    .first()
+    .click();
+  await wizard.getByRole("button", { name: "Book appointment" }).click();
+  await expect(wizard).toBeHidden();
+}
+
+/** Drag the named card with the mouse to `offset` pixels below the top of the column. */
+async function dragTo(page: Page, name: RegExp, column: Locator, offset: number) {
+  const card = page.getByRole("button", { name });
+  const from = (await card.boundingBox())!;
+  const body = (await column.boundingBox())!;
+  await page.mouse.move(from.x + from.width / 2, from.y + 10);
+  await page.mouse.down();
+  // The card is grabbed 10px down, so its top lands on the drop offset.
+  await page.mouse.move(body.x + body.width / 2, body.y + offset + 10, { steps: 8 });
+  await page.mouse.up();
+}
 
 test.describe("sign-in", () => {
   test("password then authenticator code", async ({ page }) => {
@@ -67,20 +102,38 @@ test.describe("front desk", () => {
     await expect(page).toHaveURL(/\/patients$/);
   });
 
-  test("books an appointment and checks the patient in", async ({ page }) => {
-    await page.goto("/schedule");
-    await page.getByLabel("Date").fill(seed.booking_date);
-    await page.getByRole("button", { name: "Book 08:00" }).click();
-    const dialog = page.getByRole("dialog", { name: "Book 08:00" });
-    await dialog.getByLabel("Find patient").fill("Ngozi");
-    await dialog.getByRole("radio", { name: /Ngozi Eze/ }).check();
-    await dialog.getByRole("button", { name: "Book appointment" }).click();
+  test("books from an empty calendar slot and checks the patient in", async ({ page }) => {
+    await openTomorrow(page);
+    await bookAt(page, 0);
     await expect(page.getByRole("status").filter({ hasText: "Appointment booked" })).toBeVisible();
 
-    const row = page.getByTestId("appointment").filter({ hasText: "Ngozi Eze" });
-    await expect(row.getByTestId("appointment-status")).toHaveText("Booked");
-    await row.getByRole("button", { name: "Check in" }).click();
-    await expect(row.getByTestId("appointment-status")).toHaveText("Checked in");
+    await page.getByRole("button", { name: /Ngozi Eze, 08:00 to 08:15, Booked/ }).click();
+    const drawer = page.getByRole("dialog");
+    await drawer.getByRole("combobox", { name: "Status" }).click();
+    await page.getByRole("option", { name: "Checked-In" }).click();
+    await expect(drawer.getByRole("combobox", { name: "Status" })).toHaveText("Checked-In");
+    await drawer.getByRole("button", { name: "Close" }).click();
+    await expect(
+      page.getByRole("button", { name: /Ngozi Eze, 08:00 to 08:15, Checked-In/ }),
+    ).toBeVisible();
+  });
+
+  test("drags an appointment to a free time, and is told when the time is taken", async ({
+    page,
+  }) => {
+    await openTomorrow(page);
+    await bookAt(page, 120);
+    await bookAt(page, 240);
+    const column = page.locator(`[data-column="${seed.physician_id}"]`);
+
+    // Onto the 10:00 appointment: refused, in words, and nothing moves.
+    await dragTo(page, /Ngozi Eze, 12:00 to 12:15/, column, 120);
+    await expect(page.getByText(/already has an appointment at that time/)).toBeVisible();
+    await expect(page.getByRole("button", { name: /Ngozi Eze, 12:00 to 12:15/ })).toBeVisible();
+
+    // To a free time: moved.
+    await dragTo(page, /Ngozi Eze, 12:00 to 12:15/, column, 360);
+    await expect(page.getByRole("button", { name: /Ngozi Eze, 14:00 to 14:15/ })).toBeVisible();
   });
 });
 

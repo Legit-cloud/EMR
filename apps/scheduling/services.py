@@ -82,6 +82,11 @@ def _check_bookable(appointment: Appointment) -> None:
 def _save_new(appointment: Appointment) -> None:
     appointment._assign_tenant()
     _check_bookable(appointment)
+    _persist(appointment)
+
+
+def _persist(appointment: Appointment) -> None:
+    """Validate and save, turning every way of losing the slot into ``SlotTaken``."""
     try:
         # Model validation reports overlaps nicely; the database constraint is what makes
         # simultaneous bookings safe.
@@ -128,6 +133,36 @@ def book(data: dict, *, recurrence: dict | None = None) -> list[Appointment]:
     for appointment in booked:
         send_booking_confirmation(appointment)
     return booked
+
+
+@transaction.atomic
+def reschedule(
+    appointment: Appointment,
+    start_at: datetime,
+    *,
+    end_at: datetime | None = None,
+    physician_id=None,
+) -> Appointment:
+    """Move an appointment that has not started, to another time and/or physician.
+
+    The same rules as booking apply (open window, nobody else booked, not in the past), and
+    the database constraint still decides simultaneous moves. The length is kept unless a new
+    end is given. The patient is told the new time, and reminders start again for it.
+    """
+    appointment = Appointment.objects.select_for_update().get(pk=appointment.pk)
+    if appointment.status not in (S.BOOKED, S.CONFIRMED):
+        raise TransitionRefused("Only an appointment that has not started can be moved.")
+    length = appointment.end_at - appointment.start_at
+    appointment.start_at = start_at
+    appointment.end_at = end_at or start_at + length
+    if physician_id is not None:
+        appointment.physician_id = physician_id
+    _check_bookable(appointment)
+    _persist(appointment)
+    # Reminders sent for the old time must not stop the ones for the new time.
+    appointment.reminders.all().delete()
+    send_booking_confirmation(appointment, moved=True)
+    return appointment
 
 
 def free_slots(physician_id, day) -> list[dict]:
@@ -304,18 +339,22 @@ def _message_parts(appointment: Appointment) -> tuple[dict | None, str, str]:
     return contact, (physician or {}).get("display_name", "your doctor"), when
 
 
-def send_booking_confirmation(appointment: Appointment) -> None:
+def send_booking_confirmation(appointment: Appointment, *, moved: bool = False) -> None:
+    """Tell the patient the time, with a calendar file. ``moved`` words it as a change."""
     contact, doctor, when = _message_parts(appointment)
     if contact is None:
         return
     reference = str(appointment.pk)[:8].upper()
     related = f"scheduling.appointment:{appointment.pk}"
+    purpose = "appointment_rescheduled" if moved else "appointment_booked"
     if contact["phone"]:
+        sms = (
+            f"Your appointment with {doctor} has moved to {when}. Ref {reference}."
+            if moved
+            else f"Appointment booked with {doctor} on {when}. Ref {reference}."
+        )
         notifications.queue_sms(
-            to=contact["phone"],
-            body=f"Appointment booked with {doctor} on {when}. Ref {reference}.",
-            purpose="appointment_booked",
-            related_object=related,
+            to=contact["phone"], body=sms, purpose=purpose, related_object=related
         )
     if contact["email"]:
         invite = build_ics(
@@ -326,14 +365,15 @@ def send_booking_confirmation(appointment: Appointment) -> None:
             location=str(appointment.facility),
             description=f"Reference {reference}",
         )
+        state = "now" if moved else "booked"
         notifications.queue_email(
             to=contact["email"],
-            subject=f"Appointment confirmed: {when}",
+            subject=f"Appointment {'moved' if moved else 'confirmed'}: {when}",
             body=(
-                f"Dear {contact['first_name']},\n\nYour appointment with {doctor} is booked "
+                f"Dear {contact['first_name']},\n\nYour appointment with {doctor} is {state} "
                 f"for {when} at {appointment.facility}.\nReference: {reference}\n"
             ),
-            purpose="appointment_booked",
+            purpose=purpose,
             related_object=related,
             attachments=[("appointment.ics", invite, "text/calendar")],
         )

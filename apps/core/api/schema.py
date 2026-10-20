@@ -7,6 +7,8 @@ DESCRIPTIONS = {
     "encounter": "Only rows of this encounter (id).",
     "history": "true to include Entered-in-Error rows.",
     "q": "Search text.",
+    "from": "Only rows starting at or after this time (ISO 8601).",
+    "to": "Only rows starting before this time (ISO 8601).",
     "status": "Only rows with this status.",
     "ordering": "Sort field, with a leading - for descending.",
     "allergy": "true for only patients with a recorded allergy.",
