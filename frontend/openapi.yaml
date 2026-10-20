@@ -8279,6 +8279,8 @@ components:
           type: string
         appointment_type:
           type: string
+        reason:
+          type: string
         triage_priority:
           type: integer
           nullable: true
@@ -8295,6 +8297,7 @@ components:
       - mrn
       - patient_id
       - patient_name
+      - reason
       - start_at
       - triage_priority
     RankRequest:

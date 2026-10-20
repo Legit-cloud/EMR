@@ -296,6 +296,7 @@ def queue_for(physician_id, scope=None) -> list[dict]:
             "patient_name": names.get(a.patient_id, {}).get("name", ""),
             "mrn": names.get(a.patient_id, {}).get("mrn", ""),
             "appointment_type": a.appointment_type,
+            "reason": a.reason,
             "triage_priority": a.triage_priority,
             "checked_in_at": a.checked_in_at.isoformat(),
             "start_at": a.start_at.isoformat(),

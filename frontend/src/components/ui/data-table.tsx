@@ -54,6 +54,8 @@ type Props<T> = {
   /** The kebab menu cell. */
   actions?: (row: T) => ReactNode;
   pagination?: Pagination;
+  /** Extra classes for a row, for example a highlight for a new arrival. */
+  rowClassName?: (row: T) => string | undefined;
 };
 
 /** Next click on a sorted column: ascending, descending, then back to the default order. */
@@ -102,6 +104,7 @@ export function DataTable<T>({
   rowLabel,
   actions,
   pagination,
+  rowClassName,
 }: Props<T>) {
   if (error && rows === undefined) {
     return (
@@ -225,6 +228,7 @@ export function DataTable<T>({
                   className={cx(
                     "border-line h-14 border-t transition-colors duration-150",
                     isChosen ? "bg-blue-100" : "hover:bg-surface-muted",
+                    rowClassName?.(row),
                   )}
                 >
                   {selectable && (
