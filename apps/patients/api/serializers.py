@@ -1,12 +1,15 @@
 from pathlib import Path
 
 from django.conf import settings
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.core.api.fields import TenantPrimaryKeyRelatedField
 
 from ..models import (
     Allergy,
+    AllergyCategory,
+    AllergySeverity,
     Attachment,
     AttachmentCategory,
     DuplicateReview,
@@ -70,6 +73,75 @@ class PatientSerializer(serializers.ModelSerializer):
         for validator in Patient._meta.get_field("phone").validators:
             validator(value)
         return value
+
+
+class RegistrationAllergySerializer(serializers.Serializer):
+    """An allergy recorded while registering, saved with the patient in one transaction."""
+
+    substance = serializers.CharField(max_length=200)
+    category = serializers.ChoiceField(choices=AllergyCategory.choices)
+    reaction = serializers.CharField(max_length=500)
+    severity = serializers.ChoiceField(choices=AllergySeverity.choices)
+
+
+class PatientRegistrationSerializer(PatientSerializer):
+    """Registration data: the patient, and optionally their allergies.
+
+    Allergies travel with a held registration, so they are not lost if it goes to
+    duplicate review and is created later.
+    """
+
+    allergies = RegistrationAllergySerializer(many=True, required=False, write_only=True)
+
+    class Meta(PatientSerializer.Meta):
+        fields = [*PatientSerializer.Meta.fields, "allergies"]
+
+
+class AllergyChipSerializer(serializers.Serializer):
+    substance = serializers.CharField()
+    severity = serializers.CharField()
+
+
+class PatientListSerializer(PatientSerializer):
+    """A patient as a row of the register: adds active allergies and the last visit."""
+
+    allergies = serializers.SerializerMethodField()
+    last_visit = serializers.SerializerMethodField()
+
+    class Meta(PatientSerializer.Meta):
+        fields = [*PatientSerializer.Meta.fields, "allergies", "last_visit"]
+        read_only_fields = fields
+
+    @extend_schema_field(AllergyChipSerializer(many=True))
+    def get_allergies(self, patient):
+        rows = getattr(patient, "active_allergies", None)
+        if rows is None:
+            return []
+        return [{"substance": a.substance, "severity": a.severity} for a in rows]
+
+    @extend_schema_field(serializers.DateTimeField(allow_null=True))
+    def get_last_visit(self, patient):
+        return self.context.get("last_visits", {}).get(patient.pk)
+
+
+class DuplicateCheckSerializer(serializers.Serializer):
+    first_name = serializers.CharField(max_length=100)
+    last_name = serializers.CharField(max_length=100)
+    date_of_birth = serializers.DateField()
+    national_id = serializers.CharField(max_length=32, required=False, allow_blank=True, default="")
+
+
+class DuplicateMatchSerializer(serializers.Serializer):
+    patient_id = serializers.UUIDField()
+    mrn = serializers.CharField()
+    first_name = serializers.CharField()
+    last_name = serializers.CharField()
+    date_of_birth = serializers.DateField()
+    sex = serializers.CharField()
+    score = serializers.FloatField(help_text="0 to 1; the form shows it as a percentage.")
+    would_hold = serializers.BooleanField(
+        help_text="True when registering now would hold the registration for review."
+    )
 
 
 class PatientStatusChangeSerializer(serializers.Serializer):

@@ -148,6 +148,8 @@ REST_FRAMEWORK = {
         "auth": env("AUTH_THROTTLE_RATE", default="10/min"),
         "anon": env("ANON_THROTTLE_RATE", default="60/min"),
         "user": env("USER_THROTTLE_RATE", default="600/min"),
+        # The registration form checks for duplicates as the clerk types.
+        "duplicate_check": env("DUPLICATE_CHECK_THROTTLE_RATE", default="120/min"),
     },
     # Proxies in front of the app, so throttling sees the real client address.
     "NUM_PROXIES": env.int("NUM_PROXIES", default=0),
@@ -173,6 +175,8 @@ SPECTACULAR_SETTINGS = {
         "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
         "DosageFormEnum": "apps.pharmacy.models.DosageForm",
         "PaymentMethodEnum": "apps.billing.models.PaymentMethod",
+        "AllergyCategoryEnum": "apps.patients.models.AllergyCategory",
+        "AllergySeverityEnum": "apps.patients.models.AllergySeverity",
     },
 }
 
@@ -183,6 +187,8 @@ REPORTING_TIME_ZONE = env("REPORTING_TIME_ZONE", default="Africa/Lagos")
 REPORTING_CURRENCY = env("REPORTING_CURRENCY", default="NGN")
 MRN_SEQUENCE_DIGITS = 6
 PATIENT_DUPLICATE_THRESHOLD = 0.85
+# The registration form shows weaker matches from this score up, before anything is held.
+PATIENT_DUPLICATE_HINT_THRESHOLD = env.float("PATIENT_DUPLICATE_HINT_THRESHOLD", default=0.6)
 DEFAULT_PHONE_COUNTRY_CODE = env("DEFAULT_PHONE_COUNTRY_CODE", default="234")
 PATIENT_DECEASED_ROLES = env.list("PATIENT_DECEASED_ROLES", default=["doctor"])
 PATIENT_ATTACHMENT_MAX_BYTES = env.int("PATIENT_ATTACHMENT_MAX_BYTES", default=20 * 1024 * 1024)

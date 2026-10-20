@@ -1410,6 +1410,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/patients/patients/check-duplicates/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Possible matches for the person being registered, for the form to show as the
+         *     clerk types. Nothing is saved; matches above the hold threshold say so.
+         */
+        post: operations["patients_patients_check_duplicates_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/pharmacy/drugs/": {
         parameters: {
             query?: never;
@@ -2243,7 +2263,7 @@ export interface components {
             substance_code?: string;
             category: components["schemas"]["AllergyCategoryEnum"];
             reaction: string;
-            severity: components["schemas"]["SeverityEnum"];
+            severity: components["schemas"]["AllergySeverityEnum"];
             /** Format: date */
             onset_date?: string | null;
             note?: string;
@@ -2259,6 +2279,10 @@ export interface components {
          * @enum {string}
          */
         AllergyCategoryEnum: "medication" | "food" | "environment" | "biologic";
+        AllergyChip: {
+            substance: string;
+            severity: string;
+        };
         AllergyRequest: {
             /** Format: uuid */
             patient: string;
@@ -2266,11 +2290,18 @@ export interface components {
             substance_code?: string;
             category: components["schemas"]["AllergyCategoryEnum"];
             reaction: string;
-            severity: components["schemas"]["SeverityEnum"];
+            severity: components["schemas"]["AllergySeverityEnum"];
             /** Format: date */
             onset_date?: string | null;
             note?: string;
         };
+        /**
+         * @description * `mild` - Mild
+         *     * `moderate` - Moderate
+         *     * `severe` - Severe
+         * @enum {string}
+         */
+        AllergySeverityEnum: "mild" | "moderate" | "severe";
         Appointment: {
             /** Format: uuid */
             readonly id: string;
@@ -2728,6 +2759,31 @@ export interface components {
             currency?: string;
             on_formulary?: boolean;
             reorder_level?: number;
+        };
+        DuplicateCheckRequest: {
+            first_name: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            /** @default  */
+            national_id: string;
+        };
+        DuplicateMatch: {
+            /** Format: uuid */
+            patient_id: string;
+            mrn: string;
+            first_name: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            sex: string;
+            /**
+             * Format: double
+             * @description 0 to 1; the form shows it as a percentage.
+             */
+            score: number;
+            /** @description True when registering now would hold the registration for review. */
+            would_hold: boolean;
         };
         DuplicateReview: {
             /** Format: uuid */
@@ -3403,7 +3459,7 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["JournalEntry"][];
         };
-        PaginatedPatientList: {
+        PaginatedPatientListList: {
             /** @example 123 */
             count: number;
             /**
@@ -3416,7 +3472,7 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous?: string | null;
-            results: components["schemas"]["Patient"][];
+            results: components["schemas"]["PatientList"][];
         };
         PaginatedPaymentList: {
             /** @example 123 */
@@ -3569,7 +3625,7 @@ export interface components {
             substance_code?: string;
             category?: components["schemas"]["AllergyCategoryEnum"];
             reaction?: string;
-            severity?: components["schemas"]["SeverityEnum"];
+            severity?: components["schemas"]["AllergySeverityEnum"];
             /** Format: date */
             onset_date?: string | null;
             note?: string;
@@ -3803,13 +3859,51 @@ export interface components {
             can_break_glass: boolean;
             grant: components["schemas"]["BreakGlassGrant"] | null;
         };
+        /** @description A patient as a row of the register: adds active allergies and the last visit. */
+        PatientList: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly mrn: string;
+            readonly first_name: string;
+            readonly middle_name: string;
+            readonly last_name: string;
+            /** Format: date */
+            readonly date_of_birth: string;
+            readonly sex: components["schemas"]["SexEnum"];
+            readonly national_id: string;
+            phone?: string;
+            /** Format: email */
+            readonly email: string;
+            readonly address_line: string;
+            readonly city: string;
+            readonly state: string;
+            readonly country: string;
+            readonly status: components["schemas"]["PatientStatusEnum"];
+            /** Format: date */
+            readonly deceased_at: string | null;
+            readonly record_state: components["schemas"]["RecordStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly allergies: components["schemas"]["AllergyChip"][];
+            /** Format: date-time */
+            readonly last_visit: string | null;
+        };
         PatientMix: {
             /** @description Seen in the range and registered in it. */
             new: number;
             /** @description Seen in the range, registered before it. */
             returning: number;
         };
-        PatientRequest: {
+        /**
+         * @description Registration data: the patient, and optionally their allergies.
+         *
+         *     Allergies travel with a held registration, so they are not lost if it goes to
+         *     duplicate review and is created later.
+         */
+        PatientRegistration: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly mrn: string;
             first_name: string;
             middle_name?: string;
             last_name: string;
@@ -3823,6 +3917,34 @@ export interface components {
             city?: string;
             state?: string;
             country?: string;
+            readonly status: components["schemas"]["PatientStatusEnum"];
+            /** Format: date */
+            readonly deceased_at: string | null;
+            readonly record_state: components["schemas"]["RecordStateEnum"];
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /**
+         * @description Registration data: the patient, and optionally their allergies.
+         *
+         *     Allergies travel with a held registration, so they are not lost if it goes to
+         *     duplicate review and is created later.
+         */
+        PatientRegistrationRequest: {
+            first_name: string;
+            middle_name?: string;
+            last_name: string;
+            /** Format: date */
+            date_of_birth: string;
+            sex?: components["schemas"]["SexEnum"];
+            national_id?: string;
+            phone?: string;
+            email?: string;
+            address_line?: string;
+            city?: string;
+            state?: string;
+            country?: string;
+            allergies?: components["schemas"]["RegistrationAllergyRequest"][];
         };
         PatientStatusChangeRequest: {
             status: components["schemas"]["PatientStatusEnum"];
@@ -4010,6 +4132,20 @@ export interface components {
             frequency: components["schemas"]["FrequencyEnum"];
             count: number;
         };
+        /** @description An allergy recorded while registering, saved with the patient in one transaction. */
+        RegistrationAllergy: {
+            substance: string;
+            category: components["schemas"]["AllergyCategoryEnum"];
+            reaction: string;
+            severity: components["schemas"]["AllergySeverityEnum"];
+        };
+        /** @description An allergy recorded while registering, saved with the patient in one transaction. */
+        RegistrationAllergyRequest: {
+            substance: string;
+            category: components["schemas"]["AllergyCategoryEnum"];
+            reaction: string;
+            severity: components["schemas"]["AllergySeverityEnum"];
+        };
         ResolveReviewRequest: {
             decision: components["schemas"]["DecisionEnum"];
             /** Format: uuid */
@@ -4086,13 +4222,6 @@ export interface components {
             name: string;
             count: number;
         };
-        /**
-         * @description * `mild` - Mild
-         *     * `moderate` - Moderate
-         *     * `severe` - Severe
-         * @enum {string}
-         */
-        SeverityEnum: "mild" | "moderate" | "severe";
         /**
          * @description * `female` - Female
          *     * `male` - Male
@@ -6082,6 +6211,7 @@ export interface operations {
             query?: {
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Only rows with this status. */
                 status?: string;
             };
             header?: never;
@@ -6151,12 +6281,20 @@ export interface operations {
     patients_patients_list: {
         parameters: {
             query?: {
+                /** @description true for only patients with a recorded allergy. */
+                allergy?: string;
                 /** @description true to include Entered-in-Error rows. */
                 history?: string;
+                /** @description Sort field, with a leading - for descending. */
+                ordering?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
                 /** @description Search text. */
                 q?: string;
+                /** @description Only rows with this status. */
+                status?: string;
             };
             header?: never;
             path?: never;
@@ -6169,7 +6307,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedPatientList"];
+                    "application/json": components["schemas"]["PaginatedPatientListList"];
                 };
             };
         };
@@ -6183,9 +6321,9 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["PatientRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["PatientRequest"];
-                "multipart/form-data": components["schemas"]["PatientRequest"];
+                "application/json": components["schemas"]["PatientRegistrationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatientRegistrationRequest"];
+                "multipart/form-data": components["schemas"]["PatientRegistrationRequest"];
             };
         };
         responses: {
@@ -6194,7 +6332,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["Patient"];
+                    "application/json": components["schemas"]["PatientRegistration"];
                 };
             };
         };
@@ -6297,6 +6435,31 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Patient"];
+                };
+            };
+        };
+    };
+    patients_patients_check_duplicates_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DuplicateCheckRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DuplicateCheckRequest"];
+                "multipart/form-data": components["schemas"]["DuplicateCheckRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DuplicateMatch"][];
                 };
             };
         };
@@ -6408,6 +6571,7 @@ export interface operations {
                 page?: number;
                 /** @description Only rows of this patient (id). */
                 patient?: string;
+                /** @description Only rows with this status. */
                 status?: string;
             };
             header?: never;
@@ -6756,6 +6920,7 @@ export interface operations {
                 patient?: string;
                 physician?: string;
                 series_id?: string;
+                /** @description Only rows with this status. */
                 status?: string;
             };
             header?: never;

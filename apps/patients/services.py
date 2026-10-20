@@ -18,7 +18,7 @@ from apps.core.tenancy import get_current_tenant_id, get_current_user_id
 
 from .duplicates import find_probable_duplicates
 from .events import PATIENT_DECEASED
-from .models import DuplicateReview, Patient, PatientStatus, ReviewStatus
+from .models import Allergy, DuplicateReview, Patient, PatientStatus, ReviewStatus
 
 
 class StatusChangeRefused(DomainError):
@@ -60,9 +60,14 @@ def register_patient(data: dict) -> Patient | DuplicateReview:
 
 
 def _create(data: dict) -> Patient:
+    data = dict(data)
+    allergies = data.pop("allergies", [])
     patient = Patient(**data)
     patient.full_clean(exclude=["mrn", "first_name_key", "last_name_key", "tenant"])
     patient.save()
+    # Same transaction as the patient: a registration never ends up half saved.
+    for allergy in allergies:
+        Allergy.objects.create(patient=patient, **allergy)
     return patient
 
 

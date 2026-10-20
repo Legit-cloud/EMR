@@ -120,7 +120,7 @@ function AddAllergyDialog({
         substance: form.substance,
         category: form.category as Schemas["AllergyCategoryEnum"],
         reaction: form.reaction,
-        severity: form.severity as Schemas["SeverityEnum"],
+        severity: form.severity as Schemas["AllergySeverityEnum"],
       },
     });
     if (error) {

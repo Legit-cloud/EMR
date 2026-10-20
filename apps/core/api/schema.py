@@ -7,6 +7,10 @@ DESCRIPTIONS = {
     "encounter": "Only rows of this encounter (id).",
     "history": "true to include Entered-in-Error rows.",
     "q": "Search text.",
+    "status": "Only rows with this status.",
+    "ordering": "Sort field, with a leading - for descending.",
+    "allergy": "true for only patients with a recorded allergy.",
+    "page_size": "Rows per page (10, 25, 50 or 100).",
 }
 
 

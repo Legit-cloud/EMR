@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { compactMoney, formatMoney, toMajorText, toMinor } from "./format";
+import { ageLabel, compactMoney, formatDay, formatMoney, toMajorText, toMinor } from "./format";
 
 describe("toMinor: typed amounts to integer minor units, never floats", () => {
   it.each([
@@ -46,5 +46,22 @@ describe("compactMoney", () => {
     expect(compactMoney(50_000, "NGN")).toBe("₦500");
     expect(compactMoney(0, "NGN")).toBe("₦0");
     expect(compactMoney(-250_000, "USD")).toBe("-USD 2.5k");
+  });
+});
+
+describe("ageLabel and formatDay", () => {
+  const today = new Date(2026, 9, 19); // 19 October 2026
+
+  it("shows years, and months for a baby under one", () => {
+    expect(ageLabel("1990-10-19", today)).toBe("36 yrs");
+    expect(ageLabel("1990-10-20", today)).toBe("35 yrs");
+    expect(ageLabel("2026-03-19", today)).toBe("7 mo");
+    expect(ageLabel("2026-10-18", today)).toBe("0 mo");
+  });
+
+  it("shows the Lagos day of a timestamp, and a dash for none", () => {
+    // 23:30 UTC on 14 Oct is already 15 Oct in Lagos (UTC+1).
+    expect(formatDay("2026-10-14T23:30:00Z")).toBe("15 Oct 2026");
+    expect(formatDay(null)).toBe("—");
   });
 });

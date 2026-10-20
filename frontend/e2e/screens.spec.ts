@@ -24,28 +24,47 @@ test.describe("sign-in", () => {
 test.describe("front desk", () => {
   test.use({ storageState: authFile("desk") });
 
-  test("registers a new patient", async ({ page }) => {
+  test("registers a new patient with the wizard", async ({ page }) => {
     const suffix = lettersFrom(seed.run);
-    await page.goto("/patients/new");
-    await page.getByLabel("First name").fill(`Chiamaka${suffix}`);
-    await page.getByLabel("Last name").fill(`Okoro${suffix}`);
-    await page.getByLabel("Date of birth").fill("1999-09-09");
-    await page.getByLabel("Phone").fill("0803 555 0101");
-    await page.getByRole("button", { name: "Register" }).click();
+    await page.goto("/patients");
+    await page.getByRole("button", { name: "New patient" }).click();
+    const wizard = page.getByRole("dialog", { name: "Register a patient" });
+    await wizard.getByLabel("First name").fill(`Chiamaka${suffix}`);
+    await wizard.getByLabel("Last name").fill(`Okoro${suffix}`);
+    await wizard.getByLabel("Date of birth").fill("1999-09-09");
+    // Enter moves to the next step; only the last step submits.
+    await wizard.getByLabel("Last name").press("Enter");
+    await wizard.getByLabel(/^Phone/).fill("0803 555 0101");
+    await wizard.getByRole("button", { name: "Next" }).click();
+    await expect(wizard.getByText("Allergies are recorded by clinical staff")).toBeVisible();
+    await wizard.getByRole("button", { name: "Register patient" }).click();
     await expect(page.getByRole("heading", { level: 1 })).toContainText(`Chiamaka${suffix}`);
     await expect(page.getByTestId("mrn")).toHaveText(/^\d{4}-\d{6}$/);
   });
 
-  test("is warned about a likely duplicate instead of creating it", async ({ page }) => {
+  test("is warned about a likely duplicate as they type and can send it for review", async ({
+    page,
+  }) => {
+    // The old registration address still works: it opens the wizard.
     await page.goto("/patients/new");
-    await page.getByLabel("First name").fill("Ngozi");
-    await page.getByLabel("Last name").fill("Eze");
-    await page.getByLabel("Date of birth").fill("1985-06-01");
-    await page.getByRole("button", { name: "Register" }).click();
-    const warning = page.getByRole("alert").filter({ hasText: "may already be registered" });
-    await expect(warning).toBeVisible();
-    await expect(warning).toContainText(`MRN ${seed.patient.mrn}`);
-    await expect(page).toHaveURL(/\/patients\/new$/);
+    const wizard = page.getByRole("dialog", { name: "Register a patient" });
+    await wizard.getByLabel("First name").fill("Ngozi");
+    await wizard.getByLabel("Last name").fill("Eze");
+    await wizard.getByLabel("Date of birth").fill("1985-06-01");
+    const matches = wizard.getByRole("region", { name: "Possible matches" });
+    await expect(matches).toContainText("This person may already be registered");
+    await expect(matches).toContainText(seed.patient.mrn);
+    await expect(matches).toContainText(/\d+% match/);
+    await expect(
+      matches.getByRole("link", { name: /Open existing record for Ngozi Eze/ }),
+    ).toHaveAttribute("href", `/patients/${seed.patient.id}`);
+
+    await wizard.getByRole("button", { name: "Next" }).click();
+    await wizard.getByRole("button", { name: "Next" }).click();
+    await wizard.getByRole("button", { name: "Send for review" }).click();
+    await expect(wizard.getByText("Sent for review")).toBeVisible();
+    await wizard.getByRole("button", { name: "Done" }).click();
+    await expect(page).toHaveURL(/\/patients$/);
   });
 
   test("books an appointment and checks the patient in", async ({ page }) => {
@@ -67,6 +86,22 @@ test.describe("front desk", () => {
 
 test.describe("doctor", () => {
   test.use({ storageState: authFile("doctor") });
+
+  test("finds a patient in the register, with the allergy visible at a glance", async ({
+    page,
+  }) => {
+    await page.goto("/patients");
+    // The top bar has a search too; this one belongs to the register.
+    await page
+      .getByRole("region", { name: "Patient register" })
+      .getByRole("searchbox", { name: /Search patients/ })
+      .fill("Ngozi");
+    const row = page.getByRole("row", { name: /Ngozi Eze/ });
+    await expect(row).toContainText(seed.patient.mrn);
+    await expect(row).toContainText("Penicillin");
+    await row.getByRole("link", { name: /Ngozi Eze/ }).click();
+    await expect(page.getByRole("heading", { level: 1 })).toContainText("Ngozi");
+  });
 
   test("reads the chart: allergies, vitals and diagnoses", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
