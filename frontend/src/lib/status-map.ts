@@ -166,3 +166,10 @@ export const STOCK_LEVEL = {
   low: { label: "Low", tone: "amber", icon: WarningCircle },
   out: { label: "Out", tone: "pink", icon: XCircle },
 } as const satisfies Record<string, StatusSpec>;
+
+/** Patient register status. Grey for both ends of "not currently attending"; the label says which. */
+export const PATIENT_STATUS: Record<Schemas["PatientStatusEnum"], StatusSpec> = {
+  active: { label: "Active", tone: "green", icon: CheckCircle },
+  inactive: { label: "Inactive", tone: "grey", icon: Minus },
+  deceased: { label: "Deceased", tone: "grey", icon: Prohibit },
+};

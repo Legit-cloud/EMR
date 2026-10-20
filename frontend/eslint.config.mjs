@@ -32,7 +32,8 @@ export default defineConfig([
       "src/app/(app)/compliance/**",
       "src/app/(app)/invoices/**",
       "src/app/(app)/manage/**",
-      "src/app/(app)/patients/**",
+      // The register and registration are rebuilt; the chart under patients/[id] is not yet.
+      "src/app/(app)/patients/*/**",
       "src/app/(app)/pharmacy/**",
       "src/app/(app)/registrations/**",
       "src/app/(app)/schedule/**",
