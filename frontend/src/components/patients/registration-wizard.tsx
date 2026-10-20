@@ -12,7 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Controller, useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { Banner } from "@/components/ui/banner";
@@ -439,14 +439,22 @@ export function RegistrationWizard({ open, onOpenChange, canRecordAllergies }: P
 
 /** Looks for existing patients like the one being typed, once the identity is complete. */
 function useDuplicateMatches(values: RegistrationValues, active: boolean) {
-  const settled = useDebounced(
-    {
-      first_name: values.first_name ?? "",
-      last_name: values.last_name ?? "",
-      date_of_birth: values.date_of_birth ?? "",
-      national_id: values.national_id ?? "",
-    },
-    500,
+  // Debounce a string: an object would be a new value on every render and restart the timer
+  // (and re-render) forever.
+  const typed = JSON.stringify({
+    first_name: values.first_name ?? "",
+    last_name: values.last_name ?? "",
+    date_of_birth: values.date_of_birth ?? "",
+    national_id: values.national_id ?? "",
+  });
+  const settledText = useDebounced(typed, 500);
+  const settled = useMemo(
+    () =>
+      JSON.parse(settledText) as Pick<
+        RegistrationValues,
+        "first_name" | "last_name" | "date_of_birth" | "national_id"
+      >,
+    [settledText],
   );
   return useQuery({
     queryKey: ["duplicate-check", settled],

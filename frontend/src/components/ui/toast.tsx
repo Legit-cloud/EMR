@@ -10,7 +10,15 @@ import { FOCUS_RING } from "./focus";
 
 export type ToastTone = "success" | "error" | "info";
 
-export type ToastInput = { title: string; description?: string; tone?: ToastTone };
+export type ToastInput = {
+  title: string;
+  description?: string;
+  tone?: ToastTone;
+  /** A button on the toast, for example "Undo". Closing the toast does not run it. */
+  action?: { label: string; onClick: () => void };
+  /** How long it stays, in ms; the default suits a short message. Errors stay regardless. */
+  durationMs?: number;
+};
 
 type Entry = ToastInput & { id: number };
 
@@ -46,13 +54,13 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={show}>
       <RadixToast.Provider swipeDirection="right" label="Notifications">
         {children}
-        {toasts.map(({ id, title, description, tone = "success" }) => {
+        {toasts.map(({ id, title, description, tone = "success", action, durationMs }) => {
           const { icon: Glyph, className } = TONE[tone];
           return (
             <RadixToast.Root
               key={id}
               type={tone === "error" ? "foreground" : "background"}
-              duration={tone === "error" ? Infinity : TOAST_DURATION}
+              duration={tone === "error" ? Infinity : (durationMs ?? TOAST_DURATION)}
               onOpenChange={(open) => !open && remove(id)}
               className="rounded-card border-line bg-surface shadow-pop data-[state=open]:animate-toast-in flex w-full items-start gap-3 border p-4 motion-reduce:animate-none"
             >
@@ -67,6 +75,18 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   </RadixToast.Description>
                 )}
               </div>
+              {action && (
+                <RadixToast.Action
+                  altText={action.label}
+                  onClick={action.onClick}
+                  className={cx(
+                    "rounded-control text-small shrink-0 px-2 py-1 font-semibold text-blue-600 hover:underline",
+                    FOCUS_RING,
+                  )}
+                >
+                  {action.label}
+                </RadixToast.Action>
+              )}
               <RadixToast.Close
                 aria-label="Dismiss"
                 className={cx(

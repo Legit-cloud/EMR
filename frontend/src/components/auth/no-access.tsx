@@ -12,13 +12,26 @@ type Props = {
   what?: string;
   /** Use h1 when the refusal is the whole page. */
   asPage?: boolean;
+  /** Smaller, for a card or tab: no big heading and no way-out button. */
+  compact?: boolean;
 };
 
 /**
  * Shown when the API refuses a request (403). No data from the refused request is shown;
  * the message says how to get access instead.
  */
-export function NoAccess({ what = "this page", asPage = false }: Props) {
+export function NoAccess({ what = "this page", asPage = false, compact = false }: Props) {
+  if (compact) {
+    return (
+      <div role="status" className="text-small text-ink-600 flex items-center gap-2 py-3">
+        <LockKey aria-hidden size={18} weight="fill" className="text-ink-400 shrink-0" />
+        <span>
+          <span className="text-ink-900 font-semibold">No access to {what}.</span> Your role does
+          not cover it.
+        </span>
+      </div>
+    );
+  }
   const Heading = asPage ? "h1" : "h2";
   return (
     <div role="status" className="flex flex-col items-center gap-4 px-4 py-12 text-center">
