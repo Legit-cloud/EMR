@@ -15,6 +15,7 @@ export function useRefreshChart(patientId: string) {
 export function usePatient(id: string) {
   return useQuery({
     queryKey: chartKey(id, "patient"),
+    enabled: id !== "",
     queryFn: () => unwrap(api.GET("/api/patients/patients/{id}/", { params: { path: { id } } })),
   });
 }
@@ -22,6 +23,7 @@ export function usePatient(id: string) {
 export function useAllergies(patient: string) {
   return useQuery({
     queryKey: chartKey(patient, "allergies"),
+    enabled: patient !== "",
     queryFn: () => unwrap(api.GET("/api/patients/allergies/", { params: { query: { patient } } })),
   });
 }
@@ -65,6 +67,7 @@ export function usePrescriptions(patient: string) {
 export function useInvoices(patient: string) {
   return useQuery({
     queryKey: chartKey(patient, "invoices"),
+    enabled: patient !== "",
     queryFn: () => unwrap(api.GET("/api/billing/invoices/", { params: { query: { patient } } })),
   });
 }
@@ -98,5 +101,46 @@ export function useOpenEncounter(patient: string) {
   return {
     loaded,
     encounter: encounters.data?.results.find((e) => e.status === "in_progress"),
+  };
+}
+
+/**
+ * What has been recorded for one visit, for the appointment drawer's Finish rule. Each count is
+ * undefined while loading or when the viewer's role may not read it.
+ */
+export function useVisitRecords(encounterId: string | null | undefined) {
+  const enabled = !!encounterId;
+  const key = (part: string) => ["visit-records", encounterId, part] as const;
+  const vitals = useQuery({
+    queryKey: key("vitals"),
+    enabled,
+    retry: false,
+    queryFn: () =>
+      unwrap(api.GET("/api/clinical/vitals/", { params: { query: { encounter: encounterId! } } })),
+  });
+  const notes = useQuery({
+    queryKey: key("notes"),
+    enabled,
+    retry: false,
+    queryFn: () =>
+      unwrap(api.GET("/api/clinical/notes/", { params: { query: { encounter: encounterId! } } })),
+  });
+  const diagnoses = useQuery({
+    queryKey: key("diagnoses"),
+    enabled,
+    retry: false,
+    queryFn: () =>
+      unwrap(
+        api.GET("/api/clinical/diagnoses/", { params: { query: { encounter: encounterId! } } }),
+      ),
+  });
+  const loaded = vitals.data && notes.data && diagnoses.data;
+  return {
+    /** True when all three could be read. */
+    known: !!loaded,
+    vitals: vitals.data?.count ?? 0,
+    notes: notes.data?.count ?? 0,
+    diagnoses: diagnoses.data?.count ?? 0,
+    loading: enabled && (vitals.isPending || notes.isPending || diagnoses.isPending),
   };
 }

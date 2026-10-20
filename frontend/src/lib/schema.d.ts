@@ -1736,6 +1736,23 @@ export interface paths {
         patch: operations["scheduling_appointments_partial_update"];
         trace?: never;
     };
+    "/api/scheduling/appointments/{id}/reschedule/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Move an appointment that has not started to another time or physician. */
+        post: operations["scheduling_appointments_reschedule_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/scheduling/appointments/{id}/status/": {
         parameters: {
             query?: never;
@@ -2307,6 +2324,9 @@ export interface components {
             readonly id: string;
             /** Format: uuid */
             patient: string;
+            /** @description The patient's name, for calendars and lists. */
+            readonly patient_name: string;
+            readonly patient_mrn: string;
             /** Format: uuid */
             physician: string;
             /** Format: uuid */
@@ -4145,6 +4165,14 @@ export interface components {
             category: components["schemas"]["AllergyCategoryEnum"];
             reaction: string;
             severity: components["schemas"]["AllergySeverityEnum"];
+        };
+        RescheduleRequest: {
+            /** Format: date-time */
+            start_at: string;
+            /** Format: date-time */
+            end_at?: string;
+            /** Format: uuid */
+            physician?: string;
         };
         ResolveReviewRequest: {
             decision: components["schemas"]["DecisionEnum"];
@@ -6914,14 +6942,20 @@ export interface operations {
         parameters: {
             query?: {
                 date?: string;
+                /** @description Only rows starting at or after this time (ISO 8601). */
+                from?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
                 /** @description Only rows of this patient (id). */
                 patient?: string;
                 physician?: string;
                 series_id?: string;
                 /** @description Only rows with this status. */
                 status?: string;
+                /** @description Only rows starting before this time (ISO 8601). */
+                to?: string;
             };
             header?: never;
             path?: never;
@@ -7008,6 +7042,33 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AppointmentUpdate"];
+                };
+            };
+        };
+    };
+    scheduling_appointments_reschedule_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RescheduleRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RescheduleRequest"];
+                "multipart/form-data": components["schemas"]["RescheduleRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Appointment"];
                 };
             };
         };
@@ -7112,9 +7173,15 @@ export interface operations {
     scheduling_availability_list: {
         parameters: {
             query?: {
+                /** @description Only rows starting at or after this time (ISO 8601). */
+                from?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
                 physician?: string;
+                /** @description Only rows starting before this time (ISO 8601). */
+                to?: string;
             };
             header?: never;
             path?: never;

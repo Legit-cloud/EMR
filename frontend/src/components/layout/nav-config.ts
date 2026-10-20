@@ -47,7 +47,7 @@ export const NAV: NavGroup[] = [
     items: [
       {
         label: "Appointments",
-        href: "/schedule",
+        href: "/appointments",
         icon: CalendarBlank,
         roles: ["front_desk", "tenant_admin", "doctor", "nurse"],
       },
@@ -139,7 +139,7 @@ export type QuickCreateItem = { label: string; href: string; roles: Role[] };
 /** The round + button's menu: only actions that have a screen. */
 export const QUICK_CREATE: QuickCreateItem[] = [
   { label: "New patient", href: "/patients/new", roles: ["doctor", "nurse", "front_desk"] },
-  { label: "New appointment", href: "/schedule", roles: ["front_desk", "tenant_admin"] },
+  { label: "New appointment", href: "/appointments", roles: ["front_desk", "tenant_admin"] },
 ];
 
 function allowed(roles: readonly string[], item: { roles?: Role[] }): boolean {

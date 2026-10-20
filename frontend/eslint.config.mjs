@@ -34,7 +34,6 @@ export default defineConfig([
       "src/app/(app)/manage/**",
       "src/app/(app)/pharmacy/**",
       "src/app/(app)/registrations/**",
-      "src/app/(app)/schedule/**",
       "src/components/legacy-ui.tsx",
       "src/lib/useLoad.ts",
     ],
