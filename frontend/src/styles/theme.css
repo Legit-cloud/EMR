@@ -127,6 +127,7 @@
   --animate-drawer-in: drawer-in 220ms ease-out;
   --animate-toast-in: toast-in 150ms ease-out;
   --animate-skeleton: skeleton 1.4s ease-in-out infinite;
+  --animate-arrive: arrive 4s ease-out;
 
   @keyframes fade-in {
     from {
@@ -148,6 +149,21 @@
     from {
       opacity: 0;
       transform: translateY(8px);
+    }
+  }
+  /* A new queue row: slides down a little and fades from a blue tint. */
+  @keyframes arrive {
+    from {
+      background-color: var(--blue-100);
+      transform: translateY(-8px);
+      opacity: 0;
+    }
+    8% {
+      transform: none;
+      opacity: 1;
+    }
+    70% {
+      background-color: var(--blue-100);
     }
   }
   @keyframes skeleton {

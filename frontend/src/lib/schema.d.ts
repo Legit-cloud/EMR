@@ -4113,6 +4113,7 @@ export interface components {
             patient_name: string;
             mrn: string;
             appointment_type: string;
+            reason: string;
             triage_priority: number | null;
             /** Format: date-time */
             checked_in_at: string;

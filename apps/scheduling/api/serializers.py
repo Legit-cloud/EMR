@@ -134,6 +134,7 @@ class QueueEntrySerializer(serializers.Serializer):
     patient_name = serializers.CharField()
     mrn = serializers.CharField()
     appointment_type = serializers.CharField()
+    reason = serializers.CharField(allow_blank=True)
     triage_priority = serializers.IntegerField(allow_null=True)
     checked_in_at = serializers.DateTimeField()
     start_at = serializers.DateTimeField()

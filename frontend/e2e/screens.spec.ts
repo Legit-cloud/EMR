@@ -189,9 +189,9 @@ test.describe("doctor", () => {
     expect(response.ok()).toBeTruthy();
     await desk.dispose();
 
-    await expect(
-      page.getByTestId("queue-entry").filter({ hasText: seed.queued_patient }),
-    ).toBeVisible();
+    const row = page.getByRole("row").filter({ hasText: seed.queued_patient });
+    await expect(row).toBeVisible();
+    await expect(row.getByRole("button", { name: /Start consultation/ })).toBeVisible();
   });
 
   test("prescribes through the allergy alert with an override reason", async ({ page }) => {

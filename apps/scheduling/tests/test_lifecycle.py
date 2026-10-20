@@ -207,6 +207,8 @@ def test_check_in_updates_the_physician_queue_over_websocket(
     assert update["type"] == "queue"
     assert [e["appointment_id"] for e in update["queue"]] == [str(appointment.pk)]
     assert update["queue"][0]["patient_name"] == "Ngozi Eze"
+    # The reason for the visit travels with the entry, for the queue screen (FR-3.x).
+    assert update["queue"][0]["reason"] == appointment.reason
 
 
 @pytest.mark.django_db(transaction=True)
