@@ -196,26 +196,35 @@ test.describe("doctor", () => {
 
   test("prescribes through the allergy alert with an override reason", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
-    await page.getByRole("link", { name: "Prescribe" }).click();
-    await page.getByLabel("Medicine").selectOption({ label: "Amoxicillin 500 mg (Tablet)" });
-    await page.getByLabel("Dose").fill("1 capsule");
-    await page.getByLabel("Frequency").fill("three times daily");
-    await page.getByRole("button", { name: "Save and sign" }).click();
+    await page.getByRole("button", { name: "Prescribe" }).click();
+    const wizard = page.getByRole("dialog", { name: "New prescription" });
+    await wizard.getByRole("combobox", { name: /Medicine 1/ }).click();
+    await page.keyboard.type("Amox");
+    await page.getByRole("option", { name: /Amoxicillin 500 mg/ }).click();
+    await wizard.getByLabel(/Dose 1/).fill("1 capsule");
+    await wizard.getByRole("combobox", { name: /Frequency 1/ }).click();
+    await page.getByRole("option", { name: "Three times daily" }).click();
+    await wizard.getByLabel(/Quantity to dispense 1/).fill("21");
+    await wizard.getByRole("button", { name: "Next" }).click();
 
-    const dialog = page.getByRole("dialog", { name: "Safety check" });
-    const alert = dialog.getByTestId("safety-alert");
-    await expect(alert).toContainText("Penicillin");
-    await expect(alert).toContainText("must override");
-    const sign = dialog.getByRole("button", { name: "Override and sign" });
+    // The seeded patient has a penicillin allergy: a blocking alert stops Sign.
+    const check = wizard.getByRole("region", { name: "Safety check" });
+    await expect(check).toContainText("Penicillin");
+    const sign = wizard.getByRole("button", { name: "Sign prescription" });
     await expect(sign).toBeDisabled();
-    await dialog
-      .getByLabel("Reason for overriding")
-      .fill("Allergy history disputed; test dose supervised");
+    await wizard.getByRole("combobox", { name: "Reason for overriding" }).click();
+    await page.getByRole("option", { name: /No suitable alternative/ }).click();
+    await expect(sign).toBeDisabled();
+    await wizard.getByRole("checkbox", { name: /confirm the override/ }).check();
+    await expect(sign).toBeEnabled();
     await sign.click();
 
-    await expect(
-      page.getByRole("status").filter({ hasText: "Prescription Authorised" }),
-    ).toBeVisible();
-    await expect(page.getByText("Allergy history disputed; test dose supervised")).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "Prescription signed" })).toBeVisible();
+    await page.getByRole("tab", { name: "Prescriptions" }).click();
+    const table = page.getByRole("table", { name: /Prescriptions, most recent first/ });
+    const row = table.getByRole("row").filter({ hasText: "Amoxicillin" });
+    await expect(row).toContainText("Signed");
+    // A signed prescription is never edited, only amended.
+    await expect(row.getByRole("button", { name: "Create amended prescription" })).toBeVisible();
   });
 });

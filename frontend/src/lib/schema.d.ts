@@ -3539,21 +3539,6 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["RoleAssignment"][];
         };
-        PaginatedSafetyAlertList: {
-            /** @example 123 */
-            count: number;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=4
-             */
-            next?: string | null;
-            /**
-             * Format: uri
-             * @example http://api.example.org/accounts/?page=2
-             */
-            previous?: string | null;
-            results: components["schemas"]["SafetyAlert"][];
-        };
         PaginatedShiftList: {
             /** @example 123 */
             count: number;
@@ -6748,10 +6733,7 @@ export interface operations {
     };
     pharmacy_prescriptions_check_create: {
         parameters: {
-            query?: {
-                /** @description A page number within the paginated result set. */
-                page?: number;
-            };
+            query?: never;
             header?: never;
             path: {
                 id: string;
@@ -6765,7 +6747,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedSafetyAlertList"];
+                    "application/json": components["schemas"]["SafetyAlert"][];
                 };
             };
         };

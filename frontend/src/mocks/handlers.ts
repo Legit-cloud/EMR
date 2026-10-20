@@ -5,6 +5,7 @@ import { authHandlers } from "./auth";
 import { chartHandlers } from "./chart";
 import { dashboardHandlers } from "./dashboard";
 import { patientHandlers } from "./patients";
+import { pharmacyHandlers } from "./pharmacy";
 
 /**
  * Mock API handlers, shaped like the OpenAPI schema (src/lib/schema.d.ts).
@@ -19,4 +20,5 @@ export const handlers: HttpHandler[] = [
   ...chartHandlers,
   ...dashboardHandlers,
   ...patientHandlers,
+  ...pharmacyHandlers,
 ];

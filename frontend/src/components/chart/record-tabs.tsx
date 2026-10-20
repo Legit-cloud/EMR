@@ -1,9 +1,10 @@
 "use client";
 
-import { DownloadSimple, Plus } from "@phosphor-icons/react";
+import { DownloadSimple, Lock, Plus } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 import Link from "next/link";
 
+import type { PrescriptionStart } from "@/components/prescribing/prescription-wizard";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { type Column, DataTable } from "@/components/ui/data-table";
@@ -26,10 +27,13 @@ type Prescription = Schemas["Prescription"];
 /** Prescriptions written for this patient, newest first. */
 export function PrescriptionsTab({
   patientId,
-  openEncounterId,
+  canPrescribe,
+  onPrescribe,
 }: {
   patientId: string;
-  openEncounterId?: string;
+  /** A doctor with a visit open: the only person who can start, continue or amend one. */
+  canPrescribe: boolean;
+  onPrescribe: (start: PrescriptionStart) => void;
 }) {
   const prescriptions = usePrescriptions(patientId);
   const columns: Column<Prescription>[] = [
@@ -62,20 +66,47 @@ export function PrescriptionsTab({
     {
       id: "status",
       header: "Status",
-      cell: (p) => <StatusPill status={PRESCRIPTION_STATUS[p.status]} />,
+      cell: (p) => (
+        <span className="flex flex-col items-start gap-1">
+          <StatusPill status={PRESCRIPTION_STATUS[p.status]} />
+          {p.signing_key_id && (
+            <span className="text-small text-ink-500 flex items-center gap-1">
+              <Lock aria-hidden size={12} weight="fill" />
+              Signed {formatDateTime(p.authorised_at)}
+            </span>
+          )}
+        </span>
+      ),
+    },
+    {
+      id: "action",
+      header: "Action",
+      className: "text-right",
+      cell: (p) => {
+        if (!canPrescribe) return null;
+        // A signed prescription is never edited: write an amended copy instead.
+        if (p.status === "draft") {
+          return (
+            <Button variant="outline" onClick={() => onPrescribe({ draft: p })}>
+              Continue draft
+            </Button>
+          );
+        }
+        if (p.status === "authorised") {
+          return (
+            <Button variant="outline" onClick={() => onPrescribe({ amend: p })}>
+              Create amended prescription
+            </Button>
+          );
+        }
+        return null;
+      },
     },
   ];
-  const prescribe = openEncounterId ? (
-    <Link
-      href={`/prescriptions/new?encounter=${openEncounterId}`}
-      className={cx(
-        "rounded-control text-body text-surface inline-flex h-10 items-center gap-2 bg-blue-600 px-4 font-semibold hover:bg-blue-700",
-        FOCUS_RING,
-      )}
-    >
-      <Plus aria-hidden size={20} />
+  const prescribe = canPrescribe ? (
+    <Button icon={Plus} onClick={() => onPrescribe({})}>
       New prescription
-    </Link>
+    </Button>
   ) : undefined;
 
   return (

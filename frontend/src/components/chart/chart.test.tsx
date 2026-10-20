@@ -165,11 +165,7 @@ describe("the banner and overview", () => {
       within(bar)
         .getAllByRole("button")
         .map((b) => b.textContent),
-    ).toEqual(["Record vitals", "Add diagnosis", "Write note"]);
-    expect(within(bar).getByRole("link", { name: "Prescribe" })).toHaveAttribute(
-      "href",
-      expect.stringContaining("/prescriptions/new?encounter="),
-    );
+    ).toEqual(["Record vitals", "Add diagnosis", "Write note", "Prescribe"]);
     expect(calls("encounters")[0].body).toMatchObject({
       patient: CHART_PATIENT,
       encounter_class: "outpatient",
