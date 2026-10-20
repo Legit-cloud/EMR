@@ -3235,12 +3235,22 @@ paths:
         name: date
         schema:
           type: string
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: Only rows starting at or after this time (ISO 8601).
       - name: page
         required: false
         in: query
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
       - in: query
         name: patient
         schema:
@@ -3259,6 +3269,11 @@ paths:
         schema:
           type: string
         description: Only rows with this status.
+      - in: query
+        name: to
+        schema:
+          type: string
+        description: Only rows starting before this time (ISO 8601).
       tags:
       - scheduling
       security:
@@ -3353,6 +3368,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AppointmentUpdate'
+          description: ''
+  /api/scheduling/appointments/{id}/reschedule/:
+    post:
+      operationId: scheduling_appointments_reschedule_create
+      description: Move an appointment that has not started to another time or physician.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - scheduling
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RescheduleRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Appointment'
           description: ''
   /api/scheduling/appointments/{id}/status/:
     post:
@@ -3497,6 +3547,11 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       parameters:
+      - in: query
+        name: from
+        schema:
+          type: string
+        description: Only rows starting at or after this time (ISO 8601).
       - name: page
         required: false
         in: query
@@ -3504,9 +3559,19 @@ paths:
         schema:
           type: integer
       - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
         name: physician
         schema:
           type: string
+      - in: query
+        name: to
+        schema:
+          type: string
+        description: Only rows starting before this time (ISO 8601).
       tags:
       - scheduling
       security:
@@ -4453,6 +4518,13 @@ components:
         patient:
           type: string
           format: uuid
+        patient_name:
+          type: string
+          readOnly: true
+          description: The patient's name, for calendars and lists.
+        patient_mrn:
+          type: string
+          readOnly: true
         physician:
           type: string
           format: uuid
@@ -4537,6 +4609,8 @@ components:
       - facility
       - id
       - patient
+      - patient_mrn
+      - patient_name
       - physician
       - series_id
       - start_at
@@ -8351,6 +8425,20 @@ components:
       - reaction
       - severity
       - substance
+    RescheduleRequest:
+      type: object
+      properties:
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        physician:
+          type: string
+          format: uuid
+      required:
+      - start_at
     ResolveReviewRequest:
       type: object
       properties:

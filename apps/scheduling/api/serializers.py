@@ -2,6 +2,7 @@ from django.conf import settings
 from rest_framework import serializers
 
 from apps.core.api.serializers import CleanModelSerializer
+from apps.patients import selectors as patients
 
 from ..models import Appointment, AppointmentStatus, AvailabilityWindow
 from ..services import RECURRENCE_STEP
@@ -28,12 +29,18 @@ class RecurrenceSerializer(serializers.Serializer):
 
 class AppointmentSerializer(serializers.ModelSerializer):
     recurrence = RecurrenceSerializer(write_only=True, required=False)
+    patient_name = serializers.SerializerMethodField(
+        help_text="The patient's name, for calendars and lists."
+    )
+    patient_mrn = serializers.SerializerMethodField()
 
     class Meta:
         model = Appointment
         fields = [
             "id",
             "patient",
+            "patient_name",
+            "patient_mrn",
             "physician",
             "facility",
             "department",
@@ -72,6 +79,19 @@ class AppointmentSerializer(serializers.ModelSerializer):
         # Overlaps are checked by the service and the database constraint.
         validators = []
 
+    def _patient(self, appointment) -> dict:
+        # Lists fill ``patients`` in one query; a single appointment looks itself up.
+        known = self.context.get("patients")
+        if known is None:
+            known = patients.summaries([appointment.patient_id])
+        return known.get(appointment.patient_id, {})
+
+    def get_patient_name(self, appointment) -> str:
+        return self._patient(appointment).get("name", "")
+
+    def get_patient_mrn(self, appointment) -> str:
+        return self._patient(appointment).get("mrn", "")
+
 
 class AppointmentUpdateSerializer(serializers.ModelSerializer):
     """Only the visit reason can be edited; times move by cancelling and rebooking."""
@@ -79,6 +99,20 @@ class AppointmentUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Appointment
         fields = ["reason"]
+
+
+class RescheduleSerializer(serializers.Serializer):
+    start_at = serializers.DateTimeField()
+    # Left out, the appointment keeps its length.
+    end_at = serializers.DateTimeField(required=False)
+    # Left out, the appointment stays with its physician.
+    physician = serializers.UUIDField(required=False)
+
+    def validate(self, attrs):
+        end = attrs.get("end_at")
+        if end is not None and end <= attrs["start_at"]:
+            raise serializers.ValidationError({"end_at": "The end must be after the start."})
+        return attrs
 
 
 class AppointmentStatusChangeSerializer(serializers.Serializer):
