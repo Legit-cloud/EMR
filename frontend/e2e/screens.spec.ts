@@ -103,18 +103,20 @@ test.describe("doctor", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ngozi");
   });
 
-  test("reads the chart: allergies, vitals and diagnoses", async ({ page }) => {
+  test("reads the chart: allergies, vitals and problems", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ngozi");
+    // The banner keeps the allergy in view.
+    await expect(page.getByRole("list", { name: "Allergies" }).first()).toContainText("Penicillin");
     const allergies = page.getByRole("region", { name: "Allergies" });
     await expect(allergies).toContainText("Penicillin");
     await expect(allergies).toContainText("Severe");
-    const problems = page.getByRole("region", { name: "Problem list" });
+    const problems = page.getByRole("region", { name: "Active problems" });
     await expect(problems).toContainText("I10");
     await expect(problems).toContainText("Essential (primary) hypertension");
-    const vitals = page.getByRole("region", { name: "Vital signs" });
-    await expect(vitals).toContainText("Systolic blood pressure: 148 mm[Hg]");
-    await expect(vitals).toContainText("Body mass index: 22.9 kg/m2");
+    const tiles = page.getByRole("list", { name: "Latest vital signs" });
+    await expect(tiles.getByRole("listitem", { name: "Blood pressure" })).toContainText("148");
+    await expect(tiles.getByRole("listitem", { name: "BMI" })).toContainText("22.9");
   });
 
   test("sees a check-in appear in the queue without reloading", async ({ page, playwright }) => {
@@ -141,7 +143,7 @@ test.describe("doctor", () => {
 
   test("prescribes through the allergy alert with an override reason", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
-    await page.getByRole("link", { name: "New prescription" }).click();
+    await page.getByRole("link", { name: "Prescribe" }).click();
     await page.getByLabel("Medicine").selectOption({ label: "Amoxicillin 500 mg (Tablet)" });
     await page.getByLabel("Dose").fill("1 capsule");
     await page.getByLabel("Frequency").fill("three times daily");

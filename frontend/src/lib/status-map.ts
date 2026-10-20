@@ -173,3 +173,52 @@ export const PATIENT_STATUS: Record<Schemas["PatientStatusEnum"], StatusSpec> = 
   inactive: { label: "Inactive", tone: "grey", icon: Minus },
   deceased: { label: "Deceased", tone: "grey", icon: Prohibit },
 };
+
+/** Diagnosis clinical status (FHIR Condition). Active problems stand out; resolved read as done. */
+export const CLINICAL_STATUS: Record<Schemas["ClinicalStatusEnum"], StatusSpec> = {
+  active: { label: "Active", tone: "blue", icon: Info },
+  recurrence: { label: "Recurrence", tone: "amber", icon: WarningCircle },
+  remission: { label: "Remission", tone: "sky", icon: CircleHalf },
+  resolved: { label: "Resolved", tone: "green", icon: CheckCircle },
+  inactive: { label: "Inactive", tone: "grey", icon: Minus },
+};
+
+/** Diagnosis verification status; "Unconfirmed" is the same as suspected. */
+export const VERIFICATION_STATUS: Record<Schemas["VerificationStatusEnum"], StatusSpec> = {
+  unconfirmed: { label: "Unconfirmed", tone: "amber", icon: ClockCountdown },
+  confirmed: { label: "Confirmed", tone: "green", icon: CheckSquare },
+  refuted: { label: "Refuted", tone: "grey", icon: XCircle },
+  entered_in_error: { label: "Entered in error", tone: "grey", icon: Prohibit },
+};
+
+/** Allergy severity: how worried to be, in the usual order of mild, moderate, severe. */
+export const ALLERGY_SEVERITY: Record<Schemas["AllergySeverityEnum"], StatusSpec> = {
+  mild: { label: "Mild", tone: "sky", icon: Info },
+  moderate: { label: "Moderate", tone: "amber", icon: WarningCircle },
+  severe: { label: "Severe", tone: "pink", icon: Siren },
+};
+
+/** Encounter (visit) status, in the same colours as the appointment states they follow from. */
+export const ENCOUNTER_STATUS: Record<Schemas["EncounterStatusEnum"], StatusSpec> = {
+  planned: { label: "Planned", tone: "sky", icon: Hourglass },
+  in_progress: { label: "In progress", tone: "purple", icon: Stethoscope },
+  finished: { label: "Finished", tone: "green", icon: CheckCircle },
+  cancelled: { label: "Cancelled", tone: "pink", icon: XCircle },
+};
+
+/** Prescription status. Signed (authorised) is the point of no return, so it reads as blue. */
+export const PRESCRIPTION_STATUS: Record<Schemas["PrescriptionStatusEnum"], StatusSpec> = {
+  draft: { label: "Draft", tone: "grey", icon: Minus },
+  authorised: { label: "Signed", tone: "blue", icon: CheckSquare },
+  partially_dispensed: { label: "Partly dispensed", tone: "purple", icon: CircleHalf },
+  dispensed: { label: "Dispensed", tone: "green", icon: CheckCircle },
+  cancelled: { label: "Cancelled", tone: "pink", icon: XCircle },
+};
+
+/** What happened to a request recorded in the audit log. */
+export const AUDIT_OUTCOME: Record<Schemas["AuditEntryOutcomeEnum"], StatusSpec> = {
+  allowed: { label: "Allowed", tone: "green", icon: CheckCircle },
+  denied: { label: "Refused", tone: "pink", icon: Prohibit },
+  not_found: { label: "Not found", tone: "grey", icon: Minus },
+  failed: { label: "Failed", tone: "amber", icon: WarningCircle },
+};

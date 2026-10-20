@@ -36,6 +36,9 @@ type Props = {
   loading?: boolean;
   emptyText?: string;
   height?: number;
+  /** Start the vertical axis at zero (money). Turn off for readings that vary within a narrow
+   * band, such as temperature, so the trend is visible. */
+  zeroBased?: boolean;
 };
 
 /**
@@ -51,6 +54,7 @@ export function AreaLineChart({
   loading,
   emptyText = "No data for this period.",
   height = 240,
+  zeroBased = true,
 }: Props) {
   // useId gives ":r1:"-style ids; colons are not valid in a url(#...) reference.
   const gradientId = `area-fill-${useId().replace(/:/g, "")}`;
@@ -85,6 +89,7 @@ export function AreaLineChart({
             tickLine={false}
             axisLine={false}
             width={56}
+            domain={zeroBased ? [0, "auto"] : ["auto", "auto"]}
             tickFormatter={formatAxis}
           />
           <Tooltip

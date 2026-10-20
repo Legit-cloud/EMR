@@ -21,6 +21,14 @@ type Props = {
   disabled?: boolean;
   /** Shown when the search matches nothing. */
   emptyText?: string;
+  /**
+   * For lists searched on the server (ICD-10): called as the user types. The options are then
+   * whatever the caller provides, not filtered again here. Keep the chosen option in the list
+   * so its label still shows after the search changes.
+   */
+  onQueryChange?: (query: string) => void;
+  /** With onQueryChange: true while the search is running. */
+  searching?: boolean;
   className?: string;
 };
 
@@ -36,6 +44,8 @@ export function Combobox({
   error,
   disabled,
   emptyText = "No matches",
+  onQueryChange,
+  searching = false,
   className,
 }: Props) {
   const listId = useId();
@@ -47,7 +57,9 @@ export function Combobox({
   const selected = options.find((option) => option.value === value) ?? null;
   const needle = query.trim().toLowerCase();
   const matches = (
-    needle ? options.filter((o) => o.label.toLowerCase().includes(needle)) : options
+    needle && !onQueryChange
+      ? options.filter((o) => o.label.toLowerCase().includes(needle))
+      : options
   ).filter((o) => !o.disabled);
   const activeOption = open ? matches[Math.min(active, matches.length - 1)] : undefined;
   const optionId = (index: number) => `${listId}-option-${index}`;
@@ -108,6 +120,7 @@ export function Combobox({
                 value={open ? query : (selected?.label ?? "")}
                 onChange={(event) => {
                   setQuery(event.target.value);
+                  onQueryChange?.(event.target.value);
                   setActive(0);
                   setOpen(true);
                 }}
@@ -116,6 +129,7 @@ export function Combobox({
                 onBlur={() => {
                   setOpen(false);
                   setQuery("");
+                  onQueryChange?.("");
                 }}
                 className={cx(CONTROL, "h-11 pr-10 pl-3.5")}
               />
@@ -148,7 +162,7 @@ export function Combobox({
                     role="presentation"
                     className="text-body text-ink-500 flex h-10 items-center px-3"
                   >
-                    {emptyText}
+                    {searching ? "Searching…" : emptyText}
                   </li>
                 )}
                 {matches.map((option, index) => {

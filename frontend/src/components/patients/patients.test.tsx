@@ -307,19 +307,20 @@ describe("registration wizard (mock layer)", () => {
   });
 
   it("does not check for duplicates until the identity is complete, nor on the last step", async () => {
+    // A name no other test uses, so a late request from an earlier test cannot be mistaken for ours.
+    const asked = () => patientMocks.checked.filter((c) => c.last_name === "Nwafor").length;
     await openWizard();
-    await type("First name", "Bayo");
-    await type("Last name", "Adeyemi");
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    expect(patientMocks.checks).toBe(0);
+    await type("First name", "Tobenna");
+    await type("Last name", "Nwafor");
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    expect(asked()).toBe(0);
 
-    setDate(BAYO.date_of_birth);
-    await screen.findByRole("region", { name: "Possible matches" });
-    expect(patientMocks.checks).toBe(1);
+    setDate("1991-02-03");
+    await waitFor(() => expect(asked()).toBe(1));
     await next();
     await next();
-    await new Promise((resolve) => setTimeout(resolve, 700));
-    expect(patientMocks.checks).toBe(1);
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    expect(asked()).toBe(1);
   });
 
   it("warns about a likely duplicate, offers the existing record, and sends it for review", async () => {

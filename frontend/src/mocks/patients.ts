@@ -67,13 +67,16 @@ export const patientMocks: {
   pendingReviews: number;
   registered: Schemas["PatientRegistrationRequest"][];
   checks: number;
-} = { mode: "ok", pendingReviews: 2, registered: [], checks: 0 };
+  /** The people asked about, so a test can ignore late requests from an earlier test. */
+  checked: Schemas["DuplicateCheckRequest"][];
+} = { mode: "ok", pendingReviews: 2, registered: [], checks: 0, checked: [] };
 
 export function resetPatientMocks(): void {
   patientMocks.mode = "ok";
   patientMocks.pendingReviews = 2;
   patientMocks.registered = [];
   patientMocks.checks = 0;
+  patientMocks.checked = [];
 }
 
 const failure = (status: number, code: string, message: string, details = {}) =>
@@ -127,6 +130,7 @@ export const patientHandlers = [
   http.post("*/api/patients/patients/check-duplicates/", async ({ request }) => {
     patientMocks.checks += 1;
     const body = (await request.json()) as Schemas["DuplicateCheckRequest"];
+    patientMocks.checked.push(body);
     const same = (r: Row, field: "first_name" | "last_name") =>
       folded(r[field]) === folded(body[field]);
     const matches: Schemas["DuplicateMatch"][] = MOCK_PATIENTS.filter(

@@ -1,6 +1,7 @@
 import type { HttpHandler } from "msw";
 
 import { authHandlers } from "./auth";
+import { chartHandlers } from "./chart";
 import { dashboardHandlers } from "./dashboard";
 import { patientHandlers } from "./patients";
 
@@ -11,4 +12,9 @@ import { patientHandlers } from "./patients";
  * without a backend; screens whose backend is not built yet are left out rather than
  * mocked as if they worked.
  */
-export const handlers: HttpHandler[] = [...authHandlers, ...dashboardHandlers, ...patientHandlers];
+export const handlers: HttpHandler[] = [
+  ...authHandlers,
+  ...chartHandlers,
+  ...dashboardHandlers,
+  ...patientHandlers,
+];
