@@ -2223,6 +2223,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/staff/profiles/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Headcount for the two tabs, and how many licences need attention. */
+        get: operations["staff_profiles_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/staff/shifts/": {
         parameters: {
             query?: never;
@@ -4727,6 +4744,12 @@ export interface components {
             /** Format: int64 */
             consultation_fee_minor?: number;
             consultation_fee_currency?: string;
+        };
+        StaffSummary: {
+            doctors: number;
+            general: number;
+            licences_expiring: number;
+            licences_expired: number;
         };
         /**
          * @description * `physician` - Physician
@@ -8034,9 +8057,14 @@ export interface operations {
     staff_profiles_list: {
         parameters: {
             query?: {
+                group?: string;
                 licence_flag?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
+                /** @description Search text. */
+                q?: string;
                 staff_type?: string;
             };
             header?: never;
@@ -8151,6 +8179,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StaffProfile"];
+                };
+            };
+        };
+    };
+    staff_profiles_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffSummary"];
                 };
             };
         };

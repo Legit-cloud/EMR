@@ -4187,6 +4187,10 @@ paths:
         them.
       parameters:
       - in: query
+        name: group
+        schema:
+          type: string
+      - in: query
         name: licence_flag
         schema:
           type: string
@@ -4196,6 +4200,16 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
       - in: query
         name: staff_type
         schema:
@@ -4333,6 +4347,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StaffProfile'
+          description: ''
+  /api/staff/profiles/summary/:
+    get:
+      operationId: staff_profiles_summary_retrieve
+      description: Headcount for the two tabs, and how many licences need attention.
+      tags:
+      - staff
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffSummary'
           description: ''
   /api/staff/shifts/:
     get:
@@ -9660,6 +9690,22 @@ components:
       required:
       - staff_type
       - user
+    StaffSummary:
+      type: object
+      properties:
+        doctors:
+          type: integer
+        general:
+          type: integer
+        licences_expiring:
+          type: integer
+        licences_expired:
+          type: integer
+      required:
+      - doctors
+      - general
+      - licences_expired
+      - licences_expiring
     StaffTypeEnum:
       enum:
       - physician

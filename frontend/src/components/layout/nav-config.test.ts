@@ -80,7 +80,8 @@ describe("activeItem", () => {
   it("prefers the longest match", () => {
     expect(activeItem("/pharmacy/formulary")?.label).toBe("Formulary");
     expect(activeItem("/pharmacy")?.label).toBe("Pharmacy");
-    expect(activeItem("/manage/staff")?.label).toBe("Staff list");
+    expect(activeItem("/staff")?.label).toBe("Staff list");
+    expect(activeItem("/manage/staff")?.label).toBe("Users and roles");
   });
 
   it("does not match a path that only shares a prefix", () => {
