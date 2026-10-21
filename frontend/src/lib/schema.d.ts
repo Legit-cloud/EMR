@@ -30,7 +30,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Sign in with password and, when set up, a one-time code. Session or bearer token. */
+        /**
+         * @description Sign in with the password, then the one-time code emailed to the account.
+         *
+         *     A request without ``otp_token`` emails a code and answers ``mfa_required``; send the same
+         *     credentials again with the code. Session or bearer token.
+         */
         post: operations["accounts_auth_login_create"];
         delete?: never;
         options?: never;
@@ -64,39 +69,6 @@ export interface paths {
         get: operations["accounts_auth_me_retrieve"];
         put?: never;
         post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/accounts/auth/mfa/totp/confirm/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["accounts_auth_mfa_totp_confirm_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/api/accounts/auth/mfa/totp/enrol/": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Start authenticator-app enrolment. Allowed before MFA is set up. */
-        post: operations["accounts_auth_mfa_totp_enrol_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2904,9 +2876,6 @@ export interface components {
         EncounterStatusRequest: {
             status: components["schemas"]["EncounterStatusEnum"];
         };
-        EnrolResult: {
-            config_url: string;
-        };
         /** @description Request body of every Entered-in-Error action. */
         EnteredInErrorRequest: {
             reason: string;
@@ -3114,7 +3083,6 @@ export interface components {
         LoginResult: {
             /** Format: uuid */
             user_id: string;
-            mfa_enrolment_required: boolean;
             token?: string;
         };
         LoincCode: {
@@ -3167,9 +3135,6 @@ export interface components {
             readonly on_duty: boolean;
             readonly can_break_glass: boolean;
         };
-        MfaEnabled: {
-            mfa_enabled: boolean;
-        };
         /**
          * @description * `session` - session
          *     * `token` - token
@@ -3191,9 +3156,6 @@ export interface components {
          * @enum {string}
          */
         NoteStatusEnum: "open" | "closed";
-        OTPTokenRequest: {
-            token: string;
-        };
         Observation: {
             code: string;
             readonly display: string;
@@ -4512,50 +4474,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Me"];
-                };
-            };
-        };
-    };
-    accounts_auth_mfa_totp_confirm_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["OTPTokenRequest"];
-                "application/x-www-form-urlencoded": components["schemas"]["OTPTokenRequest"];
-                "multipart/form-data": components["schemas"]["OTPTokenRequest"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["MfaEnabled"];
-                };
-            };
-        };
-    };
-    accounts_auth_mfa_totp_enrol_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EnrolResult"];
                 };
             };
         };

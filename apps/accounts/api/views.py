@@ -3,7 +3,6 @@ from django.db import transaction
 from django.middleware.csrf import get_token
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import ensure_csrf_cookie
-from django_otp.plugins.otp_totp.models import TOTPDevice
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, serializers, status
 from rest_framework.authentication import SessionAuthentication
@@ -30,7 +29,10 @@ class AuthThrottleMixin:
 
 
 class LoginView(AuthThrottleMixin, APIView):
-    """Sign in with password and, when set up, a one-time code. Session or bearer token."""
+    """Sign in with the password, then the one-time code emailed to the account.
+
+    A request without ``otp_token`` emails a code and answers ``mfa_required``; send the same
+    credentials again with the code. Session or bearer token."""
 
     authentication_classes = []
     permission_classes = [permissions.AllowAny]
@@ -43,10 +45,7 @@ class LoginView(AuthThrottleMixin, APIView):
             # Session sign-in sets a cookie, so it must carry the CSRF token (login CSRF).
             SessionAuthentication().enforce_csrf(request._request)
         user, raw_token = services.sign_in(request, **data.validated_data)
-        body = {
-            "user_id": str(user.pk),
-            "mfa_enrolment_required": services.mfa_enrolment_required(user),
-        }
+        body = {"user_id": str(user.pk)}
         if raw_token:
             body["token"] = raw_token
         return Response(body)
@@ -85,31 +84,9 @@ class MeView(APIView):
         user = request.user
         context = {
             "subject": policy.subject_for(user, get_current_tenant_id()),
-            "mfa_enabled": selectors.confirmed_totp_device(user) is not None,
+            "mfa_enabled": selectors.confirmed_device(user) is not None,
         }
         return Response(s.MeSerializer(user, context=context).data)
-
-
-class TOTPEnrolView(APIView):
-    """Start authenticator-app enrolment. Allowed before MFA is set up."""
-
-    permission_classes = [permissions.IsAuthenticated]
-
-    @extend_schema(request=None, responses={201: s.EnrolResultSerializer})
-    def post(self, request):
-        device: TOTPDevice = services.start_totp_enrolment(request)
-        return Response({"config_url": device.config_url}, status=status.HTTP_201_CREATED)
-
-
-class TOTPConfirmView(AuthThrottleMixin, APIView):
-    permission_classes = [permissions.IsAuthenticated]
-
-    @extend_schema(request=s.OTPTokenSerializer, responses=s.MfaEnabledSerializer)
-    def post(self, request):
-        data = s.OTPTokenSerializer(data=request.data)
-        data.is_valid(raise_exception=True)
-        services.confirm_totp_enrolment(request, data.validated_data["token"])
-        return Response({"mfa_enabled": True})
 
 
 class PasswordResetRequestView(AuthThrottleMixin, APIView):

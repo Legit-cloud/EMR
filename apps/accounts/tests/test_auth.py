@@ -1,12 +1,12 @@
-"""Sign-in, bearer tokens, MFA (django-otp TOTP), sign-out and password recovery."""
+"""Sign-in with an emailed one-time code, bearer tokens, sign-out and password recovery."""
 
 import re
 from datetime import timedelta
 
 import pytest
 from django.core import mail
-from django_otp.oath import TOTP
-from django_otp.plugins.otp_totp.models import TOTPDevice
+from django.utils import timezone
+from django_otp.plugins.otp_email.models import EmailDevice
 from rest_framework.test import APIClient
 
 from apps.accounts.models import ApiToken
@@ -19,11 +19,20 @@ LOGIN = "/api/accounts/auth/login/"
 ME = "/api/accounts/auth/me/"
 PASSWORD = "not-a-real-password-123"
 RECORDS = "/test-api/records/"
+CREDENTIALS = {"username": "doc", "password": PASSWORD}
 
 
-def current_code(device: TOTPDevice) -> str:
-    totp = TOTP(device.bin_key, device.step, device.t0, device.digits, device.drift)
-    return f"{totp.token():0{device.digits}d}"
+@pytest.fixture
+def request_code(api_client, django_capture_on_commit_callbacks):
+    """Post the password alone, which emails a code, and return that code."""
+
+    def request(client=None, credentials=CREDENTIALS):
+        with django_capture_on_commit_callbacks(execute=True):
+            response = (client or api_client).post(LOGIN, credentials, format="json")
+        assert response.json()["error"]["code"] == "mfa_required"
+        return re.search(r"code is (\d{6})", mail.outbox[-1].body).group(1)
+
+    return request
 
 
 @pytest.fixture
@@ -43,43 +52,72 @@ def test_wrong_password_is_refused_and_audited(api_client, doctor):
     assert entry.outcome == "failed"
 
 
-def test_session_sign_in_without_device_asks_for_enrolment(api_client, doctor):
-    response = api_client.post(LOGIN, {"username": "doc", "password": PASSWORD}, format="json")
+def test_sign_in_needs_the_emailed_code_even_on_a_first_sign_in(api_client, doctor, request_code):
+    assert not EmailDevice.objects.filter(user=doctor).exists()
+    code = request_code()
+    assert mail.outbox[-1].to == ["doc@example.test"]
+    assert EmailDevice.objects.filter(user=doctor, confirmed=True).exists()
+    # The password alone signs nobody in.
+    assert api_client.get(ME).status_code in (401, 403)
+
+    response = api_client.post(LOGIN, {**CREDENTIALS, "otp_token": code}, format="json")
     assert response.status_code == 200
-    assert response.json()["mfa_enrolment_required"] is True
-    assert api_client.get(ME).status_code == 200
-    # Signed in, but not allowed near clinical data until MFA is set up.
-    assert api_client.get(RECORDS).json()["error"]["code"] == "mfa_required"
-    assert AuditEntry.objects.filter(action="login", actor_id=doctor.pk).exists()
+    assert api_client.get(RECORDS).status_code == 200
+    entry = AuditEntry.objects.get(action="login", actor_id=doctor.pk)
+    assert entry.details["mfa"] is True
 
 
-def test_sign_in_with_device_needs_a_valid_code(api_client, doctor, otp_device):
-    device = otp_device(doctor)
-    credentials = {"username": "doc", "password": PASSWORD}
-    response = api_client.post(LOGIN, credentials, format="json")
-    assert response.json()["error"]["code"] == "mfa_required"
-    response = api_client.post(LOGIN, {**credentials, "otp_token": "000000"}, format="json")
+def test_a_wrong_code_is_refused_and_audited(api_client, doctor, request_code):
+    request_code()
+    response = api_client.post(LOGIN, {**CREDENTIALS, "otp_token": "000000"}, format="json")
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "invalid_otp"
+    assert AuditEntry.objects.filter(action="login_failed", reason="invalid_otp").exists()
+    assert api_client.get(RECORDS).status_code in (401, 403)
+
+
+def test_a_code_works_once(api_client, doctor, request_code):
+    code = request_code()
+    signed = {**CREDENTIALS, "otp_token": code}
+    assert api_client.post(LOGIN, signed, format="json").status_code == 200
+    again = APIClient().post(LOGIN, signed, format="json")
+    assert again.json()["error"]["code"] == "invalid_otp"
+
+
+def test_an_expired_code_is_refused(api_client, doctor, request_code):
+    code = request_code()
+    EmailDevice.objects.filter(user=doctor).update(
+        valid_until=timezone.now() - timedelta(seconds=1)
+    )
+    response = api_client.post(LOGIN, {**CREDENTIALS, "otp_token": code}, format="json")
     assert response.json()["error"]["code"] == "invalid_otp"
 
-    response = api_client.post(
-        LOGIN, {**credentials, "otp_token": current_code(device)}, format="json"
-    )
+
+def test_a_second_request_inside_the_cooldown_sends_no_new_code(
+    api_client, doctor, request_code, settings, django_capture_on_commit_callbacks
+):
+    settings.OTP_EMAIL_COOLDOWN_DURATION = 60
+    code = request_code()
+    with django_capture_on_commit_callbacks(execute=True):
+        api_client.post(LOGIN, CREDENTIALS, format="json")
+    assert len(mail.outbox) == 1
+    # The earlier code still works.
+    response = api_client.post(LOGIN, {**CREDENTIALS, "otp_token": code}, format="json")
     assert response.status_code == 200
-    assert response.json()["mfa_enrolment_required"] is False
-    assert api_client.get(RECORDS).status_code == 200
 
 
-def test_token_sign_in_returns_a_hashed_expiring_token(doctor, otp_device):
-    device = otp_device(doctor)
+def test_an_account_without_an_email_cannot_get_a_code(api_client, make_user, tenant_a):
+    make_user("nomail", tenant_a, [Role.DOCTOR], email="")
+    response = api_client.post(LOGIN, {"username": "nomail", "password": PASSWORD}, format="json")
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "no_email"
+    assert mail.outbox == []
+
+
+def test_token_sign_in_returns_a_hashed_expiring_token(doctor, request_code):
+    code = request_code(APIClient(), {**CREDENTIALS, "mode": "token"})
     response = APIClient().post(
-        LOGIN,
-        {
-            "username": "doc",
-            "password": PASSWORD,
-            "otp_token": current_code(device),
-            "mode": "token",
-        },
-        format="json",
+        LOGIN, {**CREDENTIALS, "otp_token": code, "mode": "token"}, format="json"
     )
     key = response.json()["token"]
     token = ApiToken.objects.get(user=doctor)
@@ -133,41 +171,6 @@ def test_me_shows_roles_and_mfa_state(signed_in, doctor):
     assert body["roles"] == ["doctor"]
     assert body["mfa_enabled"] is True
     assert body["tenant"] == str(doctor.tenant_id)
-
-
-# -- MFA enrolment -----------------------------------------------------------------
-
-
-def test_totp_enrolment_with_a_token_client(token_client, doctor):
-    client = token_client(doctor, mfa=False)
-    response = client.post("/api/accounts/auth/mfa/totp/enrol/")
-    assert response.status_code == 201
-    assert response.json()["config_url"].startswith("otpauth://totp/")
-
-    device = TOTPDevice.objects.get(user=doctor, confirmed=False)
-    bad = client.post("/api/accounts/auth/mfa/totp/confirm/", {"token": "000000"}, format="json")
-    assert bad.json()["error"]["code"] == "invalid_otp"
-    response = client.post(
-        "/api/accounts/auth/mfa/totp/confirm/", {"token": current_code(device)}, format="json"
-    )
-    assert response.status_code == 200
-    assert client.get(RECORDS).status_code == 200  # the token is now MFA-verified
-    assert AuditEntry.objects.filter(action="mfa_confirm", actor_id=doctor.pk).exists()
-
-
-def test_totp_enrolment_with_a_session_verifies_the_session(signed_in, doctor):
-    client = signed_in(doctor, mfa=False)
-    client.post("/api/accounts/auth/mfa/totp/enrol/")
-    device = TOTPDevice.objects.get(user=doctor, confirmed=False)
-    client.post(
-        "/api/accounts/auth/mfa/totp/confirm/", {"token": current_code(device)}, format="json"
-    )
-    assert client.get(RECORDS).status_code == 200
-
-
-def test_cannot_enrol_twice(signed_in, doctor):
-    response = signed_in(doctor).post("/api/accounts/auth/mfa/totp/enrol/")
-    assert response.status_code == 400  # signed_in already confirmed a device
 
 
 # -- password recovery -------------------------------------------------------------

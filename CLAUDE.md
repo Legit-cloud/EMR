@@ -39,7 +39,7 @@ A healthcare platform with two layers. The **EMR** is the clinical record: patie
 | Architecture | **Modular monolith**: one Django project, one app per domain module, one deployable. Microservices only later, only on measured need. |
 | Backend | Python, Django, Django REST Framework |
 | Database | PostgreSQL, single instance. Relational schema, FHIR-aligned fields, JSONB for flexible clinical content. No separate FHIR server. A FHIR API may be added later. |
-| Auth | Django authentication (session for web, token for API clients), MFA with django-otp |
+| Auth | Django authentication (session for web, token for API clients), emailed one-time sign-in code for every user via django-otp (decided 2026-10-21, ADR 0017) |
 | Authorisation | RBAC plus object-level ABAC on every request, enforced server-side |
 | Background jobs | Celery plus Redis, Celery beat for schedules |
 | Real-time | Django Channels over WebSockets, Redis channel layer |
@@ -159,7 +159,7 @@ Performance targets (proposed): chart open under 2 s (p95), booking API under 50
 
 Super admin (platform), Tenant admin, Doctor, Nurse, Pharmacist, Lab / imaging technician, Front desk / receptionist, Billing officer, Finance / accountant, HR, Compliance officer (audit review), Patient (portal). Permissions are role-based; attributes (facility, department, care-team membership, shift) narrow them. **Break-glass**: a clinician may open a chart outside their normal scope by giving a reason; it is logged and reviewed by the compliance role. Grants are patient-level: one reason opens that patient's records, view-only, for the grant window (decided 2026-10-19).
 
-**Tenant admin oversight** (decided 2026-10-19): the tenant admin views everything operational in the tenant, read-only (patients, appointments and queue, billing and ledger, formulary and stock, audit log, break-glass reviews), but never clinical content (encounters, vitals, diagnoses, notes, allergies, attachments, prescriptions) and cannot break glass. See `docs/adr/0010-tenant-admin-oversight-and-patient-break-glass.md`.
+**Tenant admin oversight** (decided 2026-10-19, widened 2026-10-21): the tenant admin views everything in the tenant, read-only (patients, appointments and queue, billing and ledger, formulary and stock, audit log, break-glass reviews, and clinical content: encounters, vitals, diagnoses, notes, allergies, attachments, prescriptions). It cannot create, change or remove clinical records, and cannot break glass. See `docs/adr/0010-tenant-admin-oversight-and-patient-break-glass.md`.
 
 ## 8. Quality bar and definition of done
 

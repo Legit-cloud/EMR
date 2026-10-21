@@ -3,12 +3,13 @@ import { http, HttpResponse } from "msw";
 import type { Schemas } from "@/lib/api";
 
 /**
- * Sign-in, MFA, password recovery and break-glass, shaped like the real API
- * (apps/accounts). Synthetic accounts only:
+ * Sign-in, password recovery and break-glass, shaped like the real API (apps/accounts).
+ * Every account signs in with its password and an emailed code (123456). Synthetic accounts
+ * only:
  *
- *   ada.doctor / synthetic-password-1, authenticator code 123456 (MFA on)
- *   tunde.desk / synthetic-password-1 (no MFA set up yet)
- *   bisi.finance / synthetic-password-1 (tenant admin, no MFA set up yet)
+ *   ada.doctor / synthetic-password-1
+ *   tunde.desk / synthetic-password-1
+ *   bisi.finance / synthetic-password-1 (tenant admin)
  */
 export const MOCK_PASSWORD = "synthetic-password-1";
 export const MOCK_OTP = "123456";
@@ -45,7 +46,7 @@ export const MOCK_USERS: Record<string, Schemas["Me"]> = {
     last_name: "Tester",
     tenant: TENANT,
     roles: ["tenant_admin"],
-    mfa_enabled: false,
+    mfa_enabled: true,
     assignments: [{ role: "tenant_admin", facility: null, department: null }],
     on_duty: false,
     can_break_glass: false,
@@ -58,7 +59,7 @@ export const MOCK_USERS: Record<string, Schemas["Me"]> = {
     last_name: "Tester",
     tenant: TENANT,
     roles: ["front_desk"],
-    mfa_enabled: false,
+    mfa_enabled: true,
     assignments: [{ role: "front_desk", facility: FACILITY, department: null }],
     on_duty: false,
     can_break_glass: false,
@@ -93,12 +94,10 @@ export const authHandlers = [
     if (!user || body.password !== MOCK_PASSWORD) {
       return error(401, "invalid_credentials", "Invalid credentials.");
     }
-    if (user.mfa_enabled) {
-      if (!body.otp_token) return error(401, "mfa_required", "A one-time code is required.");
-      if (body.otp_token !== MOCK_OTP) return error(401, "invalid_otp", "Invalid code.");
-    }
+    if (!body.otp_token) return error(401, "mfa_required", "A one-time code is required.");
+    if (body.otp_token !== MOCK_OTP) return error(401, "invalid_otp", "Invalid code.");
     state.user = body.username;
-    return HttpResponse.json({ user_id: user.id, mfa_enrolment_required: !user.mfa_enabled });
+    return HttpResponse.json({ user_id: user.id });
   }),
 
   http.post("*/api/accounts/auth/logout/", () => {

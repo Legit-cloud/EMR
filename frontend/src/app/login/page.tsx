@@ -29,6 +29,7 @@ function LoginForm() {
   const [step, setStep] = useState<"password" | "otp">("password");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [resent, setResent] = useState(false);
   const otpRef = useRef<HTMLInputElement>(null);
   const notice = REASONS[search.get("reason") ?? ""];
 
@@ -36,16 +37,18 @@ function LoginForm() {
     if (step === "otp") otpRef.current?.focus();
   }, [step]);
 
-  async function submit(event: FormEvent) {
-    event.preventDefault();
+  /** Posting the password without a code makes the server email one. */
+  async function submit(event?: FormEvent, withCode = step === "otp") {
+    event?.preventDefault();
     setBusy(true);
     setError(null);
+    setResent(false);
     await ensureCsrfCookie();
-    const { data, error: failure } = await api.POST("/api/accounts/auth/login/", {
+    const { error: failure } = await api.POST("/api/accounts/auth/login/", {
       body: {
         username,
         password,
-        otp_token: step === "otp" ? otp : undefined,
+        otp_token: withCode ? otp : undefined,
         mode: "session",
       },
     });
@@ -54,12 +57,20 @@ function LoginForm() {
       const problem = apiError(failure);
       if (problem.code === "mfa_required") {
         setStep("otp");
+        setResent(!withCode && step === "otp");
         return;
       }
       if (problem.code === "invalid_otp") {
-        setError("That code is not valid. Enter the current code from your authenticator app.");
+        setError(
+          "That code is not valid or has expired. Use the latest email, or send a new code.",
+        );
         setOtp("");
         otpRef.current?.focus();
+        return;
+      }
+      if (problem.code === "no_email") {
+        setError("This account has no email address for sign-in codes. Ask your administrator.");
+        setStep("password");
         return;
       }
       setError(
@@ -72,7 +83,7 @@ function LoginForm() {
     }
     // Drop anything cached while signed out, such as the "no session" answer.
     queryClient.clear();
-    router.replace(data?.mfa_enrolment_required ? "/mfa" : safeNext(search.get("next")));
+    router.replace(safeNext(search.get("next")));
   }
 
   function startOver() {
@@ -80,6 +91,7 @@ function LoginForm() {
     setOtp("");
     setPassword("");
     setError(null);
+    setResent(false);
   }
 
   return (
@@ -88,8 +100,8 @@ function LoginForm() {
       intro={
         step === "otp" ? (
           <>
-            Enter the 6-digit code from the authenticator app linked to{" "}
-            <strong className="text-ink-900">{username}</strong>.
+            We emailed a 6-digit code to the address on the account{" "}
+            <strong className="text-ink-900">{username}</strong>. It works for a few minutes.
           </>
         ) : (
           "Sign in with your staff account."
@@ -97,9 +109,19 @@ function LoginForm() {
       }
       footer={
         step === "otp" ? (
-          <button type="button" className={AUTH_LINK} onClick={startOver}>
-            Use a different account
-          </button>
+          <span className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              className={AUTH_LINK}
+              disabled={busy}
+              onClick={() => submit(undefined, false)}
+            >
+              Send a new code
+            </button>
+            <button type="button" className={AUTH_LINK} onClick={startOver}>
+              Use a different account
+            </button>
+          </span>
         ) : (
           <Link href="/forgot-password" className={AUTH_LINK}>
             Forgot your password?
@@ -109,6 +131,7 @@ function LoginForm() {
     >
       {notice && !error && <Banner live>{notice}</Banner>}
       {error && <Banner tone="danger" live title={error} />}
+      {resent && !error && <Banner live>If a new code was due, it is on its way.</Banner>}
       <form onSubmit={submit} className="flex flex-col gap-4">
         {step === "password" ? (
           <>
@@ -133,7 +156,7 @@ function LoginForm() {
         ) : (
           <Input
             ref={otpRef}
-            label="Authenticator code"
+            label="Sign-in code"
             name="otp"
             inputMode="numeric"
             autoComplete="one-time-code"
@@ -153,7 +176,7 @@ function LoginForm() {
   );
 }
 
-/** Sign-in: password first, then the authenticator code when the account uses MFA. */
+/** Sign-in: password first, then the one-time code emailed to the account. */
 export default function LoginPage() {
   // useSearchParams needs a Suspense boundary for the static build.
   return (

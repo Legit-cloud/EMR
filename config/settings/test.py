@@ -27,8 +27,10 @@ STORAGES = {
 INSTALLED_APPS = [*INSTALLED_APPS, "tests.tenancy_app"]  # noqa: F405
 ROOT_URLCONF = "tests.tenancy_app.urls"
 
-# django-otp delays retries after a wrong code. Tests submit codes back to back.
-OTP_TOTP_THROTTLE_FACTOR = 0
+# django-otp delays retries after a wrong code and spaces out new codes. Tests submit
+# codes back to back.
+OTP_EMAIL_THROTTLE_FACTOR = 0
+OTP_EMAIL_COOLDOWN_DURATION = 0
 SMS_BACKEND = "apps.notifications.backends.LocmemSmsBackend"
 # A fixed, test-only Ed25519 private key (32 bytes). Never used outside tests.
 PRESCRIPTION_SIGNING_KEY = "dGVzdC1vbmx5LXByZXNjcmlwdGlvbi1zaWduaW5nLWs="

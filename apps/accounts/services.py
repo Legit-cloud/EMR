@@ -1,4 +1,4 @@
-"""Account operations: sign-in, tokens, MFA, password recovery, break-glass, invitations."""
+"""Account operations: sign-in, tokens, password recovery, break-glass, invitations."""
 
 from datetime import timedelta
 
@@ -11,7 +11,7 @@ from django.db import transaction
 from django.utils import timezone
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_email.models import EmailDevice
 
 from apps.audit import services as audit
 from apps.core import policy
@@ -29,7 +29,7 @@ class AuthError(DomainError):
 
 
 class MFARequiredError(AuthError):
-    """A one-time code from the authenticator app is required."""
+    """A sign-in code has been emailed and must be sent back with the password."""
 
     code = "mfa_required"
 
@@ -40,6 +40,12 @@ class InvalidOTP(AuthError):
     code = "invalid_otp"
 
 
+class NoSignInEmail(AuthError):
+    """The account has no email address to send a sign-in code to."""
+
+    code = "no_email"
+
+
 class BreakGlassError(DomainError):
     code = "break_glass_refused"
     status_code = 403
@@ -48,8 +54,42 @@ class BreakGlassError(DomainError):
 # -- sign-in ---------------------------------------------------------------------
 
 
+def _sign_in_device(user: User) -> EmailDevice:
+    """The user's email device, created on first sign-in so every account uses a code."""
+    if not user.email:
+        raise NoSignInEmail("This account has no email address for sign-in codes.")
+    device = selectors.confirmed_device(user)
+    if device is None:
+        device = EmailDevice.objects.create(user=user, name="Email", confirmed=True)
+    return device
+
+
+def _send_sign_in_code(user: User, device: EmailDevice) -> None:
+    """Email a fresh code. Does nothing while the previous code is still recent."""
+    allowed, _ = device.generate_is_allowed()
+    if not allowed:
+        return
+    device.cooldown_set(commit=False)
+    device.generate_token(valid_secs=settings.OTP_EMAIL_TOKEN_VALIDITY, commit=True)
+    minutes = max(1, settings.OTP_EMAIL_TOKEN_VALIDITY // 60)
+    _queue_email(
+        user,
+        subject="Your sign-in code",
+        body=(
+            f"Your sign-in code is {device.token}\n\n"
+            f"It works for {minutes} minutes and only once. "
+            "If you did not try to sign in, change your password."
+        ),
+        purpose="login_code",
+    )
+
+
 def sign_in(request, *, username: str, password: str, otp_token: str = "", mode: str):
-    """Check credentials and the second factor. Returns (user, raw_token or None)."""
+    """Check the password, then the emailed code. Returns (user, raw_token or None).
+
+    Without a code, one is emailed and ``MFARequiredError`` is raised; the client then
+    sends the password again together with the code.
+    """
     user = authenticate(request, username=username, password=password)
     if user is None:
         audit.record(
@@ -61,34 +101,33 @@ def sign_in(request, *, username: str, password: str, otp_token: str = "", mode:
         )
         raise AuthError("Invalid username or password.")
 
-    device = selectors.confirmed_totp_device(user)
-    if device is not None:
-        if not otp_token:
-            raise MFARequiredError()
-        if not device.verify_token(otp_token):
-            audit.record(
-                action=audit.AuditAction.LOGIN_FAILED,
-                outcome=audit.AuditOutcome.FAILED,
-                request=request,
-                actor=user,
-                reason="invalid_otp",
-            )
-            raise InvalidOTP()
+    device = _sign_in_device(user)
+    if not otp_token:
+        _send_sign_in_code(user, device)
+        raise MFARequiredError()
+    if not device.verify_token(otp_token.strip()):
+        audit.record(
+            action=audit.AuditAction.LOGIN_FAILED,
+            outcome=audit.AuditOutcome.FAILED,
+            request=request,
+            actor=user,
+            reason="invalid_otp",
+        )
+        raise InvalidOTP()
 
     raw_token = None
     if mode == "token":
         _, raw_token = ApiToken.issue(
-            user, ttl=timedelta(minutes=settings.API_TOKEN_TTL_MINUTES), mfa_verified=bool(device)
+            user, ttl=timedelta(minutes=settings.API_TOKEN_TTL_MINUTES), mfa_verified=True
         )
     else:
         login(request, user)
-        if device is not None:
-            django_otp.login(request, device)
+        django_otp.login(request, device)
     audit.record(
         action=audit.AuditAction.LOGIN,
         request=request,
         actor=user,
-        details={"mode": mode, "mfa": bool(device)},
+        details={"mode": mode, "mfa": True},
     )
     return user, raw_token
 
@@ -102,56 +141,14 @@ def sign_out(request) -> None:
     audit.record(action=audit.AuditAction.LOGOUT, request=request, actor=user)
 
 
-def mfa_enrolment_required(user) -> bool:
-    """True when the user's roles require MFA and no device is confirmed yet."""
-    with tenant_context(user.tenant_id, user.pk):
-        return selectors.confirmed_totp_device(user) is None and selectors.mfa_required(user)
-
-
-# -- MFA -------------------------------------------------------------------------
-
-
-def start_totp_enrolment(request) -> TOTPDevice:
-    user = request.user
-    if selectors.confirmed_totp_device(user) is not None:
-        raise DomainError("An authenticator is already set up for this account.")
-    TOTPDevice.objects.filter(user=user, confirmed=False).delete()
-    device = TOTPDevice.objects.create(user=user, name="Authenticator app", confirmed=False)
-    audit.record(action=audit.AuditAction.MFA_ENROL, request=request)
-    return device
-
-
-def confirm_totp_enrolment(request, token: str) -> TOTPDevice:
-    device = TOTPDevice.objects.filter(user=request.user, confirmed=False).first()
-    if device is None:
-        raise DomainError("Start enrolment first.")
-    if not device.verify_token(token):
-        raise InvalidOTP()
-    device.confirmed = True
-    device.save(update_fields=["confirmed"])
-    if isinstance(request.auth, ApiToken):
-        ApiToken.objects.filter(pk=request.auth.pk).update(mfa_verified=True)
-    else:
-        django_otp.login(request._request if hasattr(request, "_request") else request, device)
-    audit.record(action=audit.AuditAction.MFA_CONFIRM, request=request)
-    return device
-
-
 # -- password recovery and invitations -------------------------------------------
 
 
-def _send_password_link(user: User, subject: str) -> None:
+def _queue_email(user: User, *, subject: str, body: str, purpose: str) -> None:
     """Queue the email; a slow or unreachable mail server never fails the request.
 
-    The delivery log keeps only a masked address and the purpose, never the link.
+    The delivery log keeps only a masked address and the purpose, never the body.
     """
-    uid = urlsafe_base64_encode(force_bytes(user.pk))
-    token = default_token_generator.make_token(user)
-    link = settings.PASSWORD_RESET_URL.format(uid=uid, token=token)
-    body = (
-        f"Use this link to set your password:\n\n{link}\n\n"
-        "If you did not expect this message, ignore it."
-    )
     if user.tenant_id is None:
         # Platform staff have no tenant to log the delivery under.
         notifications.queue_untracked_email(to=user.email, subject=subject, body=body)
@@ -161,9 +158,20 @@ def _send_password_link(user: User, subject: str) -> None:
             to=user.email,
             subject=subject,
             body=body,
-            purpose="password_link",
+            purpose=purpose,
             related_object=f"accounts.user:{user.pk}",
         )
+
+
+def _send_password_link(user: User, subject: str) -> None:
+    uid = urlsafe_base64_encode(force_bytes(user.pk))
+    token = default_token_generator.make_token(user)
+    link = settings.PASSWORD_RESET_URL.format(uid=uid, token=token)
+    body = (
+        f"Use this link to set your password:\n\n{link}\n\n"
+        "If you did not expect this message, ignore it."
+    )
+    _queue_email(user, subject=subject, body=body, purpose="password_link")
 
 
 def request_password_reset(request, email: str) -> None:
