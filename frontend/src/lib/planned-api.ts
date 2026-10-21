@@ -42,6 +42,7 @@ async function send<T>(method: string, path: string, body?: unknown): Promise<T>
 export const planned = {
   get: <T>(path: string) => send<T>("GET", path),
   post: <T>(path: string, body?: unknown) => send<T>("POST", path, body ?? {}),
+  patch: <T>(path: string, body: unknown) => send<T>("PATCH", path, body),
 };
 
 /** True when the server (or the lack of a backend) says this feature is not there. */

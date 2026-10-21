@@ -49,3 +49,34 @@ The 00:00 ward charge (CLAUDE.md Section 5) is a backend job and has no screen y
   "not available yet". Hide the entries until the backend ships if that is too confusing.
 - Clinical review is needed before the backend is built: discharge statuses, who may discharge,
   and what is recorded on a transfer.
+
+## Patient portal contract (for the backend to build)
+
+Everything is for the signed-in patient only. The server takes the patient from the session and
+never from an id in the request; a staff account gets 403. Roles are checked by the API, not by
+the portal's layout, which only shows a friendlier message.
+
+| Call | Notes |
+| --- | --- |
+| `GET /api/portal/home/` | first name, next appointment, number of unseen results, balance |
+| `GET /api/portal/appointments/`, `GET /api/portal/appointment-slots/` | the patient's visits; free slots |
+| `POST /api/portal/appointments/` | `{slot, reason}`; 409 if the slot has been taken |
+| `POST /api/portal/appointments/{id}/cancel/` | `{reason}`; refused once the visit is not booked or confirmed or is too close |
+| `GET /api/portal/results/`, `POST .../results/{id}/seen/` | only results a clinician has released; opening marks them seen |
+| `GET /api/portal/prescriptions/` | signed prescriptions |
+| `GET /api/portal/invoices/`, `POST .../invoices/{id}/pay/` | `{amount_minor, method, key}`; any amount up to what is due; the key makes a retry safe |
+| `GET /api/portal/profile/`, `PATCH /api/portal/profile/` | phone, email and consent choices only; name and date of birth are changed at the desk |
+
+Notes for the people who build it:
+
+- **Plain language.** The wording lives in `src/lib/plain-language.ts` and is a starting list. A
+  clinician must review it, and the server should send results already marked as released to the
+  patient. The screen never says what a result "means" beyond where it sits against the usual
+  range.
+- **Payment.** The portal records an amount and a method. Taking money through a payment
+  gateway is out of scope (CLAUDE.md Section 4), so "Pay now" is a recording step until a
+  gateway is chosen (open decision 9).
+- **Consent.** The four choices (text reminders, email reminders, sharing within the facility,
+  research with the name removed) are placeholders for the legal text, which the data-protection
+  lead must approve before launch (DG-02).
+- **Deceased patients** lose portal access (CLAUDE.md Section 5), enforced by the API.
