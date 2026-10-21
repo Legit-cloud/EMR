@@ -33,7 +33,7 @@ from apps.core.money import Money
 from apps.core.tenancy import tenant_context
 from apps.patients.models import Allergy, Patient
 from apps.pharmacy import services as pharmacy
-from apps.pharmacy.models import Drug, Prescription, PrescriptionItem
+from apps.pharmacy.models import Drug, Prescription, PrescriptionItem, Vendor
 from apps.tenants.models import Department, Facility, Tenant
 
 # (code, display, reason for visit, subjective, assessment, plan)
@@ -133,6 +133,7 @@ class Command(BaseCommand):
                     )
                 for visit in range(rng.choice([1, 1, 2, 3])):
                     self._visit(rng, patient, visit, doctor, nurse, facility, dept, drugs, made)
+            self._stock_orders(drugs)
         self.stdout.write(
             f"Added {made['encounters']} encounters, {made['prescriptions']} prescriptions "
             f"and {made['invoices']} paid or part-paid invoices."
@@ -248,3 +249,47 @@ class Command(BaseCommand):
             reference="DEMO",
         )
         made["invoices"] += 1
+
+    def _stock_orders(self, drugs):
+        """Vendors and three orders: one pending, one part-received, one complete."""
+        if Vendor.objects.exists() or len(drugs) < 3:
+            return
+        today = timezone.localdate()
+        expiry = today + timedelta(days=540)
+        medsupply = Vendor.objects.create(
+            name="MedSupply Nigeria Ltd",
+            email="orders@medsupply.example.test",
+            phone="+2348012340001",
+        )
+        walk_in = Vendor.objects.create(name="Walk-in Supplier")
+        chosen = list(drugs.values())[:3]
+
+        def order(vendor, specs):
+            return pharmacy.place_order(
+                vendor=vendor,
+                lines=[
+                    {"drug": drug, "quantity": qty, "unit_cost_minor": cost}
+                    for drug, qty, cost in specs
+                ],
+                note="Demo order",
+            )
+
+        order(medsupply, [(chosen[0], 200, 90_00), (chosen[1], 120, 150_00)])
+        part = order(medsupply, [(chosen[1], 100, 140_00), (chosen[2], 60, 300_00)])
+        first = part.lines.first()
+        pharmacy.receive_order(
+            part,
+            [{"line": first, "quantity": 40, "batch_number": "DEMO-PO-1", "expiry_date": expiry}],
+        )
+        done = order(walk_in, [(chosen[2], 50, 280_00)])
+        pharmacy.receive_order(
+            done,
+            [
+                {
+                    "line": done.lines.first(),
+                    "quantity": 50,
+                    "batch_number": "DEMO-PO-2",
+                    "expiry_date": expiry,
+                }
+            ],
+        )

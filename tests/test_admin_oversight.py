@@ -25,6 +25,8 @@ OVERSIGHT = {
     "patients.patient",
     "pharmacy.drug",
     "pharmacy.stockbatch",
+    "pharmacy.vendor",
+    "pharmacy.purchaseorder",
     "scheduling.appointment",
 }
 # Administration the role already ran before oversight was added.

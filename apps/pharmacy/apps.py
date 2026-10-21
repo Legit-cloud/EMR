@@ -12,7 +12,7 @@ class PharmacyConfig(AppConfig):
 
         from . import tasks
         from .events import PRESCRIPTION_AUTHORISED, PRESCRIPTION_CANCELLED, PRESCRIPTION_DISPENSED
-        from .models import Drug, Prescription, StockBatch
+        from .models import Drug, Prescription, PurchaseOrder, StockBatch, Vendor
 
         events.subscribe(PRESCRIPTION_AUTHORISED, tasks.reserve_stock_for_prescription)
         events.subscribe(PRESCRIPTION_AUTHORISED, tasks.request_invoice_lines)
@@ -51,3 +51,16 @@ class PharmacyConfig(AppConfig):
             department_field="encounter__department",
             break_glass=True,
         )
+        for name, model in (
+            ("pharmacy.vendor", Vendor),
+            ("pharmacy.purchaseorder", PurchaseOrder),
+        ):
+            policy.register(
+                name,
+                model=model,
+                grants=[
+                    policy.grant({Role.PHARMACIST}, {view, create, update}),
+                    policy.grant({Role.TENANT_ADMIN, Role.FINANCE}, {view}),
+                ],
+                phi=False,
+            )

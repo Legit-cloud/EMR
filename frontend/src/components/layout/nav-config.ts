@@ -3,7 +3,7 @@
  * so people see the screens they can use. Hiding is a convenience only: the API decides
  * access, and every screen handles a refusal.
  *
- * Only screens that exist are listed. Inpatient, claims, accounts, stock purchasing,
+ * Only screens that exist are listed. Inpatient, claims, accounts,
  * reports and support arrive with their screens.
  */
 import {
@@ -13,6 +13,7 @@ import {
   type Icon,
   IdentificationCard,
   ListNumbers,
+  Package,
   Pill,
   Receipt,
   ShieldCheck,
@@ -106,6 +107,12 @@ export const NAV: NavGroup[] = [
     caption: "Physical asset",
     items: [
       { label: "Pharmacy", href: "/pharmacy", icon: Pill, roles: ["pharmacist"] },
+      {
+        label: "Stock",
+        href: "/pharmacy/stock",
+        icon: Package,
+        roles: ["pharmacist", "tenant_admin", "finance"],
+      },
       {
         label: "Formulary",
         href: "/pharmacy/formulary",

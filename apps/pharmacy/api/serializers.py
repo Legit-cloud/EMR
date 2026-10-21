@@ -1,16 +1,22 @@
 from django.db import transaction
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
+from apps.core.api.fields import TenantPrimaryKeyRelatedField
 from apps.core.api.serializers import CleanModelSerializer
 from apps.core.money import CURRENCY_EXPONENTS
 
 from ..models import (
     Drug,
+    OrderReceipt,
     Prescription,
     PrescriptionAlert,
     PrescriptionItem,
     PrescriptionStatus,
+    PurchaseOrder,
+    PurchaseOrderLine,
     StockBatch,
+    Vendor,
 )
 
 
@@ -199,3 +205,141 @@ class DispenseSerializer(serializers.Serializer):
 
 class CancelSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=500)
+
+
+# -- stock and ordering -----------------------------------------------------------------
+
+
+class InventoryRowSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    brand_name = serializers.CharField()
+    strength = serializers.CharField()
+    form = serializers.CharField()
+    unit_price_minor = serializers.IntegerField()
+    currency = serializers.CharField()
+    reorder_level = serializers.IntegerField()
+    available = serializers.IntegerField()
+    on_order = serializers.IntegerField()
+    value_minor = serializers.IntegerField()
+    stock_status = serializers.ChoiceField(choices=["in_stock", "low", "out"])
+
+
+class LowItemSerializer(serializers.Serializer):
+    drug = serializers.UUIDField()
+    name = serializers.CharField()
+    available = serializers.IntegerField()
+    reorder_level = serializers.IntegerField()
+
+
+class StockSummarySerializer(serializers.Serializer):
+    currency = serializers.CharField()
+    value_minor = serializers.IntegerField()
+    products = serializers.IntegerField()
+    in_stock = serializers.IntegerField()
+    low = serializers.IntegerField()
+    out = serializers.IntegerField()
+    low_items = LowItemSerializer(many=True)
+
+
+class VendorSerializer(CleanModelSerializer):
+    class Meta:
+        model = Vendor
+        fields = ["id", "name", "email", "phone", "active"]
+        read_only_fields = ["id"]
+
+
+class OrderLineSerializer(serializers.ModelSerializer):
+    drug_name = serializers.CharField(source="drug.__str__", read_only=True)
+    total_minor = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PurchaseOrderLine
+        fields = [
+            "id",
+            "drug",
+            "drug_name",
+            "quantity_ordered",
+            "quantity_received",
+            "unit_cost_minor",
+            "total_minor",
+        ]
+        read_only_fields = fields
+
+
+class OrderReceiptSerializer(serializers.ModelSerializer):
+    line = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = OrderReceipt
+        fields = ["id", "line", "quantity", "batch_number", "expiry_date", "created_at"]
+        read_only_fields = fields
+
+
+class OrderListSerializer(serializers.ModelSerializer):
+    reference = serializers.SerializerMethodField()
+    vendor_name = serializers.CharField(source="vendor.name", read_only=True)
+    line_count = serializers.IntegerField(read_only=True)
+    units_ordered = serializers.IntegerField(read_only=True)
+    units_received = serializers.IntegerField(read_only=True)
+    total_minor = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = PurchaseOrder
+        fields = [
+            "id",
+            "reference",
+            "vendor",
+            "vendor_name",
+            "status",
+            "currency",
+            "note",
+            "email_sent_at",
+            "line_count",
+            "units_ordered",
+            "units_received",
+            "total_minor",
+            "created_at",
+        ]
+        read_only_fields = fields
+
+    def get_reference(self, order) -> str:
+        return str(order)
+
+
+class OrderSerializer(OrderListSerializer):
+    lines = OrderLineSerializer(many=True, read_only=True)
+    receipts = serializers.SerializerMethodField()
+
+    class Meta(OrderListSerializer.Meta):
+        fields = [*OrderListSerializer.Meta.fields, "lines", "receipts"]
+        read_only_fields = fields
+
+    @extend_schema_field(OrderReceiptSerializer(many=True))
+    def get_receipts(self, order):
+        receipts = [r for line in order.lines.all() for r in line.receipts.all()]
+        receipts.sort(key=lambda r: r.created_at, reverse=True)
+        return OrderReceiptSerializer(receipts, many=True).data
+
+
+class PlaceOrderLineSerializer(serializers.Serializer):
+    drug = TenantPrimaryKeyRelatedField(Drug)
+    quantity = serializers.IntegerField(min_value=1, max_value=1_000_000)
+    unit_cost_minor = serializers.IntegerField(min_value=0)
+
+
+class PlaceOrderSerializer(serializers.Serializer):
+    vendor = TenantPrimaryKeyRelatedField(Vendor)
+    note = serializers.CharField(max_length=500, required=False, allow_blank=True, default="")
+    lines = PlaceOrderLineSerializer(many=True, allow_empty=False)
+
+
+class ReceiveLineSerializer(serializers.Serializer):
+    line = TenantPrimaryKeyRelatedField(PurchaseOrderLine)
+    quantity = serializers.IntegerField(min_value=1, max_value=1_000_000)
+    batch_number = serializers.CharField(max_length=50)
+    expiry_date = serializers.DateField()
+
+
+class ReceiveSerializer(serializers.Serializer):
+    receipts = ReceiveLineSerializer(many=True, allow_empty=False)

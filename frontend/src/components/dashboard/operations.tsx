@@ -13,6 +13,7 @@ import { percentages, STOCK_SERIES } from "@/lib/chart-colours";
 import { cx } from "@/lib/cx";
 import { formatMoney } from "@/lib/format";
 import { STOCK_LEVEL } from "@/lib/status-map";
+import { stockHref } from "@/lib/stock";
 
 const LINK = cx("text-small rounded-tag font-semibold text-blue-600 hover:underline", FOCUS_RING);
 
@@ -75,7 +76,7 @@ export function StockCard({ stock, className }: { stock: Schemas["Stock"]; class
       title="Stock availability"
       className={className}
       action={
-        <Link href="/pharmacy/formulary" className={LINK}>
+        <Link href="/pharmacy/stock" className={LINK}>
           View all
         </Link>
       }
@@ -109,6 +110,13 @@ export function StockCard({ stock, className }: { stock: Schemas["Stock"]; class
                 </span>
               </span>
               <StatusPill status={item.available > 0 ? STOCK_LEVEL.low : STOCK_LEVEL.out} />
+              <Link
+                href={stockHref({ tab: "orders", order: item.drug })}
+                aria-label={`Order ${item.name}`}
+                className={LINK}
+              >
+                Order
+              </Link>
             </li>
           ))}
         </ul>

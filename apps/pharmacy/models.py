@@ -241,3 +241,84 @@ class StockReservation(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.quantity} of {self.batch} ({self.status})"
+
+
+# -- buying stock -----------------------------------------------------------------------
+
+
+class Vendor(TenantModel):
+    """A supplier the pharmacy orders from."""
+
+    name = models.CharField(max_length=200)
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=32, blank=True)
+    active = models.BooleanField(default=True)
+
+    class Meta(TenantModel.Meta):
+        ordering = ["name"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "name"], name="vendor_name_unique_per_tenant")
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+
+class OrderStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    PARTIALLY_RECEIVED = "partially_received", "Partially received"
+    COMPLETE = "complete", "Complete"
+    CANCELLED = "cancelled", "Cancelled"
+
+
+class PurchaseOrder(TenantModel):
+    vendor = models.ForeignKey(Vendor, on_delete=models.PROTECT, related_name="orders")
+    status = models.CharField(
+        max_length=20, choices=OrderStatus.choices, default=OrderStatus.PENDING
+    )
+    currency = models.CharField(max_length=3, default="NGN")
+    note = models.CharField(max_length=500, blank=True)
+    # Set when the order email to the vendor has been queued.
+    email_sent_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta(TenantModel.Meta):
+        ordering = ["-created_at"]
+
+    def __str__(self) -> str:
+        return f"PO-{str(self.pk)[:8].upper()}"
+
+
+class PurchaseOrderLine(TenantModel):
+    order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name="lines")
+    drug = models.ForeignKey(Drug, on_delete=models.PROTECT, related_name="order_lines")
+    quantity_ordered = models.PositiveIntegerField()
+    quantity_received = models.PositiveIntegerField(default=0)
+    unit_cost_minor = models.BigIntegerField()
+
+    class Meta(TenantModel.Meta):
+        ordering = ["created_at"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(quantity_received__lte=F("quantity_ordered")),
+                name="received_within_ordered",
+            ),
+            models.CheckConstraint(
+                condition=Q(quantity_ordered__gte=1), name="order_line_quantity_positive"
+            ),
+        ]
+
+    @property
+    def total_minor(self) -> int:
+        return self.quantity_ordered * self.unit_cost_minor
+
+
+class OrderReceipt(TenantModel):
+    """One delivery against an order line: the units become a stock batch."""
+
+    line = models.ForeignKey(PurchaseOrderLine, on_delete=models.PROTECT, related_name="receipts")
+    quantity = models.PositiveIntegerField()
+    batch_number = models.CharField(max_length=50)
+    expiry_date = models.DateField()
+
+    class Meta(TenantModel.Meta):
+        ordering = ["created_at"]
