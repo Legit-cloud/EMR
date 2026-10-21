@@ -13,7 +13,9 @@ Ledger rules (CLAUDE.md Section 5):
 """
 
 import uuid
+from datetime import timedelta
 
+from django.conf import settings
 from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
 from django.utils import timezone
@@ -22,6 +24,8 @@ from apps.core import events
 from apps.core.errors import DomainError
 from apps.core.money import Money
 from apps.core.tenancy import get_current_user_id
+from apps.notifications import services as notifications
+from apps.patients import selectors as patients
 
 from . import ledger
 from .events import INVOICE_PAID
@@ -306,6 +310,64 @@ def record_payment(
 
 
 # -- reconciliation ------------------------------------------------------------------
+
+
+class ReminderRefused(DomainError):
+    code = "reminder_refused"
+    status_code = 409
+
+
+def invoice_reference(invoice: Invoice) -> str:
+    """The short number staff and patients quote, for example INV-3F9A12BC."""
+    return f"INV-{str(invoice.pk)[:8].upper()}"
+
+
+@transaction.atomic
+def send_payment_reminder(invoice: Invoice) -> list[str]:
+    """Message the patient about what is still due. Returns the channels used.
+
+    Refused when nothing is due, when the bill is held for estate review, when the patient
+    has no phone or email on file, or when a reminder went out recently.
+    """
+    invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
+    if invoice.payment_status == PaymentStatus.PAID or invoice.net_due_minor <= 0:
+        raise ReminderRefused("Nothing is due on this invoice.")
+    if invoice.estate_review or patients.is_deceased(invoice.patient_id):
+        raise ReminderRefused("This invoice is held for estate review. Do not send a reminder.")
+    contact = patients.contact_details(invoice.patient_id)
+    if not contact or not (contact["phone"] or contact["email"]):
+        raise ReminderRefused("The patient has no phone number or email on file.")
+    wait = timedelta(hours=settings.BILLING_REMINDER_INTERVAL_HOURS)
+    if invoice.last_reminder_at and timezone.now() - invoice.last_reminder_at < wait:
+        raise ReminderRefused(
+            f"A reminder was sent recently. Wait {settings.BILLING_REMINDER_INTERVAL_HOURS} "
+            "hours between reminders."
+        )
+
+    body = (
+        f"Hello {contact['first_name']}, this is a reminder that "
+        f"{Money(invoice.net_due_minor, invoice.currency)} is still due on bill "
+        f"{invoice_reference(invoice)}. Please settle it at the cashier. Thank you."
+    )
+    related = f"billing.invoice:{invoice.pk}"
+    channels = []
+    if contact["phone"]:
+        notifications.queue_sms(
+            to=contact["phone"], body=body, purpose="invoice_reminder", related_object=related
+        )
+        channels.append("sms")
+    if contact["email"]:
+        notifications.queue_email(
+            to=contact["email"],
+            subject="Payment reminder",
+            body=body,
+            purpose="invoice_reminder",
+            related_object=related,
+        )
+        channels.append("email")
+    invoice.last_reminder_at = timezone.now()
+    invoice.save(update_fields=["last_reminder_at", "updated_at", "updated_by"])
+    return channels
 
 
 def reconcile(currency: str = "NGN") -> list[str]:

@@ -772,12 +772,22 @@ paths:
         name: estate_review
         schema:
           type: string
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Sort field, with a leading - for descending.
       - name: page
         required: false
         in: query
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
       - in: query
         name: patient
         schema:
@@ -787,6 +797,11 @@ paths:
         name: payment_status
         schema:
           type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
       tags:
       - billing
       security:
@@ -797,7 +812,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedInvoiceList'
+                $ref: '#/components/schemas/PaginatedInvoiceListList'
           description: ''
   /api/billing/invoices/{id}/:
     get:
@@ -929,6 +944,56 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/billing/invoices/{id}/remind/:
+    post:
+      operationId: billing_invoices_remind_create
+      description: Message the patient about the balance still due.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderResult'
+          description: ''
+  /api/billing/invoices/summary/:
+    get:
+      operationId: billing_invoices_summary_retrieve
+      description: Counts by payment status and the money billed, collected and still
+        due.
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceSummary'
           description: ''
   /api/billing/ledger/accounts/:
     get:
@@ -5928,14 +5993,27 @@ components:
       - name
     Invoice:
       type: object
+      description: |-
+        The invoice number and the patient's name and MRN, which live in other modules.
+
+        The view looks the patients up once per page and passes them in as ``patients``.
       properties:
         id:
           type: string
           format: uuid
           readOnly: true
+        reference:
+          type: string
+          readOnly: true
         patient:
           type: string
           format: uuid
+          readOnly: true
+        patient_name:
+          type: string
+          readOnly: true
+        patient_mrn:
+          type: string
           readOnly: true
         currency:
           type: string
@@ -5978,6 +6056,11 @@ components:
         estate_review:
           type: boolean
           readOnly: true
+        last_reminder_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
         lines:
           type: array
           items:
@@ -6001,14 +6084,18 @@ components:
       - insurer_coverage_bp
       - insurer_due_minor
       - insurer_paid_minor
+      - last_reminder_at
       - lines
       - net_due_minor
       - paid_at
       - patient
       - patient_due_minor
+      - patient_mrn
+      - patient_name
       - patient_paid_minor
       - payment_status
       - payments
+      - reference
       - total_minor
     InvoiceLine:
       type: object
@@ -6019,52 +6106,53 @@ components:
           readOnly: true
         source:
           type: string
-          maxLength: 64
+          readOnly: true
         source_id:
           type: string
-          maxLength: 64
+          readOnly: true
         description:
           type: string
-          maxLength: 255
+          readOnly: true
         revenue_category:
-          $ref: '#/components/schemas/RevenueCategoryEnum'
+          allOf:
+          - $ref: '#/components/schemas/RevenueCategoryEnum'
+          readOnly: true
         quantity:
           type: integer
-          maximum: 2147483647
-          minimum: 0
+          readOnly: true
         unit_price_minor:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          readOnly: true
         amount_minor:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          readOnly: true
         insurer_amount_minor:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          readOnly: true
         patient_amount_minor:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          readOnly: true
         status:
-          $ref: '#/components/schemas/InvoiceLineStatusEnum'
+          allOf:
+          - $ref: '#/components/schemas/InvoiceLineStatusEnum'
+          readOnly: true
         finalised_at:
           type: string
           format: date-time
+          readOnly: true
           nullable: true
       required:
       - amount_minor
       - description
+      - finalised_at
       - id
+      - insurer_amount_minor
+      - patient_amount_minor
       - quantity
+      - revenue_category
       - source
       - source_id
+      - status
       - unit_price_minor
     InvoiceLineStatusEnum:
       enum:
@@ -6076,6 +6164,110 @@ components:
         * `pending` - Pending
         * `final` - Final
         * `void` - Void
+    InvoiceList:
+      type: object
+      description: |-
+        The invoice number and the patient's name and MRN, which live in other modules.
+
+        The view looks the patients up once per page and passes them in as ``patients``.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        patient_name:
+          type: string
+          readOnly: true
+        patient_mrn:
+          type: string
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        insurer:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        payment_status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentStatusEnum'
+          readOnly: true
+        total_minor:
+          type: integer
+          readOnly: true
+        net_due_minor:
+          type: integer
+          readOnly: true
+        paid_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        estate_review:
+          type: boolean
+          readOnly: true
+        line_count:
+          type: integer
+          readOnly: true
+        last_reminder_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - currency
+      - estate_review
+      - id
+      - insurer
+      - last_reminder_at
+      - line_count
+      - net_due_minor
+      - paid_at
+      - patient
+      - patient_mrn
+      - patient_name
+      - payment_status
+      - reference
+      - total_minor
+    InvoiceSummary:
+      type: object
+      description: Counts and amounts for the billing screen's header, in one currency.
+      properties:
+        currency:
+          type: string
+        unpaid_count:
+          type: integer
+        partially_paid_count:
+          type: integer
+        paid_count:
+          type: integer
+        billed_minor:
+          type: integer
+        collected_minor:
+          type: integer
+        outstanding_minor:
+          type: integer
+      required:
+      - billed_minor
+      - collected_minor
+      - currency
+      - outstanding_minor
+      - paid_count
+      - partially_paid_count
+      - unpaid_count
     JournalEntry:
       type: object
       properties:
@@ -6801,7 +6993,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Insurer'
-    PaginatedInvoiceList:
+    PaginatedInvoiceListList:
       type: object
       required:
       - count
@@ -6823,7 +7015,7 @@ components:
         results:
           type: array
           items:
-            $ref: '#/components/schemas/Invoice'
+            $ref: '#/components/schemas/InvoiceList'
     PaginatedJournalEntryList:
       type: object
       required:
@@ -7865,27 +8057,32 @@ components:
         invoice:
           type: string
           format: uuid
+          readOnly: true
         payer:
-          $ref: '#/components/schemas/PayerEnum'
+          allOf:
+          - $ref: '#/components/schemas/PayerEnum'
+          readOnly: true
         method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          allOf:
+          - $ref: '#/components/schemas/PaymentMethodEnum'
+          readOnly: true
         amount_minor:
           type: integer
-          maximum: 9223372036854775807
-          minimum: -9223372036854775808
-          format: int64
+          readOnly: true
         currency:
           type: string
-          maxLength: 3
+          readOnly: true
         reference:
           type: string
-          maxLength: 100
+          readOnly: true
         received_at:
           type: string
           format: date-time
+          readOnly: true
         received_by:
           type: string
           format: uuid
+          readOnly: true
           nullable: true
       required:
       - amount_minor
@@ -7895,6 +8092,8 @@ components:
       - method
       - payer
       - received_at
+      - received_by
+      - reference
     PaymentMethodEnum:
       enum:
       - cash
@@ -8335,6 +8534,19 @@ components:
       - reaction
       - severity
       - substance
+    ReminderResult:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            type: string
+        last_reminder_at:
+          type: string
+          format: date-time
+      required:
+      - channels
+      - last_reminder_at
     RescheduleRequest:
       type: object
       properties:

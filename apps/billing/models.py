@@ -56,6 +56,8 @@ class Invoice(TenantModel):
     paid_at = models.DateTimeField(null=True, blank=True)
     # Set when the patient dies with an outstanding balance (patient.deceased).
     estate_review = models.BooleanField(default=False)
+    # When a payment reminder was last sent, so patients are not messaged repeatedly.
+    last_reminder_at = models.DateTimeField(null=True, blank=True)
 
     class Meta(TenantModel.Meta):
         ordering = ["-created_at"]

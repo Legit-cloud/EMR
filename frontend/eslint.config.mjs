@@ -28,9 +28,8 @@ export default defineConfig([
     // these React rules reject; each one is rebuilt on TanStack Query in F5-F14.
     // Remove a path from this list when its screen is rebuilt.
     files: [
-      "src/app/(app)/billing/**",
+      "src/app/(app)/billing/insurers/**",
       "src/app/(app)/compliance/**",
-      "src/app/(app)/invoices/**",
       "src/app/(app)/manage/**",
       "src/app/(app)/pharmacy/**",
       "src/app/(app)/registrations/**",

@@ -244,6 +244,8 @@ MFA_REQUIRED_ROLES = env.list(
         "compliance_officer",
     ],
 )
+# Least time between two payment reminders for one invoice.
+BILLING_REMINDER_INTERVAL_HOURS = env.int("BILLING_REMINDER_INTERVAL_HOURS", default=24)
 BREAK_GLASS_ROLES = env.list("BREAK_GLASS_ROLES", default=["doctor", "nurse"])
 BREAK_GLASS_MINUTES = env.int("BREAK_GLASS_MINUTES", default=60)
 BREAK_GLASS_MIN_REASON_LENGTH = 15

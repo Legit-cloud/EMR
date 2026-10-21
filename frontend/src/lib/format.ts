@@ -1,41 +1,5 @@
-const MINOR_DIGITS: Record<string, number> = { XOF: 0 };
-
-/**
- * Money arrives as integer minor units. Format with integer arithmetic only, so a
- * displayed amount can never differ from the stored one by a rounding error.
- */
-export function formatMoney(minor: number, currency: string): string {
-  const digits = MINOR_DIGITS[currency] ?? 2;
-  const negative = minor < 0;
-  const units = BigInt(Math.abs(minor));
-  const scale = 10n ** BigInt(digits);
-  const whole = (units / scale).toLocaleString("en-NG");
-  const fraction = digits ? `.${(units % scale).toString().padStart(digits, "0")}` : "";
-  const symbol = currency === "NGN" ? "₦" : `${currency} `;
-  return `${negative ? "-" : ""}${symbol}${whole}${fraction}`;
-}
-
-/**
- * Short amounts for chart axes and tight spaces: "₦98k", "₦1.2m". Display only: use
- * formatMoney wherever the exact amount matters.
- */
-export function compactMoney(minor: number, currency: string): string {
-  const units = minor / 10 ** (MINOR_DIGITS[currency] ?? 2);
-  const symbol = currency === "NGN" ? "₦" : `${currency} `;
-  const sign = units < 0 ? "-" : "";
-  const size = Math.abs(units);
-  const short =
-    size >= 1_000_000
-      ? `${trimZero(size / 1_000_000)}m`
-      : size >= 1_000
-        ? `${trimZero(size / 1_000)}k`
-        : String(Math.round(size));
-  return `${sign}${symbol}${short}`;
-}
-
-function trimZero(value: number): string {
-  return (Math.round(value * 10) / 10).toString();
-}
+// Money lives in one place; these re-exports keep the older imports working.
+export { compactMoney, formatMoney, toMajorText, toMinor } from "./money";
 
 const LAGOS = "Africa/Lagos";
 
@@ -106,33 +70,4 @@ export function humanise(value: string): string {
 export function lagosToday(offsetDays = 0): string {
   const now = new Date(Date.now() + offsetDays * 86_400_000);
   return now.toLocaleDateString("en-CA", { timeZone: LAGOS });
-}
-
-/**
- * Parse a typed major-unit amount ("1,500.50") into integer minor units without floating
- * point. Returns null when it is not a valid amount for the currency.
- */
-export function toMinor(text: string, currency = "NGN"): number | null {
-  const digits = MINOR_DIGITS[currency] ?? 2;
-  const clean = text.replaceAll(",", "").trim();
-  const [whole, fraction = "", extra] = clean.split(".");
-  const valid =
-    extra === undefined &&
-    /^\d+$/.test(whole) &&
-    /^\d*$/.test(fraction) &&
-    fraction.length <= digits &&
-    !(digits === 0 && clean.includes("."));
-  if (!valid) return null;
-  const minorPart = fraction.padEnd(digits, "0");
-  return Number(BigInt(whole) * 10n ** BigInt(digits) + BigInt(minorPart || "0"));
-}
-
-/** Minor units as an editable major-unit string ("1500.50"). */
-export function toMajorText(minor: number, currency = "NGN"): string {
-  const digits = MINOR_DIGITS[currency] ?? 2;
-  const scale = 10n ** BigInt(digits);
-  const units = BigInt(minor);
-  return digits
-    ? `${units / scale}.${(units % scale).toString().padStart(digits, "0")}`
-    : `${units}`;
 }

@@ -13,6 +13,7 @@ import { FOCUS_RING } from "@/components/ui/focus";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useToast } from "@/components/ui/toast";
 import { api, apiError, type Schemas, unwrap } from "@/lib/api";
+import { invoiceHref } from "@/lib/billing";
 import { useAttachments, useInvoices, usePrescriptions, useRecordAudit } from "@/lib/chart-queries";
 import { cx } from "@/lib/cx";
 import { formatDateTime, formatMoney, humanise } from "@/lib/format";
@@ -126,7 +127,7 @@ export function PrescriptionsTab({
   );
 }
 
-type Invoice = Schemas["Invoice"];
+type Invoice = Schemas["InvoiceList"];
 
 /** Bills for this patient, linking to the invoice. */
 export function BillingTab({ patientId }: { patientId: string }) {
@@ -136,7 +137,7 @@ export function BillingTab({ patientId }: { patientId: string }) {
       id: "date",
       header: "Date",
       cell: (i) => (
-        <Link href={`/invoices/${i.id}`} className={cx("tnum whitespace-nowrap", LINK)}>
+        <Link href={invoiceHref(i.id)} className={cx("tnum whitespace-nowrap", LINK)}>
           {formatDateTime(i.created_at)}
         </Link>
       ),
