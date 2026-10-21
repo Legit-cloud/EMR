@@ -1,6 +1,6 @@
-"""Tenant admin oversight (SEC-02, decided 2026-10-19): a tenant admin can view everything
-operational in the tenant, read-only, but never clinical content, which stays with the
-care team. Changing either list below is a product decision, not a refactor."""
+"""Tenant admin oversight (SEC-02, widened 2026-10-21): a tenant admin can view everything in
+the tenant, clinical content included, but only the care team can change clinical content.
+Changing any list below is a product decision, not a refactor."""
 
 from datetime import date
 
@@ -38,7 +38,7 @@ ADMINISTRATION = {
     "tenants.department",
     "tenants.facility",
 }
-# Clinical content: never visible to the admin role.
+# Clinical content: visible to the admin role, never editable by it.
 CLINICAL = {
     "clinical.consultationnote",
     "clinical.diagnosis",
@@ -54,18 +54,17 @@ def _grants(resource, action):
     return [g for g in resource.grants if Role.TENANT_ADMIN in g.roles and action in g.actions]
 
 
-def test_sec_02_admin_views_exactly_the_oversight_and_administration_resources():
+def test_sec_02_admin_views_exactly_the_oversight_administration_and_clinical_resources():
     # tenancy_app models exist only in the test settings.
     resources = {
         n: r for n, r in policy.registered_resources().items() if not n.startswith("tenancy_app.")
     }
     viewable = {name for name, r in resources.items() if _grants(r, Action.VIEW)}
-    assert viewable == OVERSIGHT | ADMINISTRATION
-    assert CLINICAL <= set(resources) and not viewable & CLINICAL
+    assert viewable == OVERSIGHT | ADMINISTRATION | CLINICAL
 
 
-def test_sec_02_oversight_is_tenant_wide_and_read_only():
-    for name in OVERSIGHT:
+def test_sec_02_oversight_and_clinical_are_tenant_wide_and_read_only():
+    for name in OVERSIGHT | CLINICAL:
         resource = policy.get_resource(name)
         assert all(g.scope == policy.Scope.TENANT for g in _grants(resource, Action.VIEW)), name
         for action in (Action.CREATE, Action.UPDATE, Action.DELETE, Action.DISPENSE):
@@ -98,9 +97,9 @@ def test_sec_02_admin_reads_operational_lists(admin, patient):
     assert str(patient.id) in ids
 
 
-def test_sec_02_admin_cannot_read_clinical_records_or_break_glass(admin, patient):
+def test_sec_02_admin_reads_clinical_records_but_cannot_break_glass(admin, patient):
     response = admin.get(f"/api/clinical/encounters/?patient={patient.id}")
-    assert response.status_code == 403
+    assert response.status_code == 200
     status = admin.get(f"/api/accounts/break-glass/patients/{patient.id}/").json()
     assert status["can_break_glass"] is False and status["hidden_records"] is False
 

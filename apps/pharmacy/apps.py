@@ -45,6 +45,7 @@ class PharmacyConfig(AppConfig):
                 policy.grant({Role.DOCTOR}, {view, create, update}, Scope.DEPARTMENT),
                 policy.grant({Role.NURSE}, {view}, Scope.DEPARTMENT),
                 policy.grant({Role.PHARMACIST}, {view, Action.DISPENSE}),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
             ],
             facility_field="encounter__facility",
             department_field="encounter__department",
