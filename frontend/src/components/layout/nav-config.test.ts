@@ -38,6 +38,7 @@ describe("visibleNav", () => {
       "Patients",
       "Duplicate review",
       "Staff list",
+      "Wards and beds",
       "Invoices",
       "Insurers",
       "Stock",

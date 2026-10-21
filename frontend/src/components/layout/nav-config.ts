@@ -7,6 +7,7 @@
  * reports and support arrive with their screens.
  */
 import {
+  Bed,
   BookOpen,
   CalendarBlank,
   ClipboardText,
@@ -92,6 +93,17 @@ export const NAV: NavGroup[] = [
           "hr",
           "tenant_admin",
         ],
+      },
+    ],
+  },
+  {
+    caption: "Inpatient",
+    items: [
+      {
+        label: "Wards and beds",
+        href: "/inpatient",
+        icon: Bed,
+        roles: ["nurse", "doctor", "tenant_admin"],
       },
     ],
   },
