@@ -1,6 +1,7 @@
 import type { HttpHandler } from "msw";
 
 import { appointmentHandlers } from "./appointments";
+import { auditHandlers } from "./audit";
 import { authHandlers } from "./auth";
 import { billingHandlers } from "./billing";
 import { chartHandlers } from "./chart";
@@ -20,6 +21,7 @@ import { stockHandlers } from "./stock";
  */
 export const handlers: HttpHandler[] = [
   ...appointmentHandlers,
+  ...auditHandlers,
   ...authHandlers,
   ...billingHandlers,
   ...chartHandlers,

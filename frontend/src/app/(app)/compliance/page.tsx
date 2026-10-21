@@ -62,7 +62,7 @@ export default function CompliancePage() {
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-semibold">Break-glass review</h1>
-        <Link href="/compliance/audit" className="text-teal-800 underline">
+        <Link href="/admin/audit" className="text-teal-800 underline">
           Audit log
         </Link>
       </div>

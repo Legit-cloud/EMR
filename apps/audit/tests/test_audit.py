@@ -243,3 +243,67 @@ def test_verify_command_checks_each_chain_once(tenant_a, tenant_b):
     assert sorted(lines) == sorted(
         [f"{tenant_a.id}: intact", f"{tenant_b.id}: intact", "platform: intact"]
     )
+
+
+# -- the audit screen (F14) -------------------------------------------------------------
+
+ENTRIES = "/api/audit/entries/"
+
+
+@pytest.fixture
+def auditor(signed_in, make_user, tenant_a):
+    return signed_in(make_user("auditor-screen", tenant_a, [Role.COMPLIANCE_OFFICER]))
+
+
+def test_sec_03_log_searches_by_text_and_filters_by_dates(auditor, tenant_a):
+    entry(tenant_id=tenant_a.id, resource="patients.patient", object_id="ada-chart")
+    entry(tenant_id=tenant_a.id, resource="billing.invoice", object_id="bola-bill")
+    found = auditor.get(ENTRIES, {"q": "invoice"}).json()
+    assert {e["resource"] for e in found["results"]} == {"billing.invoice"}
+    assert auditor.get(ENTRIES, {"q": "ada-chart"}).json()["count"] == 1
+    assert auditor.get(ENTRIES, {"date_from": "2999-01-01"}).json()["count"] == 0
+    assert auditor.get(ENTRIES, {"date_to": "2000-01-01"}).json()["count"] == 0
+    assert auditor.get(ENTRIES, {"date_from": "not-a-date"}).status_code == 200
+
+
+def test_sec_03_log_pages_and_summarises_denied_and_break_glass(auditor, tenant_a):
+    for _ in range(3):
+        entry(tenant_id=tenant_a.id, action="read")
+    entry(tenant_id=tenant_a.id, action="break_glass", reason="Emergency admission")
+    entry(tenant_id=tenant_a.id, action="break_glass_review")
+    entry(tenant_id=tenant_a.id, action="read", outcome="denied")
+    assert auditor.get(ENTRIES, {"page_size": 2}).json()["results"].__len__() == 2
+    summary = auditor.get(f"{ENTRIES}summary/").json()
+    assert summary["break_glass"] == 1
+    assert summary["reviewed"] == 1
+    assert summary["denied"] == 1
+    assert summary["total"] >= 6
+    only = auditor.get(ENTRIES, {"action": "break_glass"}).json()
+    assert [e["reason"] for e in only["results"]] == ["Emergency admission"]
+
+
+def test_sec_03_export_is_a_csv_of_the_filtered_log_and_is_itself_logged(auditor, tenant_a):
+    entry(tenant_id=tenant_a.id, resource="billing.invoice", reason="=HYPERLINK(evil)")
+    entry(tenant_id=tenant_a.id, resource="patients.patient")
+    response = auditor.get(f"{ENTRIES}export/", {"q": "billing"})
+    assert response.status_code == 200
+    assert response["Content-Type"].startswith("text/csv")
+    assert "attachment" in response["Content-Disposition"]
+    lines = response.content.decode().splitlines()
+    assert lines[0].startswith("occurred_at,sequence,actor,action")
+    assert len(lines) == 2
+    assert "'=HYPERLINK(evil)" in lines[1]  # a spreadsheet will not run it as a formula
+    assert AuditEntry.objects.filter(resource="audit.auditentry", path__endswith="export/").exists()
+
+
+def test_sec_03_export_and_summary_need_the_same_right_as_the_log(signed_in, user_a, tenant_b):
+    client = signed_in(user_a)
+    assert client.get(f"{ENTRIES}export/").status_code == 403
+    assert client.get(f"{ENTRIES}summary/").status_code == 403
+
+
+def test_sec_07_summary_and_export_cover_only_the_own_tenant(auditor, tenant_a, tenant_b):
+    entry(tenant_id=tenant_a.id, resource="mine")
+    entry(tenant_id=tenant_b.id, resource="theirs")
+    assert b"theirs" not in auditor.get(f"{ENTRIES}export/").content
+    assert auditor.get(ENTRIES, {"q": "theirs"}).json()["count"] == 0

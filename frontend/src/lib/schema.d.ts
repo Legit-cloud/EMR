@@ -378,6 +378,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/audit/entries/export/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The filtered log as a CSV, newest first, up to 5000 rows. The export is audited. */
+        get: operations["audit_entries_export_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/audit/entries/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Counts for the same filters as the list: all, denied, break-glass, and reviews. */
+        get: operations["audit_entries_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/billing/insurers/": {
         parameters: {
             query?: never;
@@ -2716,6 +2750,12 @@ export interface components {
          * @enum {string}
          */
         AuditEntryOutcomeEnum: "allowed" | "denied" | "not_found" | "failed";
+        AuditSummary: {
+            total: number;
+            denied: number;
+            break_glass: number;
+            reviewed: number;
+        };
         AuthoriseRequest: {
             /** @default {} */
             overrides: {
@@ -5372,10 +5412,16 @@ export interface operations {
             query?: {
                 action?: string;
                 actor_id?: string;
+                date_from?: string;
+                date_to?: string;
                 object_id?: string;
                 outcome?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
+                /** @description Search text. */
+                q?: string;
                 resource?: string;
             };
             header?: never;
@@ -5411,6 +5457,64 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditEntry"];
+                };
+            };
+        };
+    };
+    audit_entries_export_retrieve: {
+        parameters: {
+            query?: {
+                action?: string;
+                actor_id?: string;
+                date_from?: string;
+                date_to?: string;
+                object_id?: string;
+                outcome?: string;
+                /** @description Search text. */
+                q?: string;
+                resource?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/csv": string;
+                };
+            };
+        };
+    };
+    audit_entries_summary_retrieve: {
+        parameters: {
+            query?: {
+                action?: string;
+                actor_id?: string;
+                date_from?: string;
+                date_to?: string;
+                object_id?: string;
+                outcome?: string;
+                /** @description Search text. */
+                q?: string;
+                resource?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditSummary"];
                 };
             };
         };
