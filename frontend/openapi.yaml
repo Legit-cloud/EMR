@@ -2955,12 +2955,6 @@ paths:
           type: string
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
       tags:
       - pharmacy
       security:
@@ -2971,7 +2965,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PaginatedSafetyAlertList'
+                type: array
+                items:
+                  $ref: '#/components/schemas/SafetyAlert'
           description: ''
   /api/pharmacy/prescriptions/{id}/dispense/:
     post:
@@ -7009,29 +7005,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/RoleAssignment'
-    PaginatedSafetyAlertList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/SafetyAlert'
     PaginatedShiftList:
       type: object
       required:

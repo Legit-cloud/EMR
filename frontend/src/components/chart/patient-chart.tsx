@@ -19,6 +19,10 @@ import {
 } from "@/components/chart/record-tabs";
 import { RecordVitalsModal } from "@/components/chart/record-vitals-modal";
 import { VitalsTab } from "@/components/chart/vitals-tab";
+import {
+  PrescriptionWizard,
+  type PrescriptionStart,
+} from "@/components/prescribing/prescription-wizard";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Loading, Skeleton } from "@/components/ui/skeleton";
 import { Tabs } from "@/components/ui/tabs";
@@ -57,6 +61,10 @@ export function PatientChart({ id }: { id: string }) {
   const [recordingVitals, setRecordingVitals] = useState(false);
   const [addingDiagnosis, setAddingDiagnosis] = useState(false);
   const [noteEditing, setNoteEditing] = useState<NoteEditing | null>(null);
+  // null: closed; {} a new prescription; or a draft to carry on with / a signed one to amend.
+  const [prescribing, setPrescribing] = useState<PrescriptionStart | null>(
+    search.get("prescribe") ? {} : null,
+  );
 
   // The tab lives in state so it changes at once; the address is updated so it can be shared.
   const [requested, setRequested] = useState(search.get("tab") ?? "overview");
@@ -175,7 +183,8 @@ export function PatientChart({ id }: { id: string }) {
             content: (
               <PrescriptionsTab
                 patientId={id}
-                openEncounterId={permissions.hasRole("doctor") ? encounter?.id : undefined}
+                canPrescribe={permissions.hasRole("doctor") && !!encounter}
+                onPrescribe={setPrescribing}
               />
             ),
           },
@@ -196,8 +205,8 @@ export function PatientChart({ id }: { id: string }) {
       {canWork && encounter && (
         <>
           <QuickActions
-            encounterId={encounter.id}
             canPrescribe={permissions.hasRole("doctor")}
+            onPrescribe={() => setPrescribing({})}
             onRecordVitals={() => setRecordingVitals(true)}
             onAddDiagnosis={() => setAddingDiagnosis(true)}
             onWriteNote={startNote}
@@ -214,6 +223,15 @@ export function PatientChart({ id }: { id: string }) {
             patientId={id}
             encounterId={encounter.id}
           />
+          {permissions.hasRole("doctor") && (
+            <PrescriptionWizard
+              open={prescribing !== null}
+              onOpenChange={(open) => !open && setPrescribing(null)}
+              patientId={id}
+              encounterId={encounter.id}
+              start={prescribing ?? undefined}
+            />
+          )}
         </>
       )}
     </div>

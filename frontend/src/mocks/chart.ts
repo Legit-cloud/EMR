@@ -240,40 +240,6 @@ export const chartHandlers = [
   http.get("*/api/clinical/notes/", () =>
     chart.forbidden.has("notes") ? denied() : page(visible(chart.notes)),
   ),
-  http.get("*/api/pharmacy/prescriptions/", () =>
-    chart.forbidden.has("prescriptions")
-      ? denied()
-      : page<Schemas["Prescription"]>([
-          {
-            id: "rx1",
-            patient: CHART_PATIENT,
-            encounter: OPEN_VISIT,
-            prescriber: DOCTOR,
-            status: "authorised",
-            note: "",
-            items: [
-              {
-                id: "rxi1",
-                drug: "drug1",
-                drug_name: "Methyldopa 250 mg tablet",
-                dose: "250 mg",
-                frequency: "twice daily",
-                route: "oral",
-                duration_days: 30,
-                quantity: 60,
-                instructions: "",
-                quantity_dispensed: 0,
-              },
-            ],
-            alerts: [],
-            authorised_at: hoursAgo(1),
-            signing_key_id: "k1",
-            signed_payload_sha256: "x",
-            cancelled_reason: "",
-            created_at: hoursAgo(1),
-          },
-        ]),
-  ),
   http.get("*/api/billing/invoices/", () =>
     chart.forbidden.has("invoices") ? denied() : page<Schemas["Invoice"]>([]),
   ),

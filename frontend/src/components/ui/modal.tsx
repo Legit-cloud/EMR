@@ -15,8 +15,8 @@ type Props = {
   title: string;
   /** One line under the title; also read out when the modal opens. */
   description?: string;
-  /** 560 px for wizards, 480 px for confirmations. */
-  size?: "wizard" | "confirm";
+  /** 560 px for wizards, 480 px for confirmations, 880 px when a step has a side panel. */
+  size?: "wizard" | "confirm" | "wide";
   /** Stepper or other content pinned above the scrolling body. */
   header?: ReactNode;
   footer?: ReactNode;
@@ -44,7 +44,11 @@ export function Modal({
           {...(description ? {} : { "aria-describedby": undefined })}
           className={cx(
             "rounded-modal bg-surface shadow-modal data-[state=open]:animate-pop-in fixed top-1/2 left-1/2 z-50 flex max-h-[calc(100dvh-32px)] w-[calc(100vw-32px)] -translate-x-1/2 -translate-y-1/2 flex-col focus:outline-none motion-reduce:animate-none",
-            size === "wizard" ? "max-w-[560px]" : "max-w-[480px]",
+            size === "wide"
+              ? "max-w-[880px]"
+              : size === "wizard"
+                ? "max-w-[560px]"
+                : "max-w-[480px]",
           )}
         >
           <div className="flex items-start justify-between gap-3 px-6 pt-5 pb-3">

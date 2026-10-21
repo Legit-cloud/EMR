@@ -1,16 +1,12 @@
 "use client";
 
 import { Heartbeat, Note, Pill, Stethoscope } from "@phosphor-icons/react";
-import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { FOCUS_RING } from "@/components/ui/focus";
-import { cx } from "@/lib/cx";
 
 type Props = {
-  /** The open visit; the actions only apply while one is open. */
-  encounterId: string;
   canPrescribe: boolean;
+  onPrescribe: () => void;
   onRecordVitals: () => void;
   onAddDiagnosis: () => void;
   onWriteNote: () => void;
@@ -21,8 +17,8 @@ type Props = {
  * open. It is a shortcut: every action is also on its own tab.
  */
 export function QuickActions({
-  encounterId,
   canPrescribe,
+  onPrescribe,
   onRecordVitals,
   onAddDiagnosis,
   onWriteNote,
@@ -42,16 +38,9 @@ export function QuickActions({
         Write note
       </Button>
       {canPrescribe && (
-        <Link
-          href={`/prescriptions/new?encounter=${encounterId}`}
-          className={cx(
-            "rounded-control text-body inline-flex h-8 shrink-0 items-center gap-1 px-1 font-semibold whitespace-nowrap text-blue-600 hover:underline",
-            FOCUS_RING,
-          )}
-        >
-          <Pill aria-hidden size={16} />
+        <Button variant="ghost" icon={Pill} onClick={onPrescribe}>
           Prescribe
-        </Link>
+        </Button>
       )}
     </nav>
   );

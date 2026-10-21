@@ -76,7 +76,7 @@ class PrescriptionViewSet(TenantModelViewSet):
         super().perform_create(serializer)
 
     @extend_schema(request=None, responses=s.SafetyAlertSerializer(many=True))
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], pagination_class=None)
     def check(self, request, pk=None):
         """Preview the safety alerts of a draft without signing."""
         prescription = self.get_object()
