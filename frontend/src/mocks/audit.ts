@@ -132,6 +132,8 @@ export const auditHandlers = [
   }),
 
   http.get("*/api/audit/entries/", ({ request }) => {
+    // The patient chart's Audit tab asks for one object; its own mock answers that.
+    if (new URL(request.url).searchParams.has("object_id")) return;
     const refused = refusal();
     if (refused) return refused;
     const url = new URL(request.url);
