@@ -14,11 +14,11 @@ import type {
 import { mockSignedIn } from "./auth";
 
 /**
- * The patient portal for one signed-in patient. There is no backend for it yet, so this mock
- * is the contract the screens are built against (docs/adr/0020). Rules it enforces: only a
+ * The patient portal for one signed-in patient, shaped like apps/portal (docs/adr/0022); the
+ * stand-in the unit tests use for the real API. Rules it enforces: only a
  * patient may call it; a booking takes a free slot; an appointment can be cancelled only while
- * it is booked or confirmed and still more than two hours away, with a reason; a payment cannot
- * be more than is due and the same key is never taken twice. Synthetic person only.
+ * it is booked or confirmed and still more than two hours away, with a reason; there is
+ * no way to record a payment from the portal. Synthetic person only.
  */
 const hours = (h: number) => new Date(Date.now() + h * 3_600_000).toISOString();
 
@@ -29,7 +29,6 @@ type State = {
   prescriptions: PortalPrescription[];
   invoices: PortalInvoice[];
   profile: PortalProfile;
-  keys: Set<string>;
   calls: { path: string; body: unknown }[];
   next: number;
   forbidden: boolean;
@@ -217,7 +216,6 @@ function seeded(): State {
       email: "chioma@example.test",
       consents,
     },
-    keys: new Set(),
     calls: [],
     next: 10,
     forbidden: false,
@@ -327,24 +325,6 @@ export const portalHandlers = [
   ),
 
   http.get("*/api/portal/invoices/", () => refusal() ?? HttpResponse.json(portal.invoices)),
-
-  http.post("*/api/portal/invoices/:id/pay/", async ({ params, request }) => {
-    const refused = refusal();
-    if (refused) return refused;
-    const body = (await request.json()) as { amount_minor: number; method: string; key: string };
-    portal.calls.push({ path: "pay", body });
-    const found = portal.invoices.find((i) => i.id === params.id);
-    if (!found) return failure(404, "not_found", "Not found.");
-    if (portal.keys.has(body.key)) return HttpResponse.json(found);
-    if (body.amount_minor < 1 || body.amount_minor > found.due_minor) {
-      return failure(409, "payment_refused", "That is more than you owe on this bill.");
-    }
-    portal.keys.add(body.key);
-    found.paid_minor += body.amount_minor;
-    found.due_minor -= body.amount_minor;
-    found.status = found.due_minor === 0 ? "paid" : "partially_paid";
-    return HttpResponse.json(found);
-  }),
 
   http.get("*/api/portal/profile/", () => refusal() ?? HttpResponse.json(portal.profile)),
 

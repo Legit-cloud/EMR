@@ -43,7 +43,11 @@ def test_deceased_publishes_one_event_handled_by_every_module(
     assert len(callbacks) == 1
     handled = [r.getMessage() for r in caplog.records if "patient.deceased" in r.getMessage()]
     assert len(handled) == 3
-    for module_message in ("cancelled 0 appointment(s)", "flagged 0 invoice(s)", "portal access"):
+    for module_message in (
+        "cancelled 0 appointment(s)",
+        "flagged 0 invoice(s)",
+        "revoked 0 portal account(s)",
+    ):
         assert any(module_message in m and str(patient.pk) in m for m in handled)
 
 

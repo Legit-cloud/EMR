@@ -87,7 +87,7 @@ export function PortalHome() {
               </div>
               {data.balance_minor > 0 && (
                 <Link href="/portal/invoices" className={CTA}>
-                  See your bills and pay
+                  See your bills
                 </Link>
               )}
             </PortalCard>

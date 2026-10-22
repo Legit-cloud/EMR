@@ -136,3 +136,19 @@ def mark_entered_in_error(record, reason: str):
     except ValueError as exc:
         raise DomainError(str(exc), details={"reason": [str(exc)]}) from exc
     return record
+
+
+@transaction.atomic
+def update_contact(patient_id, *, phone: str | None = None, email: str | None = None) -> Patient:
+    """Change the phone number or email on file. Used by the patient from the portal.
+
+    Only these two fields: a name, date of birth or ID is corrected by staff at the desk.
+    """
+    patient = Patient.objects.select_for_update().get(pk=patient_id)
+    if phone is not None:
+        patient.phone = phone.strip()
+    if email is not None:
+        patient.email = email.strip()
+    patient.full_clean(exclude=["mrn", "first_name_key", "last_name_key", "tenant"])
+    patient.save(update_fields=["phone", "email", "updated_at", "updated_by"])
+    return patient

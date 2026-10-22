@@ -41,6 +41,7 @@ LOCAL_APPS = [
     "apps.staff",
     "apps.billing",
     "apps.inpatient",
+    "apps.portal",
     "apps.notifications",
     "apps.reports",
 ]
@@ -215,6 +216,11 @@ PRESCRIPTION_RETIRED_PUBLIC_KEYS = env.list("PRESCRIPTION_RETIRED_PUBLIC_KEYS", 
 # Staff and scheduling
 LICENCE_EXPIRY_WARNING_DAYS = env.int("LICENCE_EXPIRY_WARNING_DAYS", default=60)
 APPOINTMENT_SLOT_MINUTES = env.int("APPOINTMENT_SLOT_MINUTES", default=15)
+# Patient portal: how far ahead a patient can book, how many visits at once, and how close to the
+# start they can still cancel online.
+PORTAL_BOOKING_DAYS = env.int("PORTAL_BOOKING_DAYS", default=14)
+PORTAL_MAX_UPCOMING_VISITS = env.int("PORTAL_MAX_UPCOMING_VISITS", default=3)
+PORTAL_CANCEL_MIN_HOURS = env.int("PORTAL_CANCEL_MIN_HOURS", default=2)
 APPOINTMENT_REMINDER_OFFSETS_HOURS = [
     int(h) for h in env.list("APPOINTMENT_REMINDER_OFFSETS_HOURS", default=["24", "2"])
 ]

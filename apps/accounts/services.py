@@ -16,11 +16,12 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from apps.audit import services as audit
 from apps.core import policy
 from apps.core.errors import DomainError
-from apps.core.tenancy import tenant_context
+from apps.core.roles import Role
+from apps.core.tenancy import get_current_tenant_id, tenant_context
 from apps.notifications import services as notifications
 
 from . import selectors
-from .models import ApiToken, BreakGlassGrant, BreakGlassReview, User
+from .models import ApiToken, BreakGlassGrant, BreakGlassReview, RoleAssignment, User
 
 
 class AuthError(DomainError):
@@ -210,6 +211,32 @@ def invite_user(user: User) -> None:
     """New users get no password; they set one through an emailed link."""
     if user.email:
         _send_password_link(user, "You have been invited")
+
+
+def create_patient_user(*, username: str, email: str, first_name: str, last_name: str) -> User:
+    """A sign-in for a patient, with the Patient role and no password.
+
+    The patient sets a password through the emailed link, then signs in with an emailed code like
+    everyone else. Which patient it is lives in the portal module, not here.
+    """
+    if not email.strip():
+        raise DomainError("The patient needs an email address on file to be invited.")
+    if User.objects.filter(email__iexact=email.strip(), is_active=True).exists():
+        raise DomainError("That email address already belongs to another account.")
+    tenant_id = get_current_tenant_id()
+    with transaction.atomic():
+        user = User(
+            username=username,
+            email=email.strip(),
+            first_name=first_name,
+            last_name=last_name,
+            tenant_id=tenant_id,
+        )
+        user.set_unusable_password()
+        user.save()
+        RoleAssignment.objects.create(user=user, role=Role.PATIENT)
+    invite_user(user)
+    return user
 
 
 def deactivate_user(user: User) -> None:

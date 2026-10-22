@@ -21,10 +21,9 @@ import {
   plainInstructions,
   RESULT_FLAG_TEXT,
 } from "@/lib/plain-language";
-import { checkPayment } from "@/lib/portal";
 import { createQueryClient } from "@/lib/query";
 import { resetAuthMocks } from "@/mocks/auth";
-import { INVOICE_DUE, portal, resetPortalMocks, SLOT_ONE } from "@/mocks/portal";
+import { portal, resetPortalMocks, SLOT_ONE } from "@/mocks/portal";
 
 vi.setConfig({ testTimeout: 90_000 });
 
@@ -104,7 +103,7 @@ describe("home", () => {
     expect(results).toHaveTextContent("You have 2 new results to read.");
     const balance = screen.getByRole("region", { name: "Your balance" });
     expect(balance).toHaveTextContent("₦10,000.00");
-    expect(within(balance).getByRole("link", { name: "See your bills and pay" })).toHaveAttribute(
+    expect(within(balance).getByRole("link", { name: "See your bills" })).toHaveAttribute(
       "href",
       "/portal/invoices",
     );
@@ -225,7 +224,7 @@ describe("prescriptions", () => {
   });
 });
 
-describe("invoices and payment", () => {
+describe("invoices", () => {
   it("shows what each bill was for, what is paid and what is owed", async () => {
     renderAs(<InvoicesPage />);
     const owed = await screen.findByRole("region", { name: "Bill INV-1A5E2F8C" });
@@ -234,47 +233,22 @@ describe("invoices and payment", () => {
     expect(within(owed).getByLabelText("Still to pay on INV-1A5E2F8C")).toHaveTextContent(
       "₦10,000.00",
     );
-    const paid = screen.getByRole("region", { name: "Bill INV-3A5E2F8C" });
-    expect(within(paid).queryByRole("button", { name: /Pay bill/ })).toBeNull();
+    expect(screen.getByRole("region", { name: "Bill INV-3A5E2F8C" })).toHaveTextContent("Paid");
   });
 
-  it("takes part of what is owed, then the rest", async () => {
+  it("says how to pay at the hospital and offers no button that could only pretend", async () => {
     renderAs(<InvoicesPage />);
-    await userEvent.click(await screen.findByRole("button", { name: "Pay bill INV-1A5E2F8C" }));
-    const dialog = await screen.findByRole("dialog", { name: "Pay your bill" });
-    const amount = within(dialog).getByLabelText(/^Amount/);
-    expect(amount).toHaveValue("10000.00");
-    await userEvent.clear(amount);
-    await userEvent.type(amount, "4000");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Pay" }));
-    await waitFor(() => expect(portal.invoices[0].due_minor).toBe(600_000));
-    expect(portal.invoices[0].status).toBe("partially_paid");
-    expect(await screen.findByText("Payment received")).toBeInTheDocument();
-    expect(portal.calls.at(-1)?.body).toMatchObject({ amount_minor: 400_000, method: "card" });
+    const how = await screen.findByRole("region", { name: "How to pay" });
+    expect(how).toHaveTextContent("Pay at the cashier");
+    expect(how).toHaveTextContent("Paying online is not available yet");
+    expect(screen.queryByRole("button", { name: /pay/i })).toBeNull();
   });
 
-  it("refuses more than is owed before sending anything", async () => {
+  it("does not show the how-to-pay note when nothing is owed", async () => {
+    portal.invoices = portal.invoices.filter((i) => i.due_minor === 0);
     renderAs(<InvoicesPage />);
-    await userEvent.click(await screen.findByRole("button", { name: "Pay bill INV-1A5E2F8C" }));
-    const dialog = await screen.findByRole("dialog", { name: "Pay your bill" });
-    const amount = within(dialog).getByLabelText(/^Amount/);
-    await userEvent.clear(amount);
-    await userEvent.type(amount, "10000.01");
-    await userEvent.click(within(dialog).getByRole("button", { name: "Pay" }));
-    expect(
-      await within(dialog).findByText("That is more than you owe on this bill."),
-    ).toBeInTheDocument();
-    expect(portal.calls).toHaveLength(0);
-    expect(INVOICE_DUE).toBeTruthy();
-  });
-
-  it("checks a payment amount", () => {
-    expect(checkPayment(400_000, 1_000_000)).toEqual({ minor: 400_000 });
-    expect(checkPayment(null, 1_000_000)).toEqual({ error: "Enter an amount such as 1500.00." });
-    expect(checkPayment(0, 1_000_000)).toEqual({ error: "The amount must be more than zero." });
-    expect(checkPayment(1_000_001, 1_000_000)).toEqual({
-      error: "That is more than you owe on this bill.",
-    });
+    await screen.findByRole("region", { name: "Bill INV-3A5E2F8C" });
+    expect(screen.queryByRole("region", { name: "How to pay" })).toBeNull();
   });
 });
 

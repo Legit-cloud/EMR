@@ -4163,6 +4163,335 @@ paths:
               schema:
                 $ref: '#/components/schemas/Vendor'
           description: ''
+  /api/portal/accounts/:
+    get:
+      operationId: portal_accounts_list
+      description: Staff invite a patient to the portal and switch access off.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPortalAccountList'
+          description: ''
+    post:
+      operationId: portal_accounts_create
+      description: Staff invite a patient to the portal and switch access off.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InviteRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InviteRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InviteRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalAccount'
+          description: ''
+  /api/portal/accounts/{id}/:
+    get:
+      operationId: portal_accounts_retrieve
+      description: Staff invite a patient to the portal and switch access off.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalAccount'
+          description: ''
+  /api/portal/accounts/{id}/revoke/:
+    post:
+      operationId: portal_accounts_revoke_create
+      description: Staff invite a patient to the portal and switch access off.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalAccount'
+          description: ''
+  /api/portal/appointment-slots/:
+    get:
+      operationId: portal_appointment_slots_list
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalSlot'
+          description: ''
+  /api/portal/appointments/:
+    get:
+      operationId: portal_appointments_list
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalAppointment'
+          description: ''
+    post:
+      operationId: portal_appointments_create
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BookRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BookRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalAppointment'
+          description: ''
+  /api/portal/appointments/{id}/cancel/:
+    post:
+      operationId: portal_appointments_cancel_create
+      description: Base for the patient's own endpoints.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PortalCancelRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PortalCancelRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PortalCancelRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalAppointment'
+          description: ''
+  /api/portal/home/:
+    get:
+      operationId: portal_home_retrieve
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalHome'
+          description: ''
+  /api/portal/invoices/:
+    get:
+      operationId: portal_invoices_list
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalInvoice'
+          description: ''
+  /api/portal/prescriptions/:
+    get:
+      operationId: portal_prescriptions_list
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalPrescription'
+          description: ''
+  /api/portal/profile/:
+    get:
+      operationId: portal_profile_retrieve
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalProfile'
+          description: ''
+    patch:
+      operationId: portal_profile_partial_update
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProfileUpdateRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalProfile'
+          description: ''
+  /api/portal/results/:
+    get:
+      operationId: portal_results_list
+      description: Base for the patient's own endpoints.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalResult'
+          description: ''
+  /api/portal/results/{id}/seen/:
+    post:
+      operationId: portal_results_seen_create
+      description: Base for the patient's own endpoints.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalResult'
+          description: ''
   /api/reports/dashboard/:
     get:
       operationId: reports_dashboard_retrieve
@@ -6140,6 +6469,20 @@ components:
       - beds
       - id
       - name
+    BookRequest:
+      type: object
+      properties:
+        slot:
+          type: string
+          minLength: 1
+          maxLength: 80
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
+      - slot
     BreakGlassGrant:
       type: object
       properties:
@@ -6265,6 +6608,38 @@ components:
       description: |-
         * `icd10` - ICD-10
         * `snomed` - SNOMED CT
+    Consents:
+      type: object
+      properties:
+        sms_reminders:
+          type: boolean
+        email_reminders:
+          type: boolean
+        share_in_facility:
+          type: boolean
+        research:
+          type: boolean
+      required:
+      - email_reminders
+      - research
+      - share_in_facility
+      - sms_reminders
+    ConsentsRequest:
+      type: object
+      properties:
+        sms_reminders:
+          type: boolean
+        email_reminders:
+          type: boolean
+        share_in_facility:
+          type: boolean
+        research:
+          type: boolean
+      required:
+      - email_reminders
+      - research
+      - share_in_facility
+      - sms_reminders
     ConsultationNote:
       type: object
       description: |-
@@ -7081,6 +7456,18 @@ components:
       - billed_minor
       - collected_minor
       - start
+    FlagEnum:
+      enum:
+      - normal
+      - low
+      - high
+      - abnormal
+      type: string
+      description: |-
+        * `normal` - normal
+        * `low` - low
+        * `high` - high
+        * `abnormal` - abnormal
     FreeSlot:
       type: object
       properties:
@@ -7205,6 +7592,14 @@ components:
       - strength
       - unit_price_minor
       - value_minor
+    InviteRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+      required:
+      - patient
     Invoice:
       type: object
       description: |-
@@ -7534,16 +7929,6 @@ components:
           format: int64
       required:
       - account
-    KindEnum:
-      enum:
-      - allergy
-      - interaction
-      - duplicate
-      type: string
-      description: |-
-        * `allergy` - Allergy
-        * `interaction` - Drug interaction
-        * `duplicate` - Duplicate therapy
     LicenceFlagEnum:
       enum:
       - ok
@@ -8637,6 +9022,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    PaginatedPortalAccountList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalAccount'
     PaginatedPrescriptionList:
       type: object
       required:
@@ -9152,6 +9560,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PrescriptionItemRequest'
+    PatchedProfileUpdateRequest:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 16
+        email:
+          oneOf:
+          - type: string
+            format: email
+          - type: string
+            maxLength: 0
+        consents:
+          $ref: '#/components/schemas/ConsentsRequest'
     PatchedStaffProfileRequest:
       type: object
       description: |-
@@ -9789,6 +10211,330 @@ components:
       required:
       - lines
       - vendor
+    PortalAccount:
+      type: object
+      description: What staff see of a patient's portal access.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        active:
+          type: boolean
+          readOnly: true
+        invited_at:
+          type: string
+          format: date-time
+          readOnly: true
+        revoked_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        revoked_reason:
+          type: string
+          readOnly: true
+      required:
+      - active
+      - id
+      - invited_at
+      - patient
+      - revoked_at
+      - revoked_reason
+    PortalAppointment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        doctor_name:
+          type: string
+        specialty:
+          type: string
+        location:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/PortalAppointmentStatusEnum'
+        reason:
+          type: string
+        can_cancel:
+          type: boolean
+      required:
+      - can_cancel
+      - doctor_name
+      - end_at
+      - id
+      - location
+      - reason
+      - specialty
+      - start_at
+      - status
+    PortalAppointmentStatusEnum:
+      enum:
+      - booked
+      - confirmed
+      - checked_in
+      - in_consultation
+      - completed
+      - no_show
+      - cancelled
+      type: string
+      description: |-
+        * `booked` - booked
+        * `confirmed` - confirmed
+        * `checked_in` - checked_in
+        * `in_consultation` - in_consultation
+        * `completed` - completed
+        * `no_show` - no_show
+        * `cancelled` - cancelled
+    PortalCancelRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 200
+      required:
+      - reason
+    PortalHome:
+      type: object
+      properties:
+        first_name:
+          type: string
+        next_appointment:
+          allOf:
+          - $ref: '#/components/schemas/PortalAppointment'
+          nullable: true
+        new_results:
+          type: integer
+        balance_minor:
+          type: integer
+        currency:
+          type: string
+      required:
+      - balance_minor
+      - currency
+      - first_name
+      - new_results
+      - next_appointment
+    PortalInvoice:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        reference:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        currency:
+          type: string
+        total_minor:
+          type: integer
+        paid_minor:
+          type: integer
+        due_minor:
+          type: integer
+        status:
+          $ref: '#/components/schemas/PortalInvoiceStatusEnum'
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalInvoiceLine'
+      required:
+      - created_at
+      - currency
+      - due_minor
+      - id
+      - lines
+      - paid_minor
+      - reference
+      - status
+      - total_minor
+    PortalInvoiceLine:
+      type: object
+      properties:
+        description:
+          type: string
+        amount_minor:
+          type: integer
+      required:
+      - amount_minor
+      - description
+    PortalInvoiceStatusEnum:
+      enum:
+      - unpaid
+      - partially_paid
+      - paid
+      type: string
+      description: |-
+        * `unpaid` - unpaid
+        * `partially_paid` - partially_paid
+        * `paid` - paid
+    PortalPrescription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        prescribed_at:
+          type: string
+          format: date-time
+        doctor_name:
+          type: string
+        active:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalPrescriptionItem'
+      required:
+      - active
+      - doctor_name
+      - id
+      - items
+      - prescribed_at
+    PortalPrescriptionItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        drug_name:
+          type: string
+        dose:
+          type: string
+        frequency:
+          type: string
+        route:
+          type: string
+        duration_days:
+          type: integer
+        quantity:
+          type: integer
+        instructions:
+          type: string
+      required:
+      - dose
+      - drug_name
+      - duration_days
+      - frequency
+      - id
+      - instructions
+      - quantity
+      - route
+    PortalProfile:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        mrn:
+          type: string
+        date_of_birth:
+          type: string
+          format: date
+        phone:
+          type: string
+        email:
+          type: string
+        consents:
+          $ref: '#/components/schemas/Consents'
+      required:
+      - consents
+      - date_of_birth
+      - email
+      - first_name
+      - last_name
+      - mrn
+      - phone
+    PortalResult:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        kind:
+          $ref: '#/components/schemas/PortalResultKindEnum'
+        name:
+          type: string
+        taken_at:
+          type: string
+          format: date-time
+        ordered_by:
+          type: string
+        seen:
+          type: boolean
+        flag:
+          $ref: '#/components/schemas/FlagEnum'
+        value:
+          type: string
+        unit:
+          type: string
+        low:
+          type: number
+          format: double
+          nullable: true
+        high:
+          type: number
+          format: double
+          nullable: true
+        note:
+          type: string
+      required:
+      - flag
+      - high
+      - id
+      - kind
+      - low
+      - name
+      - note
+      - ordered_by
+      - seen
+      - taken_at
+      - unit
+      - value
+    PortalResultKindEnum:
+      enum:
+      - lab
+      - imaging
+      type: string
+      description: |-
+        * `lab` - lab
+        * `imaging` - imaging
+    PortalSlot:
+      type: object
+      properties:
+        id:
+          type: string
+        doctor_name:
+          type: string
+        specialty:
+          type: string
+        start_at:
+          type: string
+          format: date-time
+        end_at:
+          type: string
+          format: date-time
+      required:
+      - doctor_name
+      - end_at
+      - id
+      - specialty
+      - start_at
     Prescription:
       type: object
       properties:
@@ -9858,7 +10604,7 @@ components:
       type: object
       properties:
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/PrescriptionAlertKindEnum'
         key:
           type: string
           maxLength: 200
@@ -9878,11 +10624,21 @@ components:
       - kind
       - message
       - severity
+    PrescriptionAlertKindEnum:
+      enum:
+      - allergy
+      - interaction
+      - duplicate
+      type: string
+      description: |-
+        * `allergy` - Allergy
+        * `interaction` - Drug interaction
+        * `duplicate` - Duplicate therapy
     PrescriptionAlertRequest:
       type: object
       properties:
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/PrescriptionAlertKindEnum'
         key:
           type: string
           minLength: 1

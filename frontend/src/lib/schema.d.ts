@@ -2163,6 +2163,213 @@ export interface paths {
         patch: operations["pharmacy_vendors_partial_update"];
         trace?: never;
     };
+    "/api/portal/accounts/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff invite a patient to the portal and switch access off. */
+        get: operations["portal_accounts_list"];
+        put?: never;
+        /** @description Staff invite a patient to the portal and switch access off. */
+        post: operations["portal_accounts_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/accounts/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Staff invite a patient to the portal and switch access off. */
+        get: operations["portal_accounts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/accounts/{id}/revoke/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Staff invite a patient to the portal and switch access off. */
+        post: operations["portal_accounts_revoke_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/appointment-slots/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_appointment_slots_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/appointments/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_appointments_list"];
+        put?: never;
+        /** @description Base for the patient's own endpoints. */
+        post: operations["portal_appointments_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/appointments/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Base for the patient's own endpoints. */
+        post: operations["portal_appointments_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/home/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_home_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/invoices/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_invoices_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/prescriptions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_prescriptions_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_profile_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description Base for the patient's own endpoints. */
+        patch: operations["portal_profile_partial_update"];
+        trace?: never;
+    };
+    "/api/portal/results/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Base for the patient's own endpoints. */
+        get: operations["portal_results_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/results/{id}/seen/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Base for the patient's own endpoints. */
+        post: operations["portal_results_seen_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/reports/dashboard/": {
         parameters: {
             query?: never;
@@ -3096,6 +3303,10 @@ export interface components {
             name: string;
             beds: components["schemas"]["BoardBed"][];
         };
+        BookRequest: {
+            slot: string;
+            reason: string;
+        };
         BreakGlassGrant: {
             /** Format: uuid */
             readonly id: string;
@@ -3150,6 +3361,18 @@ export interface components {
          * @enum {string}
          */
         CodeSystemEnum: "icd10" | "snomed";
+        Consents: {
+            sms_reminders: boolean;
+            email_reminders: boolean;
+            share_in_facility: boolean;
+            research: boolean;
+        };
+        ConsentsRequest: {
+            sms_reminders: boolean;
+            email_reminders: boolean;
+            share_in_facility: boolean;
+            research: boolean;
+        };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -3536,6 +3759,14 @@ export interface components {
             /** @description Charges raised (not voided). */
             billed_minor: number;
         };
+        /**
+         * @description * `normal` - normal
+         *     * `low` - low
+         *     * `high` - high
+         *     * `abnormal` - abnormal
+         * @enum {string}
+         */
+        FlagEnum: "normal" | "low" | "high" | "abnormal";
         FreeSlot: {
             /** Format: date-time */
             start_at: string;
@@ -3592,6 +3823,10 @@ export interface components {
             on_order: number;
             value_minor: number;
             stock_status: components["schemas"]["StockStatusEnum"];
+        };
+        InviteRequest: {
+            /** Format: uuid */
+            patient: string;
         };
         /**
          * @description The invoice number and the patient's name and MRN, which live in other modules.
@@ -3706,13 +3941,6 @@ export interface components {
             /** Format: int64 */
             credit_minor?: number;
         };
-        /**
-         * @description * `allergy` - Allergy
-         *     * `interaction` - Drug interaction
-         *     * `duplicate` - Duplicate therapy
-         * @enum {string}
-         */
-        KindEnum: "allergy" | "interaction" | "duplicate";
         /**
          * @description * `ok` - Valid
          *     * `expiring` - Expires soon
@@ -4287,6 +4515,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Payment"][];
         };
+        PaginatedPortalAccountList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PortalAccount"][];
+        };
         PaginatedPrescriptionList: {
             /** @example 123 */
             count: number;
@@ -4578,6 +4821,11 @@ export interface components {
             note?: string;
             items?: components["schemas"]["PrescriptionItemRequest"][];
         };
+        PatchedProfileUpdateRequest: {
+            phone?: string;
+            email?: string;
+            consents?: components["schemas"]["ConsentsRequest"];
+        };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -4836,6 +5084,141 @@ export interface components {
             note: string;
             lines: components["schemas"]["PlaceOrderLineRequest"][];
         };
+        /** @description What staff see of a patient's portal access. */
+        PortalAccount: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly patient: string;
+            readonly active: boolean;
+            /** Format: date-time */
+            readonly invited_at: string;
+            /** Format: date-time */
+            readonly revoked_at: string | null;
+            readonly revoked_reason: string;
+        };
+        PortalAppointment: {
+            /** Format: uuid */
+            id: string;
+            doctor_name: string;
+            specialty: string;
+            location: string;
+            /** Format: date-time */
+            start_at: string;
+            /** Format: date-time */
+            end_at: string;
+            status: components["schemas"]["PortalAppointmentStatusEnum"];
+            reason: string;
+            can_cancel: boolean;
+        };
+        /**
+         * @description * `booked` - booked
+         *     * `confirmed` - confirmed
+         *     * `checked_in` - checked_in
+         *     * `in_consultation` - in_consultation
+         *     * `completed` - completed
+         *     * `no_show` - no_show
+         *     * `cancelled` - cancelled
+         * @enum {string}
+         */
+        PortalAppointmentStatusEnum: "booked" | "confirmed" | "checked_in" | "in_consultation" | "completed" | "no_show" | "cancelled";
+        PortalCancelRequest: {
+            reason: string;
+        };
+        PortalHome: {
+            first_name: string;
+            next_appointment: components["schemas"]["PortalAppointment"] | null;
+            new_results: number;
+            balance_minor: number;
+            currency: string;
+        };
+        PortalInvoice: {
+            /** Format: uuid */
+            id: string;
+            reference: string;
+            /** Format: date-time */
+            created_at: string;
+            currency: string;
+            total_minor: number;
+            paid_minor: number;
+            due_minor: number;
+            status: components["schemas"]["PortalInvoiceStatusEnum"];
+            lines: components["schemas"]["PortalInvoiceLine"][];
+        };
+        PortalInvoiceLine: {
+            description: string;
+            amount_minor: number;
+        };
+        /**
+         * @description * `unpaid` - unpaid
+         *     * `partially_paid` - partially_paid
+         *     * `paid` - paid
+         * @enum {string}
+         */
+        PortalInvoiceStatusEnum: "unpaid" | "partially_paid" | "paid";
+        PortalPrescription: {
+            /** Format: uuid */
+            id: string;
+            /** Format: date-time */
+            prescribed_at: string;
+            doctor_name: string;
+            active: boolean;
+            items: components["schemas"]["PortalPrescriptionItem"][];
+        };
+        PortalPrescriptionItem: {
+            /** Format: uuid */
+            id: string;
+            drug_name: string;
+            dose: string;
+            frequency: string;
+            route: string;
+            duration_days: number;
+            quantity: number;
+            instructions: string;
+        };
+        PortalProfile: {
+            first_name: string;
+            last_name: string;
+            mrn: string;
+            /** Format: date */
+            date_of_birth: string;
+            phone: string;
+            email: string;
+            consents: components["schemas"]["Consents"];
+        };
+        PortalResult: {
+            /** Format: uuid */
+            id: string;
+            kind: components["schemas"]["PortalResultKindEnum"];
+            name: string;
+            /** Format: date-time */
+            taken_at: string;
+            ordered_by: string;
+            seen: boolean;
+            flag: components["schemas"]["FlagEnum"];
+            value: string;
+            unit: string;
+            /** Format: double */
+            low: number | null;
+            /** Format: double */
+            high: number | null;
+            note: string;
+        };
+        /**
+         * @description * `lab` - lab
+         *     * `imaging` - imaging
+         * @enum {string}
+         */
+        PortalResultKindEnum: "lab" | "imaging";
+        PortalSlot: {
+            id: string;
+            doctor_name: string;
+            specialty: string;
+            /** Format: date-time */
+            start_at: string;
+            /** Format: date-time */
+            end_at: string;
+        };
         Prescription: {
             /** Format: uuid */
             readonly id: string;
@@ -4858,15 +5241,22 @@ export interface components {
             readonly created_at: string;
         };
         PrescriptionAlert: {
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["PrescriptionAlertKindEnum"];
             key: string;
             severity: string;
             blocking: boolean;
             message: string;
             override_reason?: string;
         };
+        /**
+         * @description * `allergy` - Allergy
+         *     * `interaction` - Drug interaction
+         *     * `duplicate` - Duplicate therapy
+         * @enum {string}
+         */
+        PrescriptionAlertKindEnum: "allergy" | "interaction" | "duplicate";
         PrescriptionAlertRequest: {
-            kind: components["schemas"]["KindEnum"];
+            kind: components["schemas"]["PrescriptionAlertKindEnum"];
             key: string;
             severity: string;
             blocking: boolean;
@@ -8538,6 +8928,326 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Vendor"];
+                };
+            };
+        };
+    };
+    portal_accounts_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPortalAccountList"];
+                };
+            };
+        };
+    };
+    portal_accounts_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InviteRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InviteRequest"];
+                "multipart/form-data": components["schemas"]["InviteRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAccount"];
+                };
+            };
+        };
+    };
+    portal_accounts_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAccount"];
+                };
+            };
+        };
+    };
+    portal_accounts_revoke_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAccount"];
+                };
+            };
+        };
+    };
+    portal_appointment_slots_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalSlot"][];
+                };
+            };
+        };
+    };
+    portal_appointments_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAppointment"][];
+                };
+            };
+        };
+    };
+    portal_appointments_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BookRequest"];
+                "multipart/form-data": components["schemas"]["BookRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAppointment"];
+                };
+            };
+        };
+    };
+    portal_appointments_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PortalCancelRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PortalCancelRequest"];
+                "multipart/form-data": components["schemas"]["PortalCancelRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalAppointment"];
+                };
+            };
+        };
+    };
+    portal_home_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalHome"];
+                };
+            };
+        };
+    };
+    portal_invoices_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalInvoice"][];
+                };
+            };
+        };
+    };
+    portal_prescriptions_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalPrescription"][];
+                };
+            };
+        };
+    };
+    portal_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalProfile"];
+                };
+            };
+        };
+    };
+    portal_profile_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedProfileUpdateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedProfileUpdateRequest"];
+                "multipart/form-data": components["schemas"]["PatchedProfileUpdateRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalProfile"];
+                };
+            };
+        };
+    };
+    portal_results_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalResult"][];
+                };
+            };
+        };
+    };
+    portal_results_seen_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalResult"];
                 };
             };
         };

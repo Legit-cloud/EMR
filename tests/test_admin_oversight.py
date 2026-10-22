@@ -36,6 +36,7 @@ ADMINISTRATION = {
     "billing.insurer",
     "inpatient.bed",
     "inpatient.ward",
+    "portal.account",
     "scheduling.availabilitywindow",
     "staff.shift",
     "staff.staffprofile",

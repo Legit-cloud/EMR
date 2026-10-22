@@ -7,9 +7,8 @@ import { NoAccess } from "@/components/auth/no-access";
 import { Button, type ButtonVariant } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { Loading, Skeleton } from "@/components/ui/skeleton";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError, isNotAvailable } from "@/lib/api";
 import { cx } from "@/lib/cx";
-import { isNotAvailable } from "@/lib/planned-api";
 
 /** Page title and an optional line under it, at portal size. */
 export function PortalHeading({ title, lead }: { title: string; lead?: string }) {

@@ -33,3 +33,38 @@ def last_visits(patient_ids, scope=None) -> dict:
     return dict(
         visits.values("patient_id").annotate(last=Max("start_at")).values_list("patient_id", "last")
     )
+
+
+def patient_appointments(patient_id) -> list[dict]:
+    """The patient's own appointments, soonest upcoming first and then the past, for the portal."""
+    from django.utils import timezone
+
+    from apps.staff import selectors as staff
+
+    from .services import can_patient_cancel
+
+    now = timezone.now()
+    names: dict = {}
+    rows = []
+    for a in Appointment.objects.filter(patient_id=patient_id).select_related("facility"):
+        if a.physician_id not in names:
+            names[a.physician_id] = staff.physician(a.physician_id) or {}
+        doctor = names[a.physician_id]
+        rows.append(
+            {
+                "id": a.pk,
+                "doctor_name": doctor.get("display_name", "Your doctor"),
+                "specialty": doctor.get("specialty", ""),
+                "location": a.facility.name,
+                "start_at": a.start_at,
+                "end_at": a.end_at,
+                "status": a.status,
+                "reason": a.reason,
+                "can_cancel": can_patient_cancel(a, now),
+            }
+        )
+    upcoming = sorted((r for r in rows if r["start_at"] >= now), key=lambda r: r["start_at"])
+    past = sorted(
+        (r for r in rows if r["start_at"] < now), key=lambda r: r["start_at"], reverse=True
+    )
+    return upcoming + past

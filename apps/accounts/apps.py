@@ -6,16 +6,12 @@ class AccountsConfig(AppConfig):
     label = "accounts"
 
     def ready(self):
-        from apps.core import events, policy
+        from apps.core import policy
         from apps.core.policy import Action
         from apps.core.roles import Role
-        from apps.patients.events import PATIENT_DECEASED
 
         from . import schema  # noqa: F401  (OpenAPI description of bearer tokens)
         from .models import BreakGlassGrant, RoleAssignment, User
-        from .tasks import revoke_portal_access_for_deceased_patient
-
-        events.subscribe(PATIENT_DECEASED, revoke_portal_access_for_deceased_patient)
 
         policy.register(
             "accounts.user",

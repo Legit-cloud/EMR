@@ -8,11 +8,10 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { FOCUS_RING } from "@/components/ui/focus";
 import { Loading, Skeleton } from "@/components/ui/skeleton";
-import { ApiRequestError } from "@/lib/api";
+import { ApiRequestError, isNotAvailable } from "@/lib/api";
 import { cx } from "@/lib/cx";
 import { type Bed, countBeds, stayDay, useWards, type Ward } from "@/lib/inpatient";
 import { usePermissions } from "@/lib/permissions";
-import { isNotAvailable } from "@/lib/planned-api";
 import { BED_STATUS, type BedStatus, TONES } from "@/lib/status-map";
 
 import { BedDrawer } from "./bed-drawer";

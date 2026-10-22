@@ -127,3 +127,9 @@ export function fieldErrors(error: ApiError): Record<string, string> {
 export async function ensureCsrfCookie(): Promise<void> {
   if (!cookie("csrftoken")) await api.GET("/api/accounts/auth/csrf/");
 }
+
+/** True when the server says this feature is not there (404 or 501), for example a module that
+ * has not been switched on for this clinic. Screens show "not available yet" instead of an error. */
+export function isNotAvailable(error: unknown): boolean {
+  return error instanceof ApiRequestError && (error.status === 404 || error.status === 501);
+}

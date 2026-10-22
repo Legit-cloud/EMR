@@ -8,6 +8,7 @@ from apps.core.api.mixins import PolicyViewSetMixin
 from apps.core.api.permissions import PolicyPermission, TenantUserPermission
 
 # Endpoints that cannot use a policy resource, with the reason.
+PORTAL = "PortalPermission: the patient is the one the signed-in user's portal account names"
 NOT_POLICY_CHECKED = {
     "auth-login": "anonymous sign-in, throttled, CSRF-checked for sessions",
     "auth-csrf": "sets the CSRF cookie only, no data",
@@ -23,6 +24,15 @@ NOT_POLICY_CHECKED = {
     "codes-icd10": "shared reference codes, no tenant data; TenantUserPermission",
     "shift-clock-in": "acts only on the caller's own shift; TenantUserPermission",
     "shift-clock-out": "acts only on the caller's own shift; TenantUserPermission",
+    "portal-home": PORTAL,
+    "portal-appointments": PORTAL,
+    "portal-slots": PORTAL,
+    "portal-appointment-cancel": PORTAL,
+    "portal-results": PORTAL,
+    "portal-result-seen": PORTAL,
+    "portal-prescriptions": PORTAL,
+    "portal-invoices": PORTAL,
+    "portal-profile": PORTAL,
 }
 
 
