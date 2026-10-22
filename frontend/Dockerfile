@@ -10,7 +10,8 @@ RUN pnpm install --frozen-lockfile
 
 FROM deps AS build
 COPY . .
-RUN pnpm build
+# The mock service worker is for development; it must not ship in the production image.
+RUN rm -f public/mockServiceWorker.js && pnpm build
 
 FROM base AS run
 ENV NODE_ENV=production

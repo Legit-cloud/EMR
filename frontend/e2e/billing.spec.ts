@@ -43,22 +43,42 @@ test("adds a manual charge", async ({ page }) => {
   await expect(drawer.getByTestId("net-due")).toHaveText("₦7,300.00");
 });
 
-test("takes part of what is due, then the remainder, and the invoice becomes paid", async ({
+/** "₦5,300.00" -> 530000. Integers only, like the app. */
+function minorOf(text: string | null): bigint {
+  return BigInt((text ?? "").replace(/\D/g, "") || "0");
+}
+
+/** 530000n -> "5300.00", the form the amount box starts with. */
+function majorText(minor: bigint): string {
+  return `${minor / 100n}.${String(minor % 100n).padStart(2, "0")}`;
+}
+
+/** 530000n -> "₦5,300.00", as the screen shows it. */
+function naira(minor: bigint): string {
+  const whole = (minor / 100n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `₦${whole}.${String(minor % 100n).padStart(2, "0")}`;
+}
+
+test("takes part of what is due, then the remainder, and the invoice becomes paid @smoke", async ({
   page,
 }) => {
   const drawer = await openInvoice(page, seed.invoice_id);
+  // Whatever is due when the test starts, so it also runs on its own (the smoke run).
+  await expect(drawer.getByTestId("net-due")).toHaveText(/₦/);
+  const before = minorOf(await drawer.getByTestId("net-due").textContent());
   await drawer.getByRole("button", { name: "Take payment" }).click();
   const dialog = page.getByRole("dialog", { name: "Take payment" });
-  await expect(dialog.getByLabel("Amount (₦)")).toHaveValue("7300.00");
+  await expect(dialog.getByLabel("Amount (₦)")).toHaveValue(majorText(before));
 
   // A part payment first: the invoice stays partly paid.
   await dialog.getByLabel("Amount (₦)").fill("2000");
   await dialog.getByRole("button", { name: "Record payment" }).click();
-  await expect(drawer.getByTestId("net-due")).toHaveText("₦5,300.00");
+  const rest = before - 200_000n;
+  await expect(drawer.getByTestId("net-due")).toHaveText(naira(rest));
   await expect(drawer.getByTestId("payment-status")).toHaveText("Partially paid");
 
   await drawer.getByRole("button", { name: "Take payment" }).click();
-  await expect(dialog.getByLabel("Amount (₦)")).toHaveValue("5300.00");
+  await expect(dialog.getByLabel("Amount (₦)")).toHaveValue(majorText(rest));
   await dialog.getByRole("combobox", { name: "Method" }).click();
   await page.getByRole("option", { name: "Card / POS" }).click();
   await dialog.getByLabel("Reference").fill("POS-4471");

@@ -40,7 +40,7 @@ async function dragTo(page: Page, name: RegExp, column: Locator, offset: number)
 }
 
 test.describe("sign-in", () => {
-  test("password then the emailed code", async ({ page }) => {
+  test("password then the emailed code @smoke", async ({ page }) => {
     const user = seed.users.login;
     const before = await mailIdsFor(user.email);
     await page.goto("/patients");
@@ -60,7 +60,7 @@ test.describe("sign-in", () => {
 test.describe("front desk", () => {
   test.use({ storageState: authFile("desk") });
 
-  test("registers a new patient with the wizard", async ({ page }) => {
+  test("registers a new patient with the wizard @smoke", async ({ page }) => {
     const suffix = lettersFrom(seed.run);
     await page.goto("/patients");
     await page.getByRole("button", { name: "New patient" }).click();
@@ -103,7 +103,7 @@ test.describe("front desk", () => {
     await expect(page).toHaveURL(/\/patients$/);
   });
 
-  test("books from an empty calendar slot and checks the patient in", async ({ page }) => {
+  test("books from an empty calendar slot and checks the patient in @smoke", async ({ page }) => {
     await openTomorrow(page);
     await bookAt(page, 0);
     await expect(page.getByRole("status").filter({ hasText: "Appointment booked" })).toBeVisible();
@@ -157,7 +157,7 @@ test.describe("doctor", () => {
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ngozi");
   });
 
-  test("reads the chart: allergies, vitals and problems", async ({ page }) => {
+  test("reads the chart: allergies, vitals and problems @smoke", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Ngozi");
     // The banner keeps the allergy in view.
@@ -195,7 +195,7 @@ test.describe("doctor", () => {
     await expect(row.getByRole("button", { name: /Start consultation/ })).toBeVisible();
   });
 
-  test("prescribes through the allergy alert with an override reason", async ({ page }) => {
+  test("prescribes through the allergy alert with an override reason @smoke", async ({ page }) => {
     await page.goto(`/patients/${seed.patient.id}`);
     await page.getByRole("button", { name: "Prescribe" }).click();
     const wizard = page.getByRole("dialog", { name: "New prescription" });

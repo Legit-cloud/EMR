@@ -2,19 +2,23 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Card, Field, Loading, NoAccess, Notice } from "@/components/legacy-ui";
+import { Button, Card, Field, Loading, LoadFailed, NoAccess, Notice } from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 
 /** HMOs and insurers that pay part of patients' bills. */
 export default function InsurersPage() {
-  const [insurers, setInsurers] = useState<Schemas["Insurer"][] | "forbidden" | null>(null);
+  const [insurers, setInsurers] = useState<Schemas["Insurer"][] | "forbidden" | "error" | null>(
+    null,
+  );
   const [form, setForm] = useState({ name: "", code: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [failure, setFailure] = useState<string | null>(null);
 
   async function load() {
     const { data, response } = await api.GET("/api/billing/insurers/");
-    setInsurers(response.status === 403 ? "forbidden" : (data?.results ?? []));
+    setInsurers(
+      response.status === 403 ? "forbidden" : response.ok ? (data?.results ?? []) : "error",
+    );
   }
 
   useEffect(() => {
@@ -37,6 +41,7 @@ export default function InsurersPage() {
 
   if (insurers === null) return <Loading />;
   if (insurers === "forbidden") return <NoAccess />;
+  if (insurers === "error") return <LoadFailed what="The insurers" onRetry={load} />;
 
   return (
     <div className="flex max-w-2xl flex-col gap-4">

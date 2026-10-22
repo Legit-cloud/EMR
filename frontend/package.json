@@ -12,6 +12,7 @@
     "test": "vitest run",
     "check": "pnpm lint && pnpm test",
     "e2e": "playwright test",
+    "e2e:smoke": "playwright test --grep @smoke",
     "api:gen": "openapi-typescript openapi.yaml -o src/lib/schema.d.ts"
   },
   "dependencies": {
