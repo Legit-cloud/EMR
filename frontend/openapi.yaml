@@ -548,6 +548,14 @@ paths:
         schema:
           type: string
       - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: query
         name: object_id
         schema:
           type: string
@@ -561,6 +569,16 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
       - in: query
         name: resource
         schema:
@@ -599,6 +617,109 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AuditEntry'
+          description: ''
+  /api/audit/entries/export/:
+    get:
+      operationId: audit_entries_export_retrieve
+      description: The filtered log as a CSV, newest first, up to 5000 rows. The export
+        is audited.
+      parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+      - in: query
+        name: actor_id
+        schema:
+          type: string
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: query
+        name: object_id
+        schema:
+          type: string
+      - in: query
+        name: outcome
+        schema:
+          type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
+      - in: query
+        name: resource
+        schema:
+          type: string
+      tags:
+      - audit
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            text/csv:
+              schema:
+                type: string
+                format: binary
+          description: ''
+  /api/audit/entries/summary/:
+    get:
+      operationId: audit_entries_summary_retrieve
+      description: 'Counts for the same filters as the list: all, denied, break-glass,
+        and reviews.'
+      parameters:
+      - in: query
+        name: action
+        schema:
+          type: string
+      - in: query
+        name: actor_id
+        schema:
+          type: string
+      - in: query
+        name: date_from
+        schema:
+          type: string
+      - in: query
+        name: date_to
+        schema:
+          type: string
+      - in: query
+        name: object_id
+        schema:
+          type: string
+      - in: query
+        name: outcome
+        schema:
+          type: string
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
+      - in: query
+        name: resource
+        schema:
+          type: string
+      tags:
+      - audit
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditSummary'
           description: ''
   /api/billing/insurers/:
     get:
@@ -4187,6 +4308,10 @@ paths:
         them.
       parameters:
       - in: query
+        name: group
+        schema:
+          type: string
+      - in: query
         name: licence_flag
         schema:
           type: string
@@ -4196,6 +4321,16 @@ paths:
         description: A page number within the paginated result set.
         schema:
           type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
       - in: query
         name: staff_type
         schema:
@@ -4333,6 +4468,22 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StaffProfile'
+          description: ''
+  /api/staff/profiles/summary/:
+    get:
+      operationId: staff_profiles_summary_retrieve
+      description: Headcount for the two tabs, and how many licences need attention.
+      tags:
+      - staff
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffSummary'
           description: ''
   /api/staff/shifts/:
     get:
@@ -5290,6 +5441,22 @@ components:
         * `denied` - Denied
         * `not_found` - Not found
         * `failed` - Failed
+    AuditSummary:
+      type: object
+      properties:
+        total:
+          type: integer
+        denied:
+          type: integer
+        break_glass:
+          type: integer
+        reviewed:
+          type: integer
+      required:
+      - break_glass
+      - denied
+      - reviewed
+      - total
     AuthoriseRequest:
       type: object
       properties:
@@ -9660,6 +9827,22 @@ components:
       required:
       - staff_type
       - user
+    StaffSummary:
+      type: object
+      properties:
+        doctors:
+          type: integer
+        general:
+          type: integer
+        licences_expiring:
+          type: integer
+        licences_expired:
+          type: integer
+      required:
+      - doctors
+      - general
+      - licences_expired
+      - licences_expiring
     StaffTypeEnum:
       enum:
       - physician

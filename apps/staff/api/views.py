@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.db.models import Prefetch
+from django.db.models import Count, Prefetch, Q
 from drf_spectacular.utils import extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
@@ -7,22 +7,24 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet
+from apps.core.api.pagination import PageSizePagination
 from apps.core.api.permissions import TenantUserPermission
 from apps.core.api.schema import list_filters
 from apps.core.policy import Action
 
 from .. import services
-from ..models import Shift, StaffProfile
+from ..models import LicenceFlag, Shift, StaffProfile, StaffType
 from . import serializers as s
 
 
-@list_filters("staff_type", "licence_flag")
+@list_filters("staff_type", "licence_flag", "group", "q", "page_size")
 class StaffProfileViewSet(TenantModelViewSet):
     """Staff directory and licence records. HR and tenant admins maintain them."""
 
     model = StaffProfile
     policy_resource = "staff.staffprofile"
-    policy_actions = {"verify_licence": Action.UPDATE}
+    policy_actions = {"verify_licence": Action.UPDATE, "summary": Action.VIEW}
+    pagination_class = PageSizePagination
     serializer_class = s.StaffProfileSerializer
     http_method_names = ["get", "post", "patch", "head", "options"]
 
@@ -34,7 +36,34 @@ class StaffProfileViewSet(TenantModelViewSet):
             queryset = queryset.filter(staff_type=params["staff_type"])
         if params.get("licence_flag"):
             queryset = queryset.filter(licence_flag=params["licence_flag"])
+        if params.get("group") == "doctors":
+            queryset = queryset.filter(staff_type=StaffType.PHYSICIAN)
+        elif params.get("group") == "general":
+            queryset = queryset.exclude(staff_type=StaffType.PHYSICIAN)
+        text = params.get("q", "").strip()[:100]
+        if text:
+            for word in text.split():
+                queryset = queryset.filter(
+                    Q(user__first_name__icontains=word)
+                    | Q(user__last_name__icontains=word)
+                    | Q(specialty__icontains=word)
+                    | Q(licence_number__icontains=word)
+                )
         return queryset
+
+    @extend_schema(responses=s.StaffSummarySerializer)
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def summary(self, request):
+        """Headcount for the two tabs, and how many licences need attention."""
+        rows = self.get_queryset()
+        doctors = Q(staff_type=StaffType.PHYSICIAN)
+        counts = rows.aggregate(
+            doctors=Count("pk", filter=doctors),
+            general=Count("pk", filter=~doctors),
+            licences_expiring=Count("pk", filter=Q(licence_flag=LicenceFlag.EXPIRING)),
+            licences_expired=Count("pk", filter=Q(licence_flag=LicenceFlag.EXPIRED)),
+        )
+        return Response(counts)
 
     @extend_schema(request=s.LicenceVerificationSerializer, responses=s.StaffProfileSerializer)
     @action(detail=True, methods=["post"], url_path="verify-licence")

@@ -58,3 +58,10 @@ class ShiftSerializer(serializers.ModelSerializer):
         model = Shift
         fields = ["id", "staff", "started_at", "ended_at"]
         read_only_fields = fields
+
+
+class StaffSummarySerializer(serializers.Serializer):
+    doctors = serializers.IntegerField()
+    general = serializers.IntegerField()
+    licences_expiring = serializers.IntegerField()
+    licences_expired = serializers.IntegerField()

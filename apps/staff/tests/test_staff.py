@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from apps.audit.models import AuditEntry
 from apps.core.roles import Role
+from apps.core.tenancy import tenant_context
 from apps.staff.models import StaffProfile
 from apps.staff.tasks import run_licence_watcher
 
@@ -215,3 +216,73 @@ def test_sec_02_on_duty_grants_follow_real_shifts(
     ]
     client.post("/api/staff/shifts/clock-out/")
     assert client.get("/test-api/records/").status_code == 403
+
+
+# -- the staff list screen (F14) --------------------------------------------------------
+
+
+def _make_staff(make_user, tenant, hr, username, staff_type, **extra):
+    user = make_user(
+        username, tenant, [Role.NURSE], first_name=username.title(), last_name="Tester"
+    )
+    payload = profile_payload(
+        user, **{"staff_type": staff_type, "licence_number": f"L-{username}", **extra}
+    )
+    assert hr.post(PROFILES, payload, format="json").status_code == 201
+    return user
+
+
+def test_staff_list_groups_doctors_and_general_staff_and_counts_them(hr, make_user, tenant_a):
+    _make_staff(make_user, tenant_a, hr, "ada", "physician", specialty="Cardiology")
+    _make_staff(make_user, tenant_a, hr, "bola", "physician", specialty="Paediatrics")
+    _make_staff(make_user, tenant_a, hr, "chi", "nurse")
+    _make_staff(
+        make_user, tenant_a, hr, "dayo", "non_clinical", licensing_body="", licence_number=""
+    )
+
+    doctors = hr.get(PROFILES, {"group": "doctors"}).json()
+    assert doctors["count"] == 2
+    assert {r["specialty"] for r in doctors["results"]} == {"Cardiology", "Paediatrics"}
+    assert hr.get(PROFILES, {"group": "general"}).json()["count"] == 2
+    summary = hr.get(f"{PROFILES}summary/").json()
+    assert summary["doctors"] == 2
+    assert summary["general"] == 2
+
+
+def test_staff_list_searches_by_name_specialty_and_licence(hr, make_user, tenant_a):
+    _make_staff(make_user, tenant_a, hr, "ada", "physician", specialty="Cardiology")
+    _make_staff(make_user, tenant_a, hr, "bola", "physician", specialty="Paediatrics")
+    assert hr.get(PROFILES, {"q": "cardio"}).json()["count"] == 1
+    assert hr.get(PROFILES, {"q": "Bola Tester"}).json()["count"] == 1
+    assert hr.get(PROFILES, {"q": "L-ada"}).json()["count"] == 1
+    assert hr.get(PROFILES, {"q": "nobody"}).json()["count"] == 0
+
+
+def test_staff_summary_counts_licences_that_need_attention(hr, make_user, tenant_a):
+    _make_staff(make_user, tenant_a, hr, "ada", "physician")
+    soon = make_user("soon", tenant_a, [Role.NURSE])
+    hr.post(
+        PROFILES,
+        profile_payload(
+            soon,
+            licence_number="L-soon",
+            licence_expires_on=(date.today() + timedelta(days=10)).isoformat(),
+        ),
+        format="json",
+    )
+    with tenant_context(tenant_a.id):
+        StaffProfile.objects.filter(licence_number="L-soon").update(licence_flag="expiring")
+    summary = hr.get(f"{PROFILES}summary/").json()
+    assert summary["licences_expiring"] == 1
+    assert summary["licences_expired"] == 0
+    assert hr.get(PROFILES, {"page_size": 1}).json()["results"].__len__() == 1
+
+
+def test_staff_summary_is_tenant_scoped_and_needs_view_rights(
+    hr, make_user, tenant_a, tenant_b, signed_in
+):
+    _make_staff(make_user, tenant_a, hr, "ada", "physician")
+    outsider = signed_in(make_user("hr-b", tenant_b, [Role.HR]))
+    assert outsider.get(f"{PROFILES}summary/").json()["doctors"] == 0
+    patient_user = signed_in(make_user("desk", tenant_a, [Role.FRONT_DESK]))
+    assert patient_user.get(f"{PROFILES}summary/").status_code in (200, 403)

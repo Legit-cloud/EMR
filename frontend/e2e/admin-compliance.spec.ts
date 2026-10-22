@@ -79,11 +79,12 @@ test.describe("compliance officer", () => {
     ).toBeVisible();
 
     await page.goto("/compliance/audit");
-    await page.getByLabel("Action").selectOption("break_glass_review");
-    await page.getByRole("button", { name: "Filter" }).click();
-    await expect(page.getByTestId("audit-entry").first()).toContainText(
-      "Patient was not in the emergency department",
-    );
+    await expect(page).toHaveURL(/\/admin\/audit/);
+    await page
+      .getByLabel(/Search the audit log/)
+      .fill("Patient was not in the emergency department");
+    const entries = page.getByRole("table", { name: "Entries" });
+    await expect(entries.getByRole("row").nth(1)).toContainText("Break-glass review");
   });
 
   test("cannot manage users", async ({ page }) => {

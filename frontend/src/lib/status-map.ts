@@ -204,6 +204,19 @@ export const ORDER_STATUS: Record<Schemas["PurchaseOrderStatusEnum"], StatusSpec
   cancelled: { label: "Cancelled", tone: "grey", icon: Prohibit },
 };
 
+/** On duty while a shift is open (apps/staff). */
+export const SHIFT_STATUS = {
+  on_duty: { label: "On duty", tone: "green", icon: CheckCircle },
+  off_duty: { label: "Off duty", tone: "grey", icon: Minus },
+} as const satisfies Record<string, StatusSpec>;
+
+/** Licence state from the daily licence watcher; the chip adds the expiry date to the label. */
+export const LICENCE_FLAG: Record<Schemas["LicenceFlagEnum"], StatusSpec> = {
+  ok: { label: "Valid", tone: "grey", icon: CheckCircle },
+  expiring: { label: "Expires soon", tone: "amber", icon: WarningCircle },
+  expired: { label: "Expired", tone: "pink", icon: XCircle },
+};
+
 /** Patient register status. Grey for both ends of "not currently attending"; the label says which. */
 export const PATIENT_STATUS: Record<Schemas["PatientStatusEnum"], StatusSpec> = {
   active: { label: "Active", tone: "green", icon: CheckCircle },

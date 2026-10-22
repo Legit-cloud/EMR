@@ -64,6 +64,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     }
   }, [signedOut, router, pathname]);
 
+  // A patient belongs in the portal, not the staff app (the API refuses them staff data anyway).
+  const patientOnly = !!me.data && me.data.roles.every((role) => role === "patient");
+  useEffect(() => {
+    if (patientOnly) router.replace("/portal");
+  }, [patientOnly, router]);
+
   // Any request that finds the session gone (expired, revoked, signed out in another tab)
   // sends the user to sign in and back here afterwards.
   const here = useRef(pathname);
@@ -95,7 +101,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   );
   const idle = useIdleTimeout({ onTimeout: () => signOut("idle") });
 
-  if (!me.data) {
+  if (!me.data || patientOnly) {
     return (
       <main className="p-6">
         <Loading label="Checking your session" />

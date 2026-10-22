@@ -7,6 +7,7 @@
  * reports and support arrive with their screens.
  */
 import {
+  Bed,
   BookOpen,
   CalendarBlank,
   ClipboardText,
@@ -80,9 +81,29 @@ export const NAV: NavGroup[] = [
       },
       {
         label: "Staff list",
-        href: "/manage/staff",
+        href: "/staff",
         icon: IdentificationCard,
-        roles: ["hr", "tenant_admin"],
+        roles: [
+          "doctor",
+          "nurse",
+          "pharmacist",
+          "lab_technician",
+          "front_desk",
+          "billing_officer",
+          "hr",
+          "tenant_admin",
+        ],
+      },
+    ],
+  },
+  {
+    caption: "Inpatient",
+    items: [
+      {
+        label: "Wards and beds",
+        href: "/inpatient",
+        icon: Bed,
+        roles: ["nurse", "doctor", "tenant_admin"],
       },
     ],
   },
@@ -133,7 +154,7 @@ export const NAV: NavGroup[] = [
       },
       {
         label: "Audit log",
-        href: "/compliance/audit",
+        href: "/admin/audit",
         icon: ClipboardText,
         roles: ["compliance_officer", "tenant_admin"],
       },
