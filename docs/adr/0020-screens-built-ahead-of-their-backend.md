@@ -86,3 +86,8 @@ Notes for the people who build it:
 The inpatient module now exists (ADR 0021) and the ward board calls the real API through the
 generated client. The inpatient contract above is what was built. The patient portal is still
 a mock.
+
+The patient portal API now exists too (ADR 0022). Both screens call the generated client, and
+`src/lib/planned-api.ts` has been removed. The portal differs from the contract above in one
+way: there is no payment endpoint (see ADR 0022), so "Pay now" became instructions for paying
+at the hospital.

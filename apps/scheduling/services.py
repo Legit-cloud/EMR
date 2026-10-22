@@ -192,7 +192,14 @@ def free_slots(physician_id, day) -> list[dict]:
             end = cursor + length
             taken = any(start < end and cursor < finish for start, finish in busy)
             if not taken and cursor >= now:
-                slots.append({"start_at": cursor, "end_at": end, "facility": window.facility_id})
+                slots.append(
+                    {
+                        "start_at": cursor,
+                        "end_at": end,
+                        "facility": window.facility_id,
+                        "department": window.department_id,
+                    }
+                )
             cursor = end
     return slots
 
@@ -430,3 +437,120 @@ def _send_reminder(appointment: Appointment) -> None:
             purpose="appointment_reminder",
             related_object=related,
         )
+
+
+# -- self-service for the patient portal ---------------------------------------------------
+
+
+class PortalNotFound(DomainError):
+    code = "not_found"
+    status_code = 404
+
+
+class PortalRefused(DomainError):
+    code = "portal_refused"
+    status_code = 409
+
+
+def can_patient_cancel(appointment: Appointment, now=None) -> bool:
+    """A patient may cancel online while the visit is booked or confirmed and not too close."""
+    now = now or timezone.now()
+    if appointment.status not in (S.BOOKED, S.CONFIRMED):
+        return False
+    return appointment.start_at - now >= timedelta(hours=settings.PORTAL_CANCEL_MIN_HOURS)
+
+
+def slot_id(physician_id, start_at) -> str:
+    return f"{physician_id}_{int(start_at.timestamp())}"
+
+
+def portal_open_slots(days: int | None = None, limit: int = 30) -> list[dict]:
+    """The next free slots across all physicians who take bookings, soonest first."""
+    from apps.staff import selectors as staff_selectors
+
+    days = days or settings.PORTAL_BOOKING_DAYS
+    zone = ZoneInfo(settings.MRN_TIME_ZONE)
+    today = timezone.now().astimezone(zone).date()
+    last = datetime.combine(today + timedelta(days=days + 1), time.min, tzinfo=zone)
+    physicians = (
+        AvailabilityWindow.objects.filter(end_at__gt=timezone.now(), start_at__lt=last)
+        .values_list("physician_id", flat=True)
+        .distinct()
+    )
+    found = []
+    for physician_id in physicians:
+        doctor = staff_selectors.physician(physician_id)
+        if doctor is None:
+            continue
+        for offset in range(days + 1):
+            for slot in free_slots(physician_id, today + timedelta(days=offset)):
+                found.append(
+                    {
+                        "id": slot_id(physician_id, slot["start_at"]),
+                        "doctor_name": doctor["display_name"],
+                        "specialty": doctor["specialty"],
+                        "start_at": slot["start_at"],
+                        "end_at": slot["end_at"],
+                    }
+                )
+    return sorted(found, key=lambda s: s["start_at"])[:limit]
+
+
+@transaction.atomic
+def book_for_patient(patient_id, *, slot: str, reason: str) -> Appointment:
+    """Book a free slot for the patient themselves. The slot must still be free."""
+    reason = reason.strip()
+    if len(reason) < 3:
+        raise PortalRefused("Tell us briefly why you are coming.")
+    if patients.is_deceased(patient_id):
+        raise PortalRefused("This account cannot book visits.")
+    try:
+        physician_id, stamp = slot.rsplit("_", 1)
+        start_at = datetime.fromtimestamp(int(stamp), tz=ZoneInfo("UTC"))
+        uuid.UUID(physician_id)
+    except (ValueError, OverflowError):
+        raise PortalRefused("That time is not available. Choose another.") from None
+    upcoming = Appointment.objects.filter(
+        patient_id=patient_id, status__in=[S.BOOKED, S.CONFIRMED], start_at__gte=timezone.now()
+    ).count()
+    if upcoming >= settings.PORTAL_MAX_UPCOMING_VISITS:
+        raise PortalRefused(
+            f"You already have {upcoming} visits booked. Cancel one or call us to book more."
+        )
+    day = start_at.astimezone(ZoneInfo(settings.MRN_TIME_ZONE)).date()
+    match = next(
+        (s for s in free_slots(physician_id, day) if s["start_at"] == start_at),
+        None,
+    )
+    if match is None:
+        raise SlotTaken("That time has just been taken. Choose another.")
+    (appointment,) = book(
+        {
+            "patient_id": patient_id,
+            "physician_id": physician_id,
+            "facility_id": match["facility"],
+            "department_id": match["department"],
+            "appointment_type": "new",
+            "start_at": match["start_at"],
+            "end_at": match["end_at"],
+            "reason": reason[:500],
+        }
+    )
+    return appointment
+
+
+@transaction.atomic
+def cancel_for_patient(appointment_id, patient_id, reason: str) -> Appointment:
+    """The patient cancels their own visit. Someone else's visit is simply not found."""
+    appointment = Appointment.objects.filter(pk=appointment_id, patient_id=patient_id).first()
+    if appointment is None:
+        raise PortalNotFound("Not found.")
+    if not reason.strip():
+        raise PortalRefused("Tell us why you are cancelling.")
+    if not can_patient_cancel(appointment):
+        raise PortalRefused("This visit can no longer be cancelled online. Please call us.")
+    return change_status(
+        appointment,
+        S.CANCELLED,
+        cancellation_reason=f"Cancelled by the patient: {reason.strip()}"[:500],
+    )

@@ -63,3 +63,12 @@ def search_ids(text: str) -> list:
 def registered_before_count(patient_ids, moment) -> int:
     """How many of these patients were registered before ``moment`` (returning patients)."""
     return Patient.objects.filter(pk__in=patient_ids, created_at__lt=moment).count()
+
+
+def portal_profile(patient_id) -> dict | None:
+    """What a patient may see and correct about themselves in the portal."""
+    return (
+        Patient.objects.filter(pk=patient_id)
+        .values("first_name", "last_name", "mrn", "date_of_birth", "phone", "email")
+        .first()
+    )

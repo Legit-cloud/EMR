@@ -20,6 +20,7 @@ def physician(user_id) -> dict | None:
     return {
         "user_id": profile.user_id,
         "display_name": str(profile),
+        "specialty": profile.specialty,
         "consultation_fee": profile.consultation_fee,
         "licence_flag": profile.licence_flag,
     }

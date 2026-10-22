@@ -90,3 +90,45 @@ def inventory(today, text: str = "", status: str = ""):
     if status:
         queryset = queryset.filter(stock_status=status)
     return queryset
+
+
+def patient_prescriptions(patient_id) -> list[dict]:
+    """The patient's signed prescriptions, newest first. Drafts and cancelled ones are not shown.
+
+    ``active`` is true while something is still to be taken or collected.
+    """
+    shown = [
+        PrescriptionStatus.AUTHORISED,
+        PrescriptionStatus.PARTIALLY_DISPENSED,
+        PrescriptionStatus.DISPENSED,
+    ]
+    rows = []
+    prescriptions = (
+        Prescription.objects.filter(patient_id=patient_id, status__in=shown)
+        .select_related("prescriber")
+        .prefetch_related("items__drug")
+        .order_by("-authorised_at")
+    )
+    for p in prescriptions:
+        rows.append(
+            {
+                "id": p.pk,
+                "prescribed_at": p.authorised_at,
+                "doctor_name": p.prescriber.get_full_name() or p.prescriber.get_username(),
+                "active": p.status != PrescriptionStatus.DISPENSED,
+                "items": [
+                    {
+                        "id": item.pk,
+                        "drug_name": str(item.drug),
+                        "dose": item.dose,
+                        "frequency": item.frequency,
+                        "route": item.route,
+                        "duration_days": item.duration_days,
+                        "quantity": item.quantity,
+                        "instructions": item.instructions,
+                    }
+                    for item in p.items.all()
+                ],
+            }
+        )
+    return rows

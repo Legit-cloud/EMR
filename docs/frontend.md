@@ -33,9 +33,8 @@ the worker script from the image (`src/lib/mocks.ts`).
 The same handlers serve the unit tests. Mock rules copy the server's rules, so a test fails the
 way the real API would.
 
-Two screens have no backend yet: **inpatient** and the **patient portal**. They call
-`src/lib/planned-api.ts` and run against `src/mocks/inpatient.ts` and `src/mocks/portal.ts`,
-which state the contract (`docs/adr/0020`). With mocks off they show "not available yet".
+Every screen now has a backend. A module that is not switched on for a clinic answers 404, and the
+screen says "not available yet" (`isNotAvailable` in `src/lib/api.ts`) instead of showing an error.
 
 ## Folder map
 
@@ -77,8 +76,9 @@ components. They have loading, no-access and error states but not the new look; 
 ## Add a screen
 
 1. **API.** If the backend has it, run `make openapi` and use `api.GET/POST` with the generated
-   types. If it does not, write the contract in an ADR, add a mock in `src/mocks`, register it
-   in `handlers.ts`, and call `planned` instead.
+   types. If the backend does not exist yet, write the contract in an ADR first and build the
+   mock from it; swap the mock for the real API when the module lands (as inpatient and the
+   portal did, ADR 0020).
 2. **Logic first.** Put types, hooks and pure rules in `src/lib/<area>.ts` and test them.
 3. **Component.** Build in `src/components/<area>/` from `components/ui`. A new shared component
    goes in `components/ui` with a sample on `/design` and a test. Use `DataTable` for lists, a

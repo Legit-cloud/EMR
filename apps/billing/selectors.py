@@ -76,3 +76,49 @@ def _lines(start, end, currency: str):
     return InvoiceLine.objects.filter(
         created_at__gte=start, created_at__lt=end, invoice__currency=currency
     ).exclude(status=LineStatus.VOID)
+
+
+def patient_invoices(patient_id) -> list[dict]:
+    """The patient's own bills, newest first, as the patient owes them (their share only).
+
+    A bill split with an insurer shows the patient's share as the total; the insurer's share is
+    between the insurer and the hospital.
+    """
+    from .models import Invoice
+
+    rows = []
+    invoices = (
+        Invoice.objects.filter(patient_id=patient_id)
+        .prefetch_related("lines")
+        .order_by("-created_at")
+    )
+    for invoice in invoices:
+        due = max(invoice.patient_due_minor - invoice.patient_paid_minor, 0)
+        if invoice.patient_due_minor == 0:
+            continue
+        rows.append(
+            {
+                "id": invoice.pk,
+                "reference": f"INV-{str(invoice.pk)[:8].upper()}",
+                "created_at": invoice.created_at,
+                "currency": invoice.currency,
+                "total_minor": invoice.patient_due_minor,
+                "paid_minor": min(invoice.patient_paid_minor, invoice.patient_due_minor),
+                "due_minor": due,
+                "status": "paid"
+                if due == 0
+                else ("partially_paid" if invoice.patient_paid_minor > 0 else "unpaid"),
+                "lines": [
+                    {"description": line.description, "amount_minor": line.patient_amount_minor}
+                    for line in invoice.lines.all()
+                    if line.status != LineStatus.VOID and line.patient_amount_minor > 0
+                ],
+            }
+        )
+    return rows
+
+
+def patient_balance(patient_id) -> tuple[int, str]:
+    """What the patient still owes across all bills, and the currency (the first bill's)."""
+    rows = patient_invoices(patient_id)
+    return sum(r["due_minor"] for r in rows), (rows[0]["currency"] if rows else "NGN")
