@@ -1472,6 +1472,91 @@ export interface paths {
         patch: operations["pharmacy_drugs_partial_update"];
         trace?: never;
     };
+    "/api/pharmacy/orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
+        get: operations["pharmacy_orders_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/orders/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
+        get: operations["pharmacy_orders_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/orders/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
+        post: operations["pharmacy_orders_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/orders/{id}/receive/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
+        post: operations["pharmacy_orders_receive_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/orders/place/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
+        post: operations["pharmacy_orders_place_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/pharmacy/prescriptions/": {
         parameters: {
             query?: never;
@@ -1687,6 +1772,136 @@ export interface paths {
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
         patch: operations["pharmacy_stock_partial_update"];
+        trace?: never;
+    };
+    "/api/pharmacy/stock/inventory/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description One row per formulary drug: units available, on order, and its stock status. */
+        get: operations["pharmacy_stock_inventory_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/stock/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Asset value, product count and how many drugs are in stock, low or out. */
+        get: operations["pharmacy_stock_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/vendors/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["pharmacy_vendors_list"];
+        put?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        post: operations["pharmacy_vendors_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/pharmacy/vendors/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["pharmacy_vendors_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        patch: operations["pharmacy_vendors_partial_update"];
         trace?: never;
     };
     "/api/reports/dashboard/": {
@@ -2997,6 +3212,21 @@ export interface components {
             code: string;
             is_active?: boolean;
         };
+        InventoryRow: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            brand_name: string;
+            strength: string;
+            form: string;
+            unit_price_minor: number;
+            currency: string;
+            reorder_level: number;
+            available: number;
+            on_order: number;
+            value_minor: number;
+            stock_status: components["schemas"]["StockStatusEnum"];
+        };
         /**
          * @description The invoice number and the patient's name and MRN, which live in other modules.
          *
@@ -3175,6 +3405,13 @@ export interface components {
             /** @description Computed, never entered (BMI). */
             derived?: boolean;
         };
+        LowItem: {
+            /** Format: uuid */
+            drug: string;
+            name: string;
+            available: number;
+            reorder_level: number;
+        };
         LowStock: {
             /** Format: uuid */
             drug: string;
@@ -3248,6 +3485,69 @@ export interface components {
             value: string;
             /** UCUM unit */
             unit: string;
+        };
+        Order: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly reference: string;
+            /** Format: uuid */
+            readonly vendor: string;
+            readonly vendor_name: string;
+            readonly status: components["schemas"]["PurchaseOrderStatusEnum"];
+            readonly currency: string;
+            readonly note: string;
+            /** Format: date-time */
+            readonly email_sent_at: string | null;
+            readonly line_count: number;
+            readonly units_ordered: number;
+            readonly units_received: number;
+            readonly total_minor: number;
+            /** Format: date-time */
+            readonly created_at: string;
+            readonly lines: components["schemas"]["OrderLine"][];
+            readonly receipts: components["schemas"]["OrderReceipt"][];
+        };
+        OrderLine: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly drug: string;
+            readonly drug_name: string;
+            readonly quantity_ordered: number;
+            readonly quantity_received: number;
+            readonly unit_cost_minor: number;
+            readonly total_minor: number;
+        };
+        OrderList: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly reference: string;
+            /** Format: uuid */
+            readonly vendor: string;
+            readonly vendor_name: string;
+            readonly status: components["schemas"]["PurchaseOrderStatusEnum"];
+            readonly currency: string;
+            readonly note: string;
+            /** Format: date-time */
+            readonly email_sent_at: string | null;
+            readonly line_count: number;
+            readonly units_ordered: number;
+            readonly units_received: number;
+            readonly total_minor: number;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        OrderReceipt: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly line: string;
+            readonly quantity: number;
+            readonly batch_number: string;
+            /** Format: date */
+            readonly expiry_date: string;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         PaginatedAccountList: {
             /** @example 123 */
@@ -3489,6 +3789,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Insurer"][];
         };
+        PaginatedInventoryRowList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["InventoryRow"][];
+        };
         PaginatedInvoiceListList: {
             /** @example 123 */
             count: number;
@@ -3518,6 +3833,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["JournalEntry"][];
+        };
+        PaginatedOrderListList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["OrderList"][];
         };
         PaginatedPatientListList: {
             /** @example 123 */
@@ -3872,6 +4202,18 @@ export interface components {
             first_name?: string;
             last_name?: string;
         };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        PatchedVendorRequest: {
+            name?: string;
+            email?: string;
+            phone?: string;
+            active?: boolean;
+        };
         Patient: {
             /** Format: uuid */
             readonly id: string;
@@ -4047,6 +4389,19 @@ export interface components {
          * @enum {string}
          */
         PaymentStatusEnum: "unpaid" | "partially_paid" | "paid";
+        PlaceOrderLineRequest: {
+            /** Format: uuid */
+            drug: string;
+            quantity: number;
+            unit_cost_minor: number;
+        };
+        PlaceOrderRequest: {
+            /** Format: uuid */
+            vendor: string;
+            /** @default  */
+            note: string;
+            lines: components["schemas"]["PlaceOrderLineRequest"][];
+        };
         Prescription: {
             /** Format: uuid */
             readonly id: string;
@@ -4129,6 +4484,14 @@ export interface components {
          * @enum {string}
          */
         PrescriptionStatusEnum: "draft" | "authorised" | "partially_dispensed" | "dispensed" | "cancelled";
+        /**
+         * @description * `pending` - Pending
+         *     * `partially_received` - Partially received
+         *     * `complete` - Complete
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        PurchaseOrderStatusEnum: "pending" | "partially_received" | "complete" | "cancelled";
         QueueEntry: {
             /** Format: uuid */
             appointment_id: string;
@@ -4158,6 +4521,17 @@ export interface components {
             /** Format: decimal */
             value: string;
             unit?: string;
+        };
+        ReceiveLineRequest: {
+            /** Format: uuid */
+            line: string;
+            quantity: number;
+            batch_number: string;
+            /** Format: date */
+            expiry_date: string;
+        };
+        ReceiveRequest: {
+            receipts: components["schemas"]["ReceiveLineRequest"][];
         };
         Reconciliation: {
             reconciled: boolean;
@@ -4407,6 +4781,22 @@ export interface components {
             expiry_date: string;
             quantity_on_hand: number;
         };
+        /**
+         * @description * `in_stock` - in_stock
+         *     * `low` - low
+         *     * `out` - out
+         * @enum {string}
+         */
+        StockStatusEnum: "in_stock" | "low" | "out";
+        StockSummary: {
+            currency: string;
+            value_minor: number;
+            products: number;
+            in_stock: number;
+            low: number;
+            out: number;
+            low_items: components["schemas"]["LowItem"][];
+        };
         TriageRequest: {
             triage_priority: number;
         };
@@ -4436,6 +4826,32 @@ export interface components {
             email?: string;
             first_name?: string;
             last_name?: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Vendor: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            email?: string;
+            phone?: string;
+            active?: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        VendorRequest: {
+            name: string;
+            email?: string;
+            phone?: string;
+            active?: boolean;
         };
         /**
          * @description * `unconfirmed` - Unconfirmed / suspected
@@ -6626,6 +7042,130 @@ export interface operations {
             };
         };
     };
+    pharmacy_orders_list: {
+        parameters: {
+            query?: {
+                /** @description Sort field, with a leading - for descending. */
+                ordering?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
+                /** @description Search text. */
+                q?: string;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedOrderListList"];
+                };
+            };
+        };
+    };
+    pharmacy_orders_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+        };
+    };
+    pharmacy_orders_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+        };
+    };
+    pharmacy_orders_receive_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReceiveRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReceiveRequest"];
+                "multipart/form-data": components["schemas"]["ReceiveRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+        };
+    };
+    pharmacy_orders_place_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaceOrderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlaceOrderRequest"];
+                "multipart/form-data": components["schemas"]["PlaceOrderRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Order"];
+                };
+            };
+        };
+    };
     pharmacy_prescriptions_list: {
         parameters: {
             query?: {
@@ -6942,6 +7482,145 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["StockBatch"];
+                };
+            };
+        };
+    };
+    pharmacy_stock_inventory_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
+                /** @description Search text. */
+                q?: string;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedInventoryRowList"];
+                };
+            };
+        };
+    };
+    pharmacy_stock_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StockSummary"];
+                };
+            };
+        };
+    };
+    pharmacy_vendors_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vendor"][];
+                };
+            };
+        };
+    };
+    pharmacy_vendors_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VendorRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["VendorRequest"];
+                "multipart/form-data": components["schemas"]["VendorRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vendor"];
+                };
+            };
+        };
+    };
+    pharmacy_vendors_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vendor"];
+                };
+            };
+        };
+    };
+    pharmacy_vendors_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedVendorRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedVendorRequest"];
+                "multipart/form-data": components["schemas"]["PatchedVendorRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Vendor"];
                 };
             };
         };

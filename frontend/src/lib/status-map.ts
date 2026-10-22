@@ -191,9 +191,18 @@ export const BED_STATUS: Record<BedStatus, StatusSpec> = {
 
 /** Stock level of one drug (DESIGN.md Section 2.2: amber low stock, pink out of stock). */
 export const STOCK_LEVEL = {
+  in_stock: { label: "In stock", tone: "teal", icon: CheckCircle },
   low: { label: "Low", tone: "amber", icon: WarningCircle },
   out: { label: "Out", tone: "pink", icon: XCircle },
 } as const satisfies Record<string, StatusSpec>;
+
+/** Where a purchase order stands with the vendor. */
+export const ORDER_STATUS: Record<Schemas["PurchaseOrderStatusEnum"], StatusSpec> = {
+  pending: { label: "Pending", tone: "amber", icon: Hourglass },
+  partially_received: { label: "Partially received", tone: "blue", icon: CircleHalf },
+  complete: { label: "Complete", tone: "green", icon: CheckCircle },
+  cancelled: { label: "Cancelled", tone: "grey", icon: Prohibit },
+};
 
 /** Patient register status. Grey for both ends of "not currently attending"; the label says which. */
 export const PATIENT_STATUS: Record<Schemas["PatientStatusEnum"], StatusSpec> = {

@@ -2779,6 +2779,163 @@ paths:
               schema:
                 $ref: '#/components/schemas/Drug'
           description: ''
+  /api/pharmacy/orders/:
+    get:
+      operationId: pharmacy_orders_list
+      description: Orders to vendors. Placing and receiving are actions; nothing edits
+        an order.
+      parameters:
+      - in: query
+        name: ordering
+        schema:
+          type: string
+        description: Sort field, with a leading - for descending.
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedOrderListList'
+          description: ''
+  /api/pharmacy/orders/{id}/:
+    get:
+      operationId: pharmacy_orders_retrieve
+      description: Orders to vendors. Placing and receiving are actions; nothing edits
+        an order.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/pharmacy/orders/{id}/cancel/:
+    post:
+      operationId: pharmacy_orders_cancel_create
+      description: Orders to vendors. Placing and receiving are actions; nothing edits
+        an order.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/pharmacy/orders/{id}/receive/:
+    post:
+      operationId: pharmacy_orders_receive_create
+      description: Orders to vendors. Placing and receiving are actions; nothing edits
+        an order.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReceiveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReceiveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReceiveRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
+  /api/pharmacy/orders/place/:
+    post:
+      operationId: pharmacy_orders_place_create
+      description: Orders to vendors. Placing and receiving are actions; nothing edits
+        an order.
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlaceOrderRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+          description: ''
   /api/pharmacy/prescriptions/:
     get:
       operationId: pharmacy_prescriptions_list
@@ -3217,6 +3374,219 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StockBatch'
+          description: ''
+  /api/pharmacy/stock/inventory/:
+    get:
+      operationId: pharmacy_stock_inventory_list
+      description: 'One row per formulary drug: units available, on order, and its
+        stock status.'
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: page_size
+        schema:
+          type: string
+        description: Rows per page (10, 25, 50 or 100).
+      - in: query
+        name: q
+        schema:
+          type: string
+        description: Search text.
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInventoryRowList'
+          description: ''
+  /api/pharmacy/stock/summary/:
+    get:
+      operationId: pharmacy_stock_summary_retrieve
+      description: Asset value, product count and how many drugs are in stock, low
+        or out.
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StockSummary'
+          description: ''
+  /api/pharmacy/vendors/:
+    get:
+      operationId: pharmacy_vendors_list
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vendor'
+          description: ''
+    post:
+      operationId: pharmacy_vendors_create
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VendorRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+  /api/pharmacy/vendors/{id}/:
+    get:
+      operationId: pharmacy_vendors_retrieve
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - pharmacy
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
+          description: ''
+    patch:
+      operationId: pharmacy_vendors_partial_update
+      description: |-
+        Base for every API view over tenant data: policy checks plus automatic auditing.
+
+        Subclasses set:
+
+        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+          any tenant is active, so its tenant filter would be wrong.
+        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+
+        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+        filtered to the user's scope; detail views check the object, so a row outside the
+        scope gives 403 and can be opened with break-glass where the resource allows it.
+
+        Audit: reads of PHI resources, every write and every denied request are recorded.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - pharmacy
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedVendorRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Vendor'
           description: ''
   /api/reports/dashboard/:
     get:
@@ -5991,6 +6361,47 @@ components:
       required:
       - code
       - name
+    InventoryRow:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        brand_name:
+          type: string
+        strength:
+          type: string
+        form:
+          type: string
+        unit_price_minor:
+          type: integer
+        currency:
+          type: string
+        reorder_level:
+          type: integer
+        available:
+          type: integer
+        on_order:
+          type: integer
+        value_minor:
+          type: integer
+        stock_status:
+          $ref: '#/components/schemas/StockStatusEnum'
+      required:
+      - available
+      - brand_name
+      - currency
+      - form
+      - id
+      - name
+      - on_order
+      - reorder_level
+      - stock_status
+      - strength
+      - unit_price_minor
+      - value_minor
     Invoice:
       type: object
       description: |-
@@ -6447,6 +6858,23 @@ components:
       - max_value
       - min_value
       - unit
+    LowItem:
+      type: object
+      properties:
+        drug:
+          type: string
+          format: uuid
+        name:
+          type: string
+        available:
+          type: integer
+        reorder_level:
+          type: integer
+      required:
+      - available
+      - drug
+      - name
+      - reorder_level
     LowStock:
       type: object
       properties:
@@ -6625,6 +7053,208 @@ components:
       - code
       - unit
       - value
+    Order:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        vendor:
+          type: string
+          format: uuid
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PurchaseOrderStatusEnum'
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          readOnly: true
+        email_sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        line_count:
+          type: integer
+          readOnly: true
+        units_ordered:
+          type: integer
+          readOnly: true
+        units_received:
+          type: integer
+          readOnly: true
+        total_minor:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderLine'
+          readOnly: true
+        receipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderReceipt'
+          readOnly: true
+      required:
+      - created_at
+      - currency
+      - email_sent_at
+      - id
+      - line_count
+      - lines
+      - note
+      - receipts
+      - reference
+      - status
+      - total_minor
+      - units_ordered
+      - units_received
+      - vendor
+      - vendor_name
+    OrderLine:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        drug:
+          type: string
+          format: uuid
+          readOnly: true
+        drug_name:
+          type: string
+          readOnly: true
+        quantity_ordered:
+          type: integer
+          readOnly: true
+        quantity_received:
+          type: integer
+          readOnly: true
+        unit_cost_minor:
+          type: integer
+          readOnly: true
+        total_minor:
+          type: integer
+          readOnly: true
+      required:
+      - drug
+      - drug_name
+      - id
+      - quantity_ordered
+      - quantity_received
+      - total_minor
+      - unit_cost_minor
+    OrderList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        vendor:
+          type: string
+          format: uuid
+          readOnly: true
+        vendor_name:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PurchaseOrderStatusEnum'
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        note:
+          type: string
+          readOnly: true
+        email_sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        line_count:
+          type: integer
+          readOnly: true
+        units_ordered:
+          type: integer
+          readOnly: true
+        units_received:
+          type: integer
+          readOnly: true
+        total_minor:
+          type: integer
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - currency
+      - email_sent_at
+      - id
+      - line_count
+      - note
+      - reference
+      - status
+      - total_minor
+      - units_ordered
+      - units_received
+      - vendor
+      - vendor_name
+    OrderReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        line:
+          type: string
+          format: uuid
+          readOnly: true
+        quantity:
+          type: integer
+          readOnly: true
+        batch_number:
+          type: string
+          readOnly: true
+        expiry_date:
+          type: string
+          format: date
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - batch_number
+      - created_at
+      - expiry_date
+      - id
+      - line
+      - quantity
     PaginatedAccountList:
       type: object
       required:
@@ -6993,6 +7623,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Insurer'
+    PaginatedInventoryRowList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/InventoryRow'
     PaginatedInvoiceListList:
       type: object
       required:
@@ -7039,6 +7692,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/JournalEntry'
+    PaginatedOrderListList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderList'
     PaginatedPatientListList:
       type: object
       required:
@@ -7671,6 +8347,30 @@ components:
         last_name:
           type: string
           maxLength: 150
+    PatchedVendorRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        phone:
+          type: string
+          maxLength: 32
+        active:
+          type: boolean
     Patient:
       type: object
       properties:
@@ -8138,6 +8838,40 @@ components:
         * `unpaid` - Unpaid
         * `partially_paid` - Partially paid
         * `paid` - Paid
+    PlaceOrderLineRequest:
+      type: object
+      properties:
+        drug:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 1000000
+          minimum: 1
+        unit_cost_minor:
+          type: integer
+          minimum: 0
+      required:
+      - drug
+      - quantity
+      - unit_cost_minor
+    PlaceOrderRequest:
+      type: object
+      properties:
+        vendor:
+          type: string
+          format: uuid
+        note:
+          type: string
+          default: ''
+          maxLength: 500
+        lines:
+          type: array
+          items:
+            $ref: '#/components/schemas/PlaceOrderLineRequest'
+      required:
+      - lines
+      - vendor
     Prescription:
       type: object
       properties:
@@ -8370,6 +9104,18 @@ components:
         * `partially_dispensed` - Partially dispensed
         * `dispensed` - Dispensed
         * `cancelled` - Cancelled
+    PurchaseOrderStatusEnum:
+      enum:
+      - pending
+      - partially_received
+      - complete
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `partially_received` - Partially received
+        * `complete` - Complete
+        * `cancelled` - Cancelled
     QueueEntry:
       type: object
       properties:
@@ -8450,6 +9196,37 @@ components:
       required:
       - code
       - value
+    ReceiveLineRequest:
+      type: object
+      properties:
+        line:
+          type: string
+          format: uuid
+        quantity:
+          type: integer
+          maximum: 1000000
+          minimum: 1
+        batch_number:
+          type: string
+          minLength: 1
+          maxLength: 50
+        expiry_date:
+          type: string
+          format: date
+      required:
+      - batch_number
+      - expiry_date
+      - line
+      - quantity
+    ReceiveRequest:
+      type: object
+      properties:
+        receipts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReceiveLineRequest'
+      required:
+      - receipts
     Reconciliation:
       type: object
       properties:
@@ -8995,6 +9772,43 @@ components:
       - drug
       - expiry_date
       - quantity_on_hand
+    StockStatusEnum:
+      enum:
+      - in_stock
+      - low
+      - out
+      type: string
+      description: |-
+        * `in_stock` - in_stock
+        * `low` - low
+        * `out` - out
+    StockSummary:
+      type: object
+      properties:
+        currency:
+          type: string
+        value_minor:
+          type: integer
+        products:
+          type: integer
+        in_stock:
+          type: integer
+        low:
+          type: integer
+        out:
+          type: integer
+        low_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LowItem'
+      required:
+      - currency
+      - in_stock
+      - low
+      - low_items
+      - out
+      - products
+      - value_minor
     TriageRequest:
       type: object
       properties:
@@ -9077,6 +9891,62 @@ components:
           maxLength: 150
       required:
       - username
+    Vendor:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 200
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        phone:
+          type: string
+          maxLength: 32
+        active:
+          type: boolean
+      required:
+      - id
+      - name
+    VendorRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        email:
+          oneOf:
+          - type: string
+            format: email
+            maxLength: 254
+          - type: string
+            maxLength: 0
+        phone:
+          type: string
+          maxLength: 32
+        active:
+          type: boolean
+      required:
+      - name
     VerificationStatusEnum:
       enum:
       - unconfirmed

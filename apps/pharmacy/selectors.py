@@ -1,8 +1,9 @@
 """Read-only queries that other modules may use."""
 
-from django.db.models import F, Q, Sum
+from django.db.models import Case, CharField, F, OuterRef, Q, Subquery, Sum, Value, When
+from django.db.models.functions import Coalesce
 
-from .models import Drug, Prescription, PrescriptionStatus
+from .models import Drug, OrderStatus, Prescription, PrescriptionStatus, PurchaseOrderLine
 
 
 def stock_summary(today, currency: str, low_limit: int = 5) -> dict:
@@ -51,3 +52,41 @@ def draft_prescription_count(prescriber_id) -> int:
     return Prescription.objects.filter(
         prescriber_id=prescriber_id, status=PrescriptionStatus.DRAFT
     ).count()
+
+
+def inventory(today, text: str = "", status: str = ""):
+    """Formulary drugs with units available (unexpired, not reserved), how many are on order,
+    and a stock status: ``in_stock``, ``low`` (at or under the reorder level) or ``out``."""
+    available = Sum(
+        F("batches__quantity_on_hand") - F("batches__quantity_reserved"),
+        filter=Q(batches__expiry_date__gte=today),
+        default=0,
+    )
+    expected = (
+        PurchaseOrderLine.objects.filter(
+            drug=OuterRef("pk"),
+            order__status__in=[OrderStatus.PENDING, OrderStatus.PARTIALLY_RECEIVED],
+        )
+        .values("drug")
+        .annotate(total=Sum(F("quantity_ordered") - F("quantity_received")))
+        .values("total")
+    )
+    queryset = (
+        Drug.objects.filter(on_formulary=True)
+        .annotate(available=available)
+        .annotate(on_order=Coalesce(Subquery(expected), 0))
+        .annotate(
+            stock_status=Case(
+                When(available__lte=0, then=Value("out")),
+                When(available__lte=F("reorder_level"), then=Value("low")),
+                default=Value("in_stock"),
+                output_field=CharField(),
+            )
+        )
+        .annotate(value_minor=F("available") * F("unit_price_minor"))
+    )
+    if text:
+        queryset = queryset.filter(Q(name__icontains=text) | Q(brand_name__icontains=text))
+    if status:
+        queryset = queryset.filter(stock_status=status)
+    return queryset

@@ -40,6 +40,7 @@ describe("visibleNav", () => {
       "Staff list",
       "Invoices",
       "Insurers",
+      "Stock",
       "Formulary",
       "Users and roles",
       "Break-glass review",
@@ -49,7 +50,7 @@ describe("visibleNav", () => {
 
   it("combines the screens of every role a user holds", () => {
     const seen = labels(["pharmacist", "hr"]);
-    expect(seen).toEqual(expect.arrayContaining(["Pharmacy", "Formulary", "Staff list"]));
+    expect(seen).toEqual(expect.arrayContaining(["Pharmacy", "Stock", "Formulary", "Staff list"]));
   });
 
   it("drops groups with nothing visible", () => {

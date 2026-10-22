@@ -14,18 +14,24 @@ from apps.audit import services as audit
 from apps.core import events
 from apps.core.errors import DomainError
 from apps.core.tenancy import get_current_user_id
+from apps.notifications import services as notifications
 from apps.patients import selectors as patients
 
 from . import signing
 from .events import PRESCRIPTION_AUTHORISED, PRESCRIPTION_CANCELLED, PRESCRIPTION_DISPENSED
 from .interactions import get_checker
 from .models import (
+    OrderReceipt,
+    OrderStatus,
     Prescription,
     PrescriptionAlert,
     PrescriptionItem,
     PrescriptionStatus,
+    PurchaseOrder,
+    PurchaseOrderLine,
     StockBatch,
     StockReservation,
+    Vendor,
 )
 
 P = PrescriptionStatus
@@ -275,3 +281,149 @@ def cancel(prescription: Prescription, reason: str) -> Prescription:
 
 def billing_key(item_id) -> str:
     return f"pharmacy.prescriptionitem:{item_id}"
+
+
+# -- buying stock ------------------------------------------------------------------------
+
+
+class OrderError(DomainError):
+    code = "order_refused"
+    status_code = 409
+
+
+def order_reference(order: PurchaseOrder) -> str:
+    """The short number staff and vendors quote, for example PO-3F9A12BC."""
+    return f"PO-{str(order.pk)[:8].upper()}"
+
+
+def _order_status(order: PurchaseOrder) -> str:
+    lines = list(order.lines.all())
+    received = sum(line.quantity_received for line in lines)
+    if received == 0:
+        return OrderStatus.PENDING
+    if all(line.quantity_received >= line.quantity_ordered for line in lines):
+        return OrderStatus.COMPLETE
+    return OrderStatus.PARTIALLY_RECEIVED
+
+
+@transaction.atomic
+def place_order(*, vendor: Vendor, lines: list[dict], note: str = "") -> PurchaseOrder:
+    """Create an order and email it to the vendor. ``lines`` hold drug, quantity, unit_cost_minor.
+
+    The email is queued, so a mail outage never blocks the order; ``email_sent_at`` records
+    that it was handed on.
+    """
+    if not vendor.active:
+        raise OrderError("This vendor is no longer active.")
+    if not lines:
+        raise OrderError("Add at least one item to the order.")
+    drugs = [line["drug"] for line in lines]
+    if not all(drug.on_formulary for drug in drugs):
+        raise OrderError("Only drugs on the formulary can be ordered.")
+    if len({drug.pk for drug in drugs}) != len(drugs):
+        raise OrderError("Each drug can appear on an order once.")
+    currencies = {drug.currency for drug in drugs}
+    if len(currencies) != 1:
+        raise OrderError("All items on an order must use one currency.")
+    order = PurchaseOrder.objects.create(vendor=vendor, currency=currencies.pop(), note=note)
+    PurchaseOrderLine.objects.bulk_create(
+        PurchaseOrderLine(
+            order=order,
+            drug=line["drug"],
+            quantity_ordered=line["quantity"],
+            unit_cost_minor=line["unit_cost_minor"],
+        )
+        for line in lines
+    )
+    if vendor.email:
+        rows = "\n".join(f"- {line['drug']}: {line['quantity']} units" for line in lines)
+        notifications.queue_email(
+            to=vendor.email,
+            subject=f"Purchase order {order_reference(order)}",
+            body=(
+                f"Please supply the following under order {order_reference(order)}:\n\n{rows}\n"
+                + (f"\nNote: {note}\n" if note else "")
+            ),
+            purpose="purchase_order",
+            related_object=f"pharmacy.purchaseorder:{order.pk}",
+        )
+        order.email_sent_at = timezone.now()
+        order.save(update_fields=["email_sent_at", "updated_at", "updated_by"])
+    return order
+
+
+@transaction.atomic
+def receive_order(order: PurchaseOrder, receipts: list[dict]) -> PurchaseOrder:
+    """Book a delivery, in full or in part. Each receipt holds line, quantity, batch_number
+    and expiry_date. The units join stock as a batch; the order becomes partially received
+    until every line has arrived."""
+    order = PurchaseOrder.objects.select_for_update().get(pk=order.pk)
+    if order.status in (OrderStatus.COMPLETE, OrderStatus.CANCELLED):
+        raise OrderError(f"This order is already {order.get_status_display().lower()}.")
+    if not receipts:
+        raise OrderError("Enter the quantity received for at least one item.")
+    lines = {
+        line.pk: line for line in PurchaseOrderLine.objects.select_for_update().filter(order=order)
+    }
+    today = timezone.localdate()
+    seen = set()
+    for entry in receipts:
+        line = lines.get(entry["line"].pk)
+        if line is None:
+            raise OrderError("That item is not on this order.")
+        if line.pk in seen:
+            raise OrderError("Each item can be received once per delivery.")
+        seen.add(line.pk)
+        quantity = entry["quantity"]
+        outstanding = line.quantity_ordered - line.quantity_received
+        if quantity < 1:
+            raise OrderError("Quantities received must be at least 1.")
+        if quantity > outstanding:
+            raise OrderError(
+                f"{line.drug.name}: only {outstanding} still expected, {quantity} entered."
+            )
+        if entry["expiry_date"] <= today:
+            raise OrderError(f"{line.drug.name}: the expiry date must be in the future.")
+        batch_number = entry["batch_number"].strip()
+        if not batch_number:
+            raise OrderError(f"{line.drug.name}: enter the batch number.")
+        batch = (
+            StockBatch.objects.select_for_update()
+            .filter(drug=line.drug, batch_number=batch_number)
+            .first()
+        )
+        if batch is None:
+            StockBatch.objects.create(
+                drug=line.drug,
+                batch_number=batch_number,
+                expiry_date=entry["expiry_date"],
+                quantity_on_hand=quantity,
+            )
+        elif batch.expiry_date != entry["expiry_date"]:
+            raise OrderError(
+                f"{line.drug.name}: batch {batch_number} already exists with a different expiry."
+            )
+        else:
+            batch.quantity_on_hand += quantity
+            batch.save(update_fields=["quantity_on_hand", "updated_at", "updated_by"])
+        OrderReceipt.objects.create(
+            line=line,
+            quantity=quantity,
+            batch_number=batch_number,
+            expiry_date=entry["expiry_date"],
+        )
+        line.quantity_received += quantity
+        line.save(update_fields=["quantity_received", "updated_at", "updated_by"])
+    order.status = _order_status(order)
+    order.save(update_fields=["status", "updated_at", "updated_by"])
+    return order
+
+
+@transaction.atomic
+def cancel_order(order: PurchaseOrder) -> PurchaseOrder:
+    order = PurchaseOrder.objects.select_for_update().get(pk=order.pk)
+    if order.status != OrderStatus.PENDING:
+        raise OrderError("Only an order with nothing received can be cancelled.")
+    order.status = OrderStatus.CANCELLED
+    order.save(update_fields=["status", "updated_at", "updated_by"])
+    return order
