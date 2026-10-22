@@ -3,6 +3,7 @@ from rest_framework import serializers
 from apps.core.api.fields import TenantPrimaryKeyRelatedField
 from apps.core.api.serializers import CleanModelSerializer
 
+from .. import services
 from ..models import (
     FULL_COVERAGE_BP,
     Account,
@@ -42,6 +43,7 @@ class InvoiceLineSerializer(serializers.ModelSerializer):
             "status",
             "finalised_at",
         ]
+        read_only_fields = fields
 
 
 class PaymentSerializer(serializers.ModelSerializer):
@@ -58,9 +60,55 @@ class PaymentSerializer(serializers.ModelSerializer):
             "received_at",
             "received_by",
         ]
+        read_only_fields = fields
 
 
-class InvoiceSerializer(serializers.ModelSerializer):
+class InvoicePatientMixin(serializers.Serializer):
+    """The invoice number and the patient's name and MRN, which live in other modules.
+
+    The view looks the patients up once per page and passes them in as ``patients``.
+    """
+
+    reference = serializers.SerializerMethodField()
+    patient_name = serializers.SerializerMethodField()
+    patient_mrn = serializers.SerializerMethodField()
+
+    def get_reference(self, invoice) -> str:
+        return services.invoice_reference(invoice)
+
+    def get_patient_name(self, invoice) -> str:
+        return self.context.get("patients", {}).get(invoice.patient_id, {}).get("name", "")
+
+    def get_patient_mrn(self, invoice) -> str:
+        return self.context.get("patients", {}).get(invoice.patient_id, {}).get("mrn", "")
+
+
+class InvoiceListSerializer(InvoicePatientMixin, serializers.ModelSerializer):
+    line_count = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            "id",
+            "reference",
+            "patient",
+            "patient_name",
+            "patient_mrn",
+            "currency",
+            "insurer",
+            "payment_status",
+            "total_minor",
+            "net_due_minor",
+            "paid_at",
+            "estate_review",
+            "line_count",
+            "last_reminder_at",
+            "created_at",
+        ]
+        read_only_fields = fields
+
+
+class InvoiceSerializer(InvoicePatientMixin, serializers.ModelSerializer):
     lines = InvoiceLineSerializer(many=True, read_only=True)
     payments = PaymentSerializer(many=True, read_only=True)
 
@@ -68,7 +116,10 @@ class InvoiceSerializer(serializers.ModelSerializer):
         model = Invoice
         fields = [
             "id",
+            "reference",
             "patient",
+            "patient_name",
+            "patient_mrn",
             "currency",
             "insurer",
             "insurer_coverage_bp",
@@ -81,6 +132,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
             "net_due_minor",
             "paid_at",
             "estate_review",
+            "last_reminder_at",
             "lines",
             "payments",
             "created_at",
@@ -109,6 +161,23 @@ class ManualChargeSerializer(serializers.Serializer):
     revenue_category = serializers.ChoiceField(choices=RevenueCategory.choices)
     delivered = serializers.BooleanField(default=True)
     idempotency_key = serializers.CharField(max_length=100, required=False)
+
+
+class InvoiceSummarySerializer(serializers.Serializer):
+    """Counts and amounts for the billing screen's header, in one currency."""
+
+    currency = serializers.CharField()
+    unpaid_count = serializers.IntegerField()
+    partially_paid_count = serializers.IntegerField()
+    paid_count = serializers.IntegerField()
+    billed_minor = serializers.IntegerField()
+    collected_minor = serializers.IntegerField()
+    outstanding_minor = serializers.IntegerField()
+
+
+class ReminderResultSerializer(serializers.Serializer):
+    channels = serializers.ListField(child=serializers.CharField())
+    last_reminder_at = serializers.DateTimeField()
 
 
 class ReconciliationSerializer(serializers.Serializer):

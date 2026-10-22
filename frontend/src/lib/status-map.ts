@@ -11,12 +11,16 @@ import {
   CircleHalf,
   ClockCountdown,
   DoorOpen,
+  Flask,
   Hourglass,
   type Icon,
   Info,
   Minus,
+  Pill,
   Prohibit,
   Receipt,
+  Scales,
+  Scan,
   Siren,
   Stethoscope,
   User,
@@ -136,6 +140,30 @@ export const PAYMENT_STATUS: Record<Schemas["PaymentStatusEnum"], StatusSpec> = 
   paid: { label: "Paid", tone: "green", icon: CheckCircle },
   partially_paid: { label: "Partially paid", tone: "amber", icon: CircleHalf },
   unpaid: { label: "Unpaid", tone: "pink", icon: Receipt },
+};
+
+/** An invoice held after the patient's death until the estate's settlement is reviewed. */
+export const ESTATE_REVIEW: StatusSpec = { label: "Estate review", tone: "pink", icon: Scales };
+
+/**
+ * Where a charge on an invoice came from (docs/DESIGN.md 7: a source tag per line). Keyed by the
+ * revenue category the server records; consultations, procedures and the rest read as Service.
+ */
+export const LINE_SOURCE: Record<Schemas["RevenueCategoryEnum"], StatusSpec> = {
+  pharmacy: { label: "Prescription", tone: "blue", icon: Pill },
+  laboratory: { label: "Lab", tone: "teal", icon: Flask },
+  imaging: { label: "Imaging", tone: "sky", icon: Scan },
+  ward: { label: "Ward", tone: "purple", icon: Bed },
+  consultation: { label: "Service", tone: "grey", icon: Stethoscope },
+  procedure: { label: "Service", tone: "grey", icon: Stethoscope },
+  other: { label: "Service", tone: "grey", icon: Stethoscope },
+};
+
+/** A charge not yet delivered (a prescription not yet dispensed) is shown as pending. */
+export const LINE_STATUS: Record<Schemas["InvoiceLineStatusEnum"], StatusSpec> = {
+  pending: { label: "Pending", tone: "amber", icon: Hourglass },
+  final: { label: "Delivered", tone: "green", icon: CheckCircle },
+  void: { label: "Void", tone: "grey", icon: Prohibit },
 };
 
 /**

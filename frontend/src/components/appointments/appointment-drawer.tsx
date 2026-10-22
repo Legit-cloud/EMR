@@ -34,6 +34,7 @@ import {
   useRefreshAppointments,
   useReschedule,
 } from "@/lib/appointments";
+import { invoiceHref } from "@/lib/billing";
 import {
   canFinish,
   canMove,
@@ -193,7 +194,7 @@ function VisitSection({
   range: string;
   patient: Schemas["Patient"] | undefined;
   allergies: Schemas["Allergy"][] | undefined;
-  invoices: Schemas["Invoice"][] | undefined;
+  invoices: Schemas["InvoiceList"][] | undefined;
   neighbours: Appointment[];
   canChange: boolean;
   onReschedule: () => void;
@@ -360,10 +361,10 @@ function VisitSection({
         >
           <span className="text-small text-ink-600">Payment</span>
           <Link
-            href={`/invoices/${bill.id}`}
+            href={invoiceHref(bill.id)}
             className="text-small font-semibold text-blue-600 hover:underline"
           >
-            Bill {reference(bill.id)}
+            Bill {bill.reference}
           </Link>
           <StatusPill status={PAYMENT_STATUS[bill.payment_status]} />
           <span className="text-body text-ink-900 tnum ml-auto font-semibold">
@@ -512,7 +513,7 @@ function BillingSection({
   invoices,
   denied,
 }: {
-  invoices: Schemas["Invoice"][] | undefined;
+  invoices: Schemas["InvoiceList"][] | undefined;
   denied: boolean;
 }) {
   if (denied)
@@ -528,10 +529,10 @@ function BillingSection({
           className="rounded-card border-line flex items-center gap-3 border p-4"
         >
           <Link
-            href={`/invoices/${invoice.id}`}
+            href={invoiceHref(invoice.id)}
             className="text-body font-semibold text-blue-600 hover:underline"
           >
-            Bill {reference(invoice.id)}
+            Bill {invoice.reference}
           </Link>
           <StatusPill status={PAYMENT_STATUS[invoice.payment_status]} />
           <span className="text-body text-ink-900 tnum ml-auto font-semibold">

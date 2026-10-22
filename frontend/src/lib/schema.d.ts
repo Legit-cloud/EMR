@@ -559,6 +559,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/billing/invoices/{id}/remind/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Message the patient about the balance still due. */
+        post: operations["billing_invoices_remind_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/invoices/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Counts by payment status and the money billed, collected and still due. */
+        get: operations["billing_invoices_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/billing/ledger/accounts/": {
         parameters: {
             query?: never;
@@ -2963,11 +2997,19 @@ export interface components {
             code: string;
             is_active?: boolean;
         };
+        /**
+         * @description The invoice number and the patient's name and MRN, which live in other modules.
+         *
+         *     The view looks the patients up once per page and passes them in as ``patients``.
+         */
         Invoice: {
             /** Format: uuid */
             readonly id: string;
+            readonly reference: string;
             /** Format: uuid */
             readonly patient: string;
+            readonly patient_name: string;
+            readonly patient_mrn: string;
             readonly currency: string;
             /** Format: uuid */
             readonly insurer: string | null;
@@ -2982,6 +3024,8 @@ export interface components {
             /** Format: date-time */
             readonly paid_at: string | null;
             readonly estate_review: boolean;
+            /** Format: date-time */
+            readonly last_reminder_at: string | null;
             readonly lines: components["schemas"]["InvoiceLine"][];
             readonly payments: components["schemas"]["Payment"][];
             /** Format: date-time */
@@ -2990,22 +3034,18 @@ export interface components {
         InvoiceLine: {
             /** Format: uuid */
             readonly id: string;
-            source: string;
-            source_id: string;
-            description: string;
-            revenue_category?: components["schemas"]["RevenueCategoryEnum"];
-            quantity: number;
-            /** Format: int64 */
-            unit_price_minor: number;
-            /** Format: int64 */
-            amount_minor: number;
-            /** Format: int64 */
-            insurer_amount_minor?: number;
-            /** Format: int64 */
-            patient_amount_minor?: number;
-            status?: components["schemas"]["InvoiceLineStatusEnum"];
+            readonly source: string;
+            readonly source_id: string;
+            readonly description: string;
+            readonly revenue_category: components["schemas"]["RevenueCategoryEnum"];
+            readonly quantity: number;
+            readonly unit_price_minor: number;
+            readonly amount_minor: number;
+            readonly insurer_amount_minor: number;
+            readonly patient_amount_minor: number;
+            readonly status: components["schemas"]["InvoiceLineStatusEnum"];
             /** Format: date-time */
-            finalised_at?: string | null;
+            readonly finalised_at: string | null;
         };
         /**
          * @description * `pending` - Pending
@@ -3014,6 +3054,44 @@ export interface components {
          * @enum {string}
          */
         InvoiceLineStatusEnum: "pending" | "final" | "void";
+        /**
+         * @description The invoice number and the patient's name and MRN, which live in other modules.
+         *
+         *     The view looks the patients up once per page and passes them in as ``patients``.
+         */
+        InvoiceList: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly reference: string;
+            /** Format: uuid */
+            readonly patient: string;
+            readonly patient_name: string;
+            readonly patient_mrn: string;
+            readonly currency: string;
+            /** Format: uuid */
+            readonly insurer: string | null;
+            readonly payment_status: components["schemas"]["PaymentStatusEnum"];
+            readonly total_minor: number;
+            readonly net_due_minor: number;
+            /** Format: date-time */
+            readonly paid_at: string | null;
+            readonly estate_review: boolean;
+            readonly line_count: number;
+            /** Format: date-time */
+            readonly last_reminder_at: string | null;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        /** @description Counts and amounts for the billing screen's header, in one currency. */
+        InvoiceSummary: {
+            currency: string;
+            unpaid_count: number;
+            partially_paid_count: number;
+            paid_count: number;
+            billed_minor: number;
+            collected_minor: number;
+            outstanding_minor: number;
+        };
         JournalEntry: {
             /** Format: uuid */
             readonly id: string;
@@ -3411,7 +3489,7 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Insurer"][];
         };
-        PaginatedInvoiceList: {
+        PaginatedInvoiceListList: {
             /** @example 123 */
             count: number;
             /**
@@ -3424,7 +3502,7 @@ export interface components {
              * @example http://api.example.org/accounts/?page=2
              */
             previous?: string | null;
-            results: components["schemas"]["Invoice"][];
+            results: components["schemas"]["InvoiceList"][];
         };
         PaginatedJournalEntryList: {
             /** @example 123 */
@@ -3935,17 +4013,16 @@ export interface components {
             /** Format: uuid */
             readonly id: string;
             /** Format: uuid */
-            invoice: string;
-            payer: components["schemas"]["PayerEnum"];
-            method: components["schemas"]["PaymentMethodEnum"];
-            /** Format: int64 */
-            amount_minor: number;
-            currency: string;
-            reference?: string;
+            readonly invoice: string;
+            readonly payer: components["schemas"]["PayerEnum"];
+            readonly method: components["schemas"]["PaymentMethodEnum"];
+            readonly amount_minor: number;
+            readonly currency: string;
+            readonly reference: string;
             /** Format: date-time */
-            received_at: string;
+            readonly received_at: string;
             /** Format: uuid */
-            received_by?: string | null;
+            readonly received_by: string | null;
         };
         /**
          * @description * `cash` - Cash
@@ -4113,6 +4190,11 @@ export interface components {
             category: components["schemas"]["AllergyCategoryEnum"];
             reaction: string;
             severity: components["schemas"]["AllergySeverityEnum"];
+        };
+        ReminderResult: {
+            channels: string[];
+            /** Format: date-time */
+            last_reminder_at: string;
         };
         RescheduleRequest: {
             /** Format: date-time */
@@ -4993,11 +5075,17 @@ export interface operations {
         parameters: {
             query?: {
                 estate_review?: string;
+                /** @description Sort field, with a leading - for descending. */
+                ordering?: string;
                 /** @description A page number within the paginated result set. */
                 page?: number;
+                /** @description Rows per page (10, 25, 50 or 100). */
+                page_size?: string;
                 /** @description Only rows of this patient (id). */
                 patient?: string;
                 payment_status?: string;
+                /** @description Search text. */
+                q?: string;
             };
             header?: never;
             path?: never;
@@ -5010,7 +5098,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["PaginatedInvoiceList"];
+                    "application/json": components["schemas"]["PaginatedInvoiceListList"];
                 };
             };
         };
@@ -5113,6 +5201,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Payment"];
+                };
+            };
+        };
+    };
+    billing_invoices_remind_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReminderResult"];
+                };
+            };
+        };
+    };
+    billing_invoices_summary_retrieve: {
+        parameters: {
+            query?: {
+                currency?: string;
+                /** @description Search text. */
+                q?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvoiceSummary"];
                 };
             };
         };

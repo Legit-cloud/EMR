@@ -2,6 +2,7 @@ import type { HttpHandler } from "msw";
 
 import { appointmentHandlers } from "./appointments";
 import { authHandlers } from "./auth";
+import { billingHandlers } from "./billing";
 import { chartHandlers } from "./chart";
 import { dashboardHandlers } from "./dashboard";
 import { patientHandlers } from "./patients";
@@ -17,6 +18,7 @@ import { pharmacyHandlers } from "./pharmacy";
 export const handlers: HttpHandler[] = [
   ...appointmentHandlers,
   ...authHandlers,
+  ...billingHandlers,
   ...chartHandlers,
   ...dashboardHandlers,
   ...patientHandlers,

@@ -240,9 +240,6 @@ export const chartHandlers = [
   http.get("*/api/clinical/notes/", () =>
     chart.forbidden.has("notes") ? denied() : page(visible(chart.notes)),
   ),
-  http.get("*/api/billing/invoices/", () =>
-    chart.forbidden.has("invoices") ? denied() : page<Schemas["Invoice"]>([]),
-  ),
   http.get("*/api/patients/attachments/", () =>
     chart.forbidden.has("attachments") ? denied() : page<Schemas["Attachment"]>([]),
   ),

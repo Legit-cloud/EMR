@@ -47,8 +47,17 @@ export const CHART_PAINT = {
   hoverBand: "var(--blue-50)",
 } as const;
 
+/** Invoice counts by payment status: the same colours as the Paid, Partly paid and Unpaid pills. */
+export const PAYMENT_SERIES = {
+  paid: "bg-green",
+  partial: "bg-amber",
+  unpaid: "bg-pink",
+} as const;
+
 export type SeriesFill =
-  (typeof DONUT_SERIES)[number] | (typeof STOCK_SERIES)[keyof typeof STOCK_SERIES];
+  | (typeof DONUT_SERIES)[number]
+  | (typeof STOCK_SERIES)[keyof typeof STOCK_SERIES]
+  | (typeof PAYMENT_SERIES)[keyof typeof PAYMENT_SERIES];
 
 /** Whole percentages for a legend. An empty total gives zeros rather than NaN. */
 export function percentages(values: number[]): number[] {
