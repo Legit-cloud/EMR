@@ -1207,6 +1207,231 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/inpatient/admissions/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
+        get: operations["inpatient_admissions_list"];
+        put?: never;
+        /** @description Admit a patient to a vacant bed. */
+        post: operations["inpatient_admissions_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/admissions/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
+        get: operations["inpatient_admissions_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/admissions/{id}/discharge/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
+        post: operations["inpatient_admissions_discharge_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/admissions/{id}/transfer/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
+        post: operations["inpatient_admissions_transfer_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/beds/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        get: operations["inpatient_beds_list"];
+        put?: never;
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        post: operations["inpatient_beds_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/beds/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        get: operations["inpatient_beds_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        patch: operations["inpatient_beds_partial_update"];
+        trace?: never;
+    };
+    "/api/inpatient/beds/{id}/in-service/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        post: operations["inpatient_beds_in_service_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/beds/{id}/out-of-service/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        post: operations["inpatient_beds_out_of_service_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/beds/{id}/ready/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+         *     bed out of service.
+         */
+        post: operations["inpatient_beds_ready_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/wards/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+         *     sets wards up with POST and PATCH.
+         */
+        get: operations["inpatient_wards_list"];
+        put?: never;
+        /**
+         * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+         *     sets wards up with POST and PATCH.
+         */
+        post: operations["inpatient_wards_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inpatient/wards/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+         *     sets wards up with POST and PATCH.
+         */
+        get: operations["inpatient_wards_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+         *     sets wards up with POST and PATCH.
+         */
+        patch: operations["inpatient_wards_partial_update"];
+        trace?: never;
+    };
     "/api/patients/allergies/": {
         parameters: {
             query?: never;
@@ -2543,6 +2768,29 @@ export interface components {
          * @enum {string}
          */
         ActionEnum: "read" | "create" | "update" | "delete" | "access" | "login" | "login_failed" | "logout" | "mfa_enrol" | "mfa_confirm" | "password_reset_request" | "password_reset" | "break_glass" | "break_glass_review";
+        /** @description The record of a stay, for history and audit. */
+        Admission: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly patient: string;
+            /** Format: uuid */
+            readonly bed: string;
+            readonly reason: string;
+            /** Format: date-time */
+            readonly admitted_at: string;
+            /** Format: date-time */
+            readonly discharged_at: string | null;
+            readonly discharge_status: components["schemas"]["DischargeStatusEnum"];
+            readonly discharge_note: string;
+        };
+        AdmitRequest: {
+            /** Format: uuid */
+            patient: string;
+            /** Format: uuid */
+            bed: string;
+            reason: string;
+        };
         Allergy: {
             /** Format: uuid */
             readonly id: string;
@@ -2800,8 +3048,54 @@ export interface components {
             /** Format: date-time */
             end_at: string;
         };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Bed: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            ward: string;
+            label: string;
+            readonly status: components["schemas"]["BedStatusEnum"];
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        BedRequest: {
+            /** Format: uuid */
+            ward: string;
+            label: string;
+        };
+        /**
+         * @description * `vacant` - Vacant
+         *     * `occupied` - Occupied
+         *     * `cleaning` - Cleaning
+         *     * `out_of_service` - Out of service
+         * @enum {string}
+         */
+        BedStatusEnum: "vacant" | "occupied" | "cleaning" | "out_of_service";
         /** @enum {unknown} */
         BlankEnum: "";
+        BoardBed: {
+            /** Format: uuid */
+            id: string;
+            label: string;
+            status: components["schemas"]["BedStatusEnum"];
+            readonly occupant: components["schemas"]["Occupant"] | null;
+        };
+        BoardWard: {
+            /** Format: uuid */
+            id: string;
+            name: string;
+            beds: components["schemas"]["BoardBed"][];
+        };
         BreakGlassGrant: {
             /** Format: uuid */
             readonly id: string;
@@ -2999,6 +3293,21 @@ export interface components {
             rank?: number;
             note?: string;
         };
+        DischargeRequest: {
+            status: components["schemas"]["DischargeStatusEnum"];
+            /** @default  */
+            note: string;
+        };
+        DischargeResult: {
+            status: components["schemas"]["DischargeStatusEnum"];
+        };
+        /**
+         * @description * `discharged` - Discharged
+         *     * `lama` - Left against medical advice
+         *     * `transferred` - Transferred
+         * @enum {string}
+         */
+        DischargeStatusEnum: "discharged" | "lama" | "transferred";
         DispenseRequest: {
             items: {
                 [key: string]: number;
@@ -3543,6 +3852,18 @@ export interface components {
             /** UCUM unit */
             unit: string;
         };
+        /** @description Who is in a bed. Built from an admission with the patient's name and MRN attached. */
+        Occupant: {
+            /** Format: uuid */
+            admission: string;
+            /** Format: uuid */
+            patient: string;
+            patient_name: string;
+            patient_mrn: string;
+            /** Format: date-time */
+            admitted_at: string;
+            reason: string;
+        };
         Order: {
             /** Format: uuid */
             readonly id: string;
@@ -3621,6 +3942,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Account"][];
         };
+        PaginatedAdmissionList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Admission"][];
+        };
         PaginatedAllergyList: {
             /** @example 123 */
             count: number;
@@ -3695,6 +4031,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["AvailabilityWindow"][];
+        };
+        PaginatedBedList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Bed"][];
         };
         PaginatedBreakGlassGrantList: {
             /** @example 123 */
@@ -4090,6 +4441,17 @@ export interface components {
          *     Business rules that live on the model (status transitions, cross-field checks,
          *     constraints) then apply to API writes exactly as they do in services.
          */
+        PatchedBedRequest: {
+            /** Format: uuid */
+            ward?: string;
+            label?: string;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
         PatchedConsultationNoteRequest: {
             /** Format: uuid */
             encounter?: string;
@@ -4269,6 +4631,21 @@ export interface components {
             name?: string;
             email?: string;
             phone?: string;
+            active?: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        PatchedWardRequest: {
+            /** Format: uuid */
+            facility?: string;
+            name?: string;
+            /** Format: int64 */
+            daily_charge_minor?: number;
+            currency?: string;
             active?: boolean;
         };
         Patient: {
@@ -4860,6 +5237,12 @@ export interface components {
             out: number;
             low_items: components["schemas"]["LowItem"][];
         };
+        TransferRequest: {
+            /** Format: uuid */
+            bed: string;
+            /** @default  */
+            reason: string;
+        };
         TriageRequest: {
             triage_priority: number;
         };
@@ -4948,6 +5331,38 @@ export interface components {
             recorded_at?: string;
             note?: string;
             readings: components["schemas"]["ReadingRequest"][];
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Ward: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            facility: string;
+            name: string;
+            /** Format: int64 */
+            daily_charge_minor?: number;
+            currency?: string;
+            active?: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        WardRequest: {
+            /** Format: uuid */
+            facility: string;
+            name: string;
+            /** Format: int64 */
+            daily_charge_minor?: number;
+            currency?: string;
+            active?: boolean;
         };
     };
     responses: never;
@@ -6563,6 +6978,381 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VitalSigns"];
+                };
+            };
+        };
+    };
+    inpatient_admissions_list: {
+        parameters: {
+            query?: {
+                open?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows of this patient (id). */
+                patient?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedAdmissionList"];
+                };
+            };
+        };
+    };
+    inpatient_admissions_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AdmitRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AdmitRequest"];
+                "multipart/form-data": components["schemas"]["AdmitRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Occupant"];
+                };
+            };
+        };
+    };
+    inpatient_admissions_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Admission"];
+                };
+            };
+        };
+    };
+    inpatient_admissions_discharge_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DischargeRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["DischargeRequest"];
+                "multipart/form-data": components["schemas"]["DischargeRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DischargeResult"];
+                };
+            };
+        };
+    };
+    inpatient_admissions_transfer_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TransferRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["TransferRequest"];
+                "multipart/form-data": components["schemas"]["TransferRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Occupant"];
+                };
+            };
+        };
+    };
+    inpatient_beds_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedBedList"];
+                };
+            };
+        };
+    };
+    inpatient_beds_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BedRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["BedRequest"];
+                "multipart/form-data": components["schemas"]["BedRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_beds_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_beds_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedBedRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedBedRequest"];
+                "multipart/form-data": components["schemas"]["PatchedBedRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_beds_in_service_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_beds_out_of_service_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_beds_ready_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Bed"];
+                };
+            };
+        };
+    };
+    inpatient_wards_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BoardWard"][];
+                };
+            };
+        };
+    };
+    inpatient_wards_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WardRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["WardRequest"];
+                "multipart/form-data": components["schemas"]["WardRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ward"];
+                };
+            };
+        };
+    };
+    inpatient_wards_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ward"];
+                };
+            };
+        };
+    };
+    inpatient_wards_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedWardRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedWardRequest"];
+                "multipart/form-data": components["schemas"]["PatchedWardRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Ward"];
                 };
             };
         };

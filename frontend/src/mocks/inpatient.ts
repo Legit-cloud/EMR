@@ -6,8 +6,8 @@ import { mockSignedIn } from "./auth";
 import { MOCK_PATIENTS } from "./patients";
 
 /**
- * Inpatient wards and beds. There is no backend for this module yet, so this mock is the
- * contract the screen is built against (see docs/adr/0020). Rules it enforces, from
+ * Inpatient wards and beds, shaped like apps/inpatient (docs/adr/0021). This mock is the
+ * stand-in the unit tests use for the real API. Rules it enforces, from
  * CLAUDE.md Section 5: admitting needs a vacant bed and makes it Occupied in one step; a
  * patient is in one bed at a time; transferring frees the old bed (to Cleaning) and takes a new
  * one; a discharge ends as Discharged, LAMA or Transferred and sends the bed to Cleaning.

@@ -31,6 +31,8 @@ from apps.clinical.models import (
 )
 from apps.core.money import Money
 from apps.core.tenancy import tenant_context
+from apps.inpatient import services as inpatient
+from apps.inpatient.models import Bed, Ward
 from apps.patients.models import Allergy, Patient
 from apps.pharmacy import services as pharmacy
 from apps.pharmacy.models import Drug, Prescription, PrescriptionItem, Vendor
@@ -134,6 +136,7 @@ class Command(BaseCommand):
                 for visit in range(rng.choice([1, 1, 2, 3])):
                     self._visit(rng, patient, visit, doctor, nurse, facility, dept, drugs, made)
             self._stock_orders(drugs)
+            self._wards(rng, facility)
         self.stdout.write(
             f"Added {made['encounters']} encounters, {made['prescriptions']} prescriptions "
             f"and {made['invoices']} paid or part-paid invoices."
@@ -293,3 +296,23 @@ class Command(BaseCommand):
                 }
             ],
         )
+
+    def _wards(self, rng, facility):
+        """Three wards with beds, and a few patients already admitted."""
+        if Ward.objects.exists():
+            return
+        beds = []
+        for name, charge, labels in (
+            ("Medical ward", 800_000, [f"Bed {n}" for n in range(1, 7)]),
+            ("Paediatrics", 650_000, [f"Cot {n}" for n in range(1, 5)]),
+            ("Maternity", 1_200_000, [f"Bed {n}" for n in range(1, 5)]),
+        ):
+            ward = Ward.objects.create(facility=facility, name=name, daily_charge_minor=charge)
+            beds += [Bed.objects.create(ward=ward, label=label) for label in labels]
+        # One bed of the medical ward is out for repair.
+        inpatient.set_out_of_service(beds[5], True)
+        reasons = ["Severe malaria", "Pneumonia", "Hypertensive crisis", "Post-operative care"]
+        for bed, patient in zip(
+            beds, rng.sample(list(Patient.objects.all()[:20]), 4), strict=False
+        ):
+            inpatient.admit(patient_id=patient.pk, bed=bed, reason=rng.choice(reasons))

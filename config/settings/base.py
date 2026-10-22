@@ -40,6 +40,7 @@ LOCAL_APPS = [
     "apps.pharmacy",
     "apps.staff",
     "apps.billing",
+    "apps.inpatient",
     "apps.notifications",
     "apps.reports",
 ]
@@ -172,6 +173,8 @@ SPECTACULAR_SETTINGS = {
         "AppointmentStatusEnum": "apps.scheduling.models.AppointmentStatus",
         "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
         "PurchaseOrderStatusEnum": "apps.pharmacy.models.OrderStatus",
+        "BedStatusEnum": "apps.inpatient.models.BedStatus",
+        "DischargeStatusEnum": "apps.inpatient.models.DischargeStatus",
         "InvoiceLineStatusEnum": "apps.billing.models.LineStatus",
         "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
         "DosageFormEnum": "apps.pharmacy.models.DosageForm",
@@ -185,6 +188,8 @@ SPECTACULAR_SETTINGS = {
 MRN_TIME_ZONE = env("MRN_TIME_ZONE", default="Africa/Lagos")
 # Dashboard figures are grouped by local day and month, in one currency.
 REPORTING_TIME_ZONE = env("REPORTING_TIME_ZONE", default="Africa/Lagos")
+# The day a bed-day is billed for is the hospital's calendar day, not UTC's.
+INPATIENT_TIME_ZONE = env("INPATIENT_TIME_ZONE", default="Africa/Lagos")
 REPORTING_CURRENCY = env("REPORTING_CURRENCY", default="NGN")
 MRN_SEQUENCE_DIGITS = 6
 PATIENT_DUPLICATE_THRESHOLD = 0.85
@@ -269,6 +274,10 @@ CELERY_BEAT_SCHEDULE = {
     "licence-watcher": {
         "task": "apps.staff.tasks.run_licence_watcher",
         "schedule": crontab(hour=6, minute=0),
+    },
+    "daily-ward-charges": {
+        "task": "apps.inpatient.tasks.run_daily_ward_charges",
+        "schedule": crontab(hour=0, minute=0),
     },
     "appointment-reminders": {
         "task": "apps.scheduling.tasks.send_appointment_reminders",

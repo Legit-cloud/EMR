@@ -2153,6 +2153,460 @@ paths:
               schema:
                 $ref: '#/components/schemas/VitalSigns'
           description: ''
+  /api/inpatient/admissions/:
+    get:
+      operationId: inpatient_admissions_list
+      description: Stays. Admit, transfer and discharge are actions; nothing edits
+        a stay.
+      parameters:
+      - in: query
+        name: open
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: patient
+        schema:
+          type: string
+        description: Only rows of this patient (id).
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedAdmissionList'
+          description: ''
+    post:
+      operationId: inpatient_admissions_create
+      description: Admit a patient to a vacant bed.
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdmitRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AdmitRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AdmitRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Occupant'
+          description: ''
+  /api/inpatient/admissions/{id}/:
+    get:
+      operationId: inpatient_admissions_retrieve
+      description: Stays. Admit, transfer and discharge are actions; nothing edits
+        a stay.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Admission'
+          description: ''
+  /api/inpatient/admissions/{id}/discharge/:
+    post:
+      operationId: inpatient_admissions_discharge_create
+      description: Stays. Admit, transfer and discharge are actions; nothing edits
+        a stay.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DischargeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DischargeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DischargeRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DischargeResult'
+          description: ''
+  /api/inpatient/admissions/{id}/transfer/:
+    post:
+      operationId: inpatient_admissions_transfer_create
+      description: Stays. Admit, transfer and discharge are actions; nothing edits
+        a stay.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Occupant'
+          description: ''
+  /api/inpatient/beds/:
+    get:
+      operationId: inpatient_beds_list
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBedList'
+          description: ''
+    post:
+      operationId: inpatient_beds_create
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BedRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BedRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BedRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+  /api/inpatient/beds/{id}/:
+    get:
+      operationId: inpatient_beds_retrieve
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+    patch:
+      operationId: inpatient_beds_partial_update
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBedRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBedRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBedRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+  /api/inpatient/beds/{id}/in-service/:
+    post:
+      operationId: inpatient_beds_in_service_create
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+  /api/inpatient/beds/{id}/out-of-service/:
+    post:
+      operationId: inpatient_beds_out_of_service_create
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+  /api/inpatient/beds/{id}/ready/:
+    post:
+      operationId: inpatient_beds_ready_create
+      description: |-
+        Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
+        bed out of service.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Bed'
+          description: ''
+  /api/inpatient/wards/:
+    get:
+      operationId: inpatient_wards_list
+      description: |-
+        ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+        sets wards up with POST and PATCH.
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BoardWard'
+          description: ''
+    post:
+      operationId: inpatient_wards_create
+      description: |-
+        ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+        sets wards up with POST and PATCH.
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WardRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WardRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WardRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ward'
+          description: ''
+  /api/inpatient/wards/{id}/:
+    get:
+      operationId: inpatient_wards_retrieve
+      description: |-
+        ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+        sets wards up with POST and PATCH.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ward'
+          description: ''
+    patch:
+      operationId: inpatient_wards_partial_update
+      description: |-
+        ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
+        sets wards up with POST and PATCH.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - inpatient
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWardRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWardRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWardRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Ward'
+          description: ''
   /api/patients/allergies/:
     get:
       operationId: patients_allergies_list
@@ -4939,6 +5393,67 @@ components:
         * `password_reset` - Password reset
         * `break_glass` - Break-glass access
         * `break_glass_review` - Break-glass review
+    Admission:
+      type: object
+      description: The record of a stay, for history and audit.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        bed:
+          type: string
+          format: uuid
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+        admitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+        discharged_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        discharge_status:
+          allOf:
+          - $ref: '#/components/schemas/DischargeStatusEnum'
+          readOnly: true
+        discharge_note:
+          type: string
+          readOnly: true
+      required:
+      - admitted_at
+      - bed
+      - discharge_note
+      - discharge_status
+      - discharged_at
+      - id
+      - patient
+      - reason
+    AdmitRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        bed:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - bed
+      - patient
+      - reason
     Allergy:
       type: object
       properties:
@@ -5529,9 +6044,102 @@ components:
       - facility
       - physician
       - start_at
+    Bed:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        ward:
+          type: string
+          format: uuid
+        label:
+          type: string
+          maxLength: 30
+        status:
+          allOf:
+          - $ref: '#/components/schemas/BedStatusEnum'
+          readOnly: true
+      required:
+      - id
+      - label
+      - status
+      - ward
+    BedRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        ward:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 30
+      required:
+      - label
+      - ward
+    BedStatusEnum:
+      enum:
+      - vacant
+      - occupied
+      - cleaning
+      - out_of_service
+      type: string
+      description: |-
+        * `vacant` - Vacant
+        * `occupied` - Occupied
+        * `cleaning` - Cleaning
+        * `out_of_service` - Out of service
     BlankEnum:
       enum:
       - ''
+    BoardBed:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        label:
+          type: string
+        status:
+          $ref: '#/components/schemas/BedStatusEnum'
+        occupant:
+          allOf:
+          - $ref: '#/components/schemas/Occupant'
+          nullable: true
+          readOnly: true
+      required:
+      - id
+      - label
+      - occupant
+      - status
+    BoardWard:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        beds:
+          type: array
+          items:
+            $ref: '#/components/schemas/BoardBed'
+      required:
+      - beds
+      - id
+      - name
     BreakGlassGrant:
       type: object
       properties:
@@ -5954,6 +6562,34 @@ components:
       - code
       - code_system
       - encounter
+    DischargeRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/DischargeStatusEnum'
+        note:
+          type: string
+          default: ''
+          maxLength: 500
+      required:
+      - status
+    DischargeResult:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/DischargeStatusEnum'
+      required:
+      - status
+    DischargeStatusEnum:
+      enum:
+      - discharged
+      - lama
+      - transferred
+      type: string
+      description: |-
+        * `discharged` - Discharged
+        * `lama` - Left against medical advice
+        * `transferred` - Transferred
     DispenseRequest:
       type: object
       properties:
@@ -7220,6 +7856,33 @@ components:
       - code
       - unit
       - value
+    Occupant:
+      type: object
+      description: Who is in a bed. Built from an admission with the patient's name
+        and MRN attached.
+      properties:
+        admission:
+          type: string
+          format: uuid
+        patient:
+          type: string
+          format: uuid
+        patient_name:
+          type: string
+        patient_mrn:
+          type: string
+        admitted_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+      required:
+      - admission
+      - admitted_at
+      - patient
+      - patient_mrn
+      - patient_name
+      - reason
     Order:
       type: object
       properties:
@@ -7445,6 +8108,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Account'
+    PaginatedAdmissionList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Admission'
     PaginatedAllergyList:
       type: object
       required:
@@ -7560,6 +8246,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/AvailabilityWindow'
+    PaginatedBedList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bed'
     PaginatedBreakGlassGrantList:
       type: object
       required:
@@ -8176,6 +8885,21 @@ components:
         end_at:
           type: string
           format: date-time
+    PatchedBedRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        ward:
+          type: string
+          format: uuid
+        label:
+          type: string
+          minLength: 1
+          maxLength: 30
     PatchedConsultationNoteRequest:
       type: object
       description: |-
@@ -8536,6 +9260,32 @@ components:
         phone:
           type: string
           maxLength: 32
+        active:
+          type: boolean
+    PatchedWardRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        daily_charge_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
         active:
           type: boolean
     Patient:
@@ -9992,6 +10742,18 @@ components:
       - out
       - products
       - value_minor
+    TransferRequest:
+      type: object
+      properties:
+        bed:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          default: ''
+          maxLength: 300
+      required:
+      - bed
     TriageRequest:
       type: object
       properties:
@@ -10207,6 +10969,67 @@ components:
       required:
       - encounter
       - readings
+    Ward:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          maxLength: 100
+        daily_charge_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        active:
+          type: boolean
+      required:
+      - facility
+      - id
+      - name
+    WardRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        facility:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 100
+        daily_charge_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        active:
+          type: boolean
+      required:
+      - facility
+      - name
   securitySchemes:
     bearerAuth:
       type: http
