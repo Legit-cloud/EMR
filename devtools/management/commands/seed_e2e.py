@@ -29,6 +29,7 @@ from apps.patients import services as patients
 from apps.patients.models import Allergy, Patient
 from apps.pharmacy import services as pharmacy
 from apps.pharmacy.models import Drug, Prescription, PrescriptionItem, StockBatch
+from apps.portal.models import PortalAccount
 from apps.scheduling.models import Appointment, AvailabilityWindow
 from apps.staff.models import StaffProfile
 from apps.tenants.models import Department, Facility, Tenant
@@ -43,6 +44,7 @@ ROLES = {
     "admin": Role.TENANT_ADMIN,
     "hr": Role.HR,
     "compliance": Role.COMPLIANCE_OFFICER,
+    "portal": Role.PATIENT,
 }
 
 
@@ -221,6 +223,37 @@ class Command(BaseCommand):
                 appointment_type="new",
                 start_at=datetime.combine(tomorrow, time(9), tzinfo=zone),
                 end_at=datetime.combine(tomorrow, time(9, 15), tzinfo=zone),
+            )
+
+            # A patient with a portal login, a visit and a bill, so the portal has data to show.
+            chioma = Patient.objects.create(
+                first_name="Chioma",
+                last_name="Nwosu",
+                date_of_birth=date(1991, 4, 12),
+                sex="female",
+                phone="+2348035550123",
+                email=users["portal"]["user"].email,
+            )
+            PortalAccount.objects.create(user=users["portal"]["user"], patient=chioma)
+            Appointment.objects.create(
+                patient=chioma,
+                physician=doctor,
+                facility=facility,
+                department=medicine,
+                appointment_type="new",
+                start_at=datetime.combine(tomorrow, time(16), tzinfo=zone),
+                end_at=datetime.combine(tomorrow, time(16, 15), tzinfo=zone),
+                reason="Blood pressure check",
+            )
+            billing.charge_delivered(
+                patient_id=chioma.pk,
+                source="e2e.seed",
+                source_id=run,
+                description="Consultation with Dr Doctor Tester",
+                quantity=1,
+                unit_price=Money(1_000_000, "NGN"),
+                idempotency_key=f"e2e:{run}:portal-consultation",
+                revenue_category="consultation",
             )
 
             # The billing journey has its own patient: prescriptions written for Ngozi

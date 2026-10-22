@@ -7,7 +7,15 @@ export type Seed = {
   run: string;
   password: string;
   users: Record<
-    "doctor" | "desk" | "billing" | "login" | "pharmacist" | "admin" | "hr" | "compliance",
+    | "doctor"
+    | "desk"
+    | "billing"
+    | "login"
+    | "pharmacist"
+    | "admin"
+    | "hr"
+    | "compliance"
+    | "portal",
     { username: string; email: string }
   >;
   physician_id: string;

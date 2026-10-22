@@ -154,7 +154,7 @@ export const NAV: NavGroup[] = [
       },
       {
         label: "Audit log",
-        href: "/admin/audit",
+        href: "/audit",
         icon: ClipboardText,
         roles: ["compliance_officer", "tenant_admin"],
       },

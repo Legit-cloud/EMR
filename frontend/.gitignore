@@ -7,3 +7,4 @@ e2e/.seed.json
 e2e/.auth/
 *.tsbuildinfo
 .pnpm-store/
+e2e-run.log
