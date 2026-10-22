@@ -15,6 +15,9 @@ x-app: &app
     # The browser reaches Django through the edge proxy (http://localhost:8080 or http://edge).
     ALLOWED_HOSTS: localhost,127.0.0.1,0.0.0.0,web,edge
     CSRF_TRUSTED_ORIGINS: http://localhost:8080,http://edge
+    # Sign-in is two requests (password, then the emailed code). `make e2e` raises this so the
+    # test run can sign in every role in one minute; normal use keeps the default of 10/min.
+    AUTH_THROTTLE_RATE: ${AUTH_THROTTLE_RATE:-10/min}
   volumes:
     - .:/app
   depends_on:

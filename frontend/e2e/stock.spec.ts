@@ -46,7 +46,7 @@ test("orders stock from a new vendor, which emails the order", async ({ page }) 
     .filter({ hasText: "E2E Medical Supplies" });
   await expect(row).toContainText("Pending");
   await expect(row).toContainText("1 item • ₦15,000.00");
-  await expect(row.getByText(/Email sent/)).toBeVisible();
+  await expect(row.getByText(/Email sent/)).toHaveCount(1); // read out by screen readers beside the tick
 });
 
 test("receives part of the order, then the rest", async ({ page }) => {

@@ -5,7 +5,7 @@ import { http, HttpResponse } from "msw";
 import type { ComponentType } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import AuditPage from "@/app/(app)/admin/audit/page";
+import AuditPage from "@/app/(app)/audit/page";
 import BillingPage from "@/app/(app)/billing/page";
 import PatientsPage from "@/app/(app)/patients/page";
 import StockPage from "@/app/(app)/pharmacy/stock/page";

@@ -59,6 +59,6 @@ frontend-tools:
 	$(COMPOSE) --profile tools run --rm frontend-tools
 
 e2e:
-	$(COMPOSE) --profile e2e up -d --build web worker frontend edge
+	AUTH_THROTTLE_RATE=300/min $(COMPOSE) --profile e2e up -d --build web worker frontend edge
 	$(COMPOSE) exec -T web python manage.py seed_e2e
 	$(COMPOSE) --profile e2e run --rm playwright

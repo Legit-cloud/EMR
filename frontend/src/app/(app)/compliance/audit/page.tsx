@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-/** The audit log moved to /admin/audit; old links land there. */
+/** The audit log lives at /audit (not /admin, which the edge proxy sends to Django admin); old links land here. */
 export default function OldAuditPage() {
-  redirect("/admin/audit");
+  redirect("/audit");
 }

@@ -1,51 +1,52 @@
 /**
- * Opens every screen at the four design widths and reports any that scroll sideways.
- * Runs against `next dev` with the mock layer on, so it needs no backend:
+ * Opens every staff and portal screen at the four design widths on the real stack, and reports
+ * any that scroll sideways or fail to draw. Run it in the Playwright container after the stack is
+ * up and a tenant is seeded (`make e2e` does both), so e2e/.seed.json and the saved sign-ins in
+ * e2e/.auth/ exist:
  *
- *   NEXT_PUBLIC_USE_MOCKS=true pnpm dev &
- *   node scripts/layout-check.mjs
+ *   docker compose --profile e2e run --rm --no-deps playwright \
+ *     sh -c "corepack enable && pnpm install --frozen-lockfile >/dev/null && node scripts/layout-check.mjs"
  *
  * Screenshots go to test-results/layout/. Exit code 1 if any screen overflows the page.
- * A signed-in mock session lives in the page, so screens are reached by client-side navigation
- * (window.next.router) rather than by reloading.
  */
-import { mkdirSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
 
 import { chromium } from "@playwright/test";
 
-const BASE = process.env.BASE_URL ?? "http://localhost:3000";
+const BASE = process.env.BASE_URL ?? "http://localhost:8080";
 const WIDTHS = [
   { width: 1440, height: 900 },
   { width: 1280, height: 800 },
   { width: 1024, height: 768 },
   { width: 390, height: 844 },
 ];
-const PASSWORD = "synthetic-password-1";
-const CODE = "123456";
-const CHART = "/patients/8a5e2f8c-0000-4000-8000-000000000001";
+const seed = JSON.parse(readFileSync("e2e/.seed.json", "utf-8"));
 
 const GROUPS = [
   {
-    user: "bisi.finance",
+    role: "admin",
     routes: [
       "/dashboard",
       "/patients",
-      CHART,
+      `/patients/${seed.patient.id}`,
       "/appointments",
       "/queue",
       "/billing",
+      `/billing?invoice=${seed.invoice_id}`,
       "/pharmacy/stock",
+      "/pharmacy/stock?tab=orders",
       "/staff",
       "/inpatient",
-      "/admin/audit",
+      "/audit",
       "/compliance",
       "/manage",
+      "/manage/staff",
       "/registrations",
       "/pharmacy/formulary",
     ],
   },
   {
-    user: "chioma.patient",
+    role: "portal",
     routes: [
       "/portal",
       "/portal/appointments",
@@ -56,28 +57,6 @@ const GROUPS = [
     ],
   },
 ];
-
-async function waitForServer() {
-  for (let i = 0; i < 300; i += 1) {
-    try {
-      if ((await fetch(`${BASE}/login`)).ok) return;
-    } catch {
-      // not up yet
-    }
-    await new Promise((r) => setTimeout(r, 2000));
-  }
-  throw new Error("The dev server did not start.");
-}
-
-async function signIn(page, user) {
-  await page.goto(`${BASE}/login`);
-  await page.getByLabel("Username").fill(user);
-  await page.getByLabel("Password").fill(PASSWORD);
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByLabel("Sign-in code").fill(CODE);
-  await page.getByRole("button", { name: "Verify and sign in" }).click();
-  await page.waitForURL((url) => !url.pathname.startsWith("/login"), { timeout: 60_000 });
-}
 
 /** Elements wider than the window that are not inside a scroll container of their own. */
 function overflowing() {
@@ -95,35 +74,44 @@ function overflowing() {
     .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)}`);
 }
 
+const slug = (route) => route.replace(/[^a-z0-9]+/gi, "_").replace(/^_|_$/g, "") || "home";
+
 mkdirSync("test-results/layout", { recursive: true });
-await waitForServer();
 const browser = await chromium.launch();
 const failures = [];
 let checked = 0;
 
 for (const size of WIDTHS) {
   for (const group of GROUPS) {
-    const context = await browser.newContext({ viewport: size });
+    const context = await browser.newContext({
+      viewport: size,
+      baseURL: BASE,
+      storageState: `e2e/.auth/${group.role}.json`,
+    });
     const page = await context.newPage();
-    await signIn(page, group.user);
     for (const route of group.routes) {
-      await page.evaluate((path) => window.next.router.push(path), route);
-      await page.waitForURL((url) => url.pathname === route, { timeout: 30_000 });
-      // Let the first requests and the skeletons settle.
-      await page.waitForTimeout(1500);
+      const response = await page.goto(route, { waitUntil: "domcontentloaded" });
+      await page.waitForLoadState("networkidle").catch(() => {});
+      await page.waitForTimeout(800);
+      checked += 1;
+      const where = `${size.width}px ${route}`;
+      if (!response || response.status() >= 400) {
+        failures.push(`${where}: HTTP ${response?.status()}`);
+        continue;
+      }
+      if (new URL(page.url()).pathname.startsWith("/login")) {
+        failures.push(`${where}: sent to sign-in`);
+        continue;
+      }
       const sideways = await page.evaluate(
         () => document.documentElement.scrollWidth - window.innerWidth,
       );
-      checked += 1;
       if (sideways > 1) {
-        const where = await page.evaluate(overflowing);
-        failures.push(
-          `${size.width}px ${route}: page is ${sideways}px too wide  ${where.join(" | ")}`,
-        );
+        const culprits = await page.evaluate(overflowing);
+        failures.push(`${where}: page is ${sideways}px too wide  ${culprits.join(" | ")}`);
       }
       if (size.width === 390 || size.width === 1440) {
-        const name = route.replaceAll("/", "_").replace(/^_/, "") || "home";
-        await page.screenshot({ path: `test-results/layout/${size.width}-${name}.png` });
+        await page.screenshot({ path: `test-results/layout/${size.width}-${slug(route)}.png` });
       }
     }
     await context.close();
@@ -133,7 +121,7 @@ await browser.close();
 
 console.log(`${checked} screens checked at ${WIDTHS.map((w) => w.width).join(", ")} px.`);
 if (failures.length) {
-  console.log(`${failures.length} scroll sideways:`);
+  console.log(`${failures.length} problem(s):`);
   for (const line of failures) console.log(`  ${line}`);
   process.exit(1);
 }

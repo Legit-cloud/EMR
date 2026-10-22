@@ -22,6 +22,7 @@ export default async function globalSetup(config: FullConfig) {
     "admin",
     "hr",
     "compliance",
+    "portal",
   ] as const) {
     const user = seed.users[role];
     const context = await request.newContext({ baseURL });
