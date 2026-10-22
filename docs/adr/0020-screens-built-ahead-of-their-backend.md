@@ -80,3 +80,9 @@ Notes for the people who build it:
   research with the name removed) are placeholders for the legal text, which the data-protection
   lead must approve before launch (DG-02).
 - **Deceased patients** lose portal access (CLAUDE.md Section 5), enforced by the API.
+
+## Update 2026-10-22
+
+The inpatient module now exists (ADR 0021) and the ward board calls the real API through the
+generated client. The inpatient contract above is what was built. The patient portal is still
+a mock.

@@ -2,7 +2,16 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/legacy-ui";
+import {
+  Button,
+  Dialog,
+  Field,
+  Loading,
+  LoadFailed,
+  NoAccess,
+  Notice,
+  Select,
+} from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 import { formatDate, formatDateTime, formatMoney, humanise, toMinor } from "@/lib/format";
 
@@ -33,7 +42,7 @@ const FLAG_STYLE: Record<string, string> = {
 
 /** Staff profiles and licences. HR and tenant admins maintain them and record checks. */
 export default function StaffPage() {
-  const [profiles, setProfiles] = useState<Profile[] | "forbidden" | null>(null);
+  const [profiles, setProfiles] = useState<Profile[] | "forbidden" | "error" | null>(null);
   const [users, setUsers] = useState<Schemas["User"][]>([]);
   const [creating, setCreating] = useState(false);
   const [verifying, setVerifying] = useState<Profile | null>(null);
@@ -44,7 +53,9 @@ export default function StaffPage() {
       api.GET("/api/staff/profiles/"),
       api.GET("/api/accounts/users/"),
     ]);
-    setProfiles(p.response.status === 403 ? "forbidden" : (p.data?.results ?? []));
+    setProfiles(
+      p.response.status === 403 ? "forbidden" : p.response.ok ? (p.data?.results ?? []) : "error",
+    );
     setUsers(u.data?.results ?? []);
   }
 
@@ -54,6 +65,7 @@ export default function StaffPage() {
 
   if (profiles === null) return <Loading />;
   if (profiles === "forbidden") return <NoAccess />;
+  if (profiles === "error") return <LoadFailed what="Staff profiles" onRetry={load} />;
   const withoutProfile = users.filter((u) => u.is_active && !profiles.some((p) => p.user === u.id));
 
   return (

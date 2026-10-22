@@ -7,6 +7,7 @@ import {
   Button,
   Dialog,
   Loading,
+  LoadFailed,
   NoAccess,
   Notice,
   Select,
@@ -26,7 +27,7 @@ export default function CompliancePage() {
   // Tenant admins see the queue for oversight; only the compliance role records reviews.
   const canReview = usePermissions().hasRole("compliance_officer");
   const [status, setStatus] = useState<"pending" | "appropriate" | "inappropriate">("pending");
-  const [grants, setGrants] = useState<Grant[] | "forbidden" | null>(null);
+  const [grants, setGrants] = useState<Grant[] | "forbidden" | "error" | null>(null);
   const [users, setUsers] = useState<Record<string, string>>({});
   const [reviewing, setReviewing] = useState<Grant | null>(null);
   const [message, setMessage] = useState<string | null>(null);
@@ -35,6 +36,7 @@ export default function CompliancePage() {
     setGrants(null);
     const { data, response } = await api.GET("/api/accounts/break-glass/grants/");
     if (response.status === 403) return setGrants("forbidden");
+    if (!response.ok) return setGrants("error");
     setGrants((data?.results ?? []).filter((g) => g.review_status === status));
   }
 
@@ -82,6 +84,8 @@ export default function CompliancePage() {
         <Loading />
       ) : grants === "forbidden" ? (
         <NoAccess />
+      ) : grants === "error" ? (
+        <LoadFailed what="The break-glass list" onRetry={load} />
       ) : grants.length === 0 ? (
         <p className="text-slate-600">Nothing here.</p>
       ) : (

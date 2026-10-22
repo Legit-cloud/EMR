@@ -277,3 +277,15 @@ export function ReasonDialog({
     </Dialog>
   );
 }
+
+/** A load that failed for a reason other than permission: say so, and offer to try again. */
+export function LoadFailed({ what, onRetry }: { what: string; onRetry: () => void }) {
+  return (
+    <div role="alert" className="flex flex-col items-start gap-3">
+      <Notice tone="error" title={`${what} could not be loaded.`} />
+      <Button variant="secondary" onClick={onRetry}>
+        Try again
+      </Button>
+    </div>
+  );
+}

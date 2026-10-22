@@ -3,7 +3,16 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Field, Loading, NoAccess, Notice, Select } from "@/components/legacy-ui";
+import {
+  Button,
+  Dialog,
+  Field,
+  Loading,
+  LoadFailed,
+  NoAccess,
+  Notice,
+  Select,
+} from "@/components/legacy-ui";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 import { humanise } from "@/lib/format";
 
@@ -26,7 +35,7 @@ const ROLES = [
 
 /** Users of the organisation and their roles. Tenant admins manage them. */
 export default function ManageUsersPage() {
-  const [users, setUsers] = useState<User[] | "forbidden" | null>(null);
+  const [users, setUsers] = useState<User[] | "forbidden" | "error" | null>(null);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [facilities, setFacilities] = useState<Schemas["Facility"][]>([]);
   const [departments, setDepartments] = useState<Schemas["Department"][]>([]);
@@ -42,6 +51,7 @@ export default function ManageUsersPage() {
       api.GET("/api/tenants/departments/"),
     ]);
     if (u.response.status === 403) return setUsers("forbidden");
+    if (!u.response.ok) return setUsers("error");
     setUsers(u.data?.results ?? []);
     setAssignments(a.data?.results ?? []);
     setFacilities(f.data?.results ?? []);
@@ -85,6 +95,7 @@ export default function ManageUsersPage() {
 
   if (users === null) return <Loading />;
   if (users === "forbidden") return <NoAccess />;
+  if (users === "error") return <LoadFailed what="The user list" onRetry={load} />;
 
   return (
     <div className="flex flex-col gap-4">

@@ -63,7 +63,7 @@ function BedTile({ ward, bed, onOpen }: { ward: Ward; bed: Bed; onOpen: () => vo
 /**
  * The ward and bed board: a tile for every bed in the bed-status colours (never colour alone),
  * a count of each state, and a right drawer to admit, transfer and discharge. The open bed
- * lives in the address (?bed=). There is no inpatient backend yet; see docs/adr/0020.
+ * lives in the address (?bed=). Backed by apps/inpatient (docs/adr/0021).
  */
 export function WardBoard() {
   const router = useRouter();

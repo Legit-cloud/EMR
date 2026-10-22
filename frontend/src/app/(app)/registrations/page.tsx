@@ -2,7 +2,15 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Loading, NoAccess, Notice, TextArea } from "@/components/legacy-ui";
+import {
+  Button,
+  Dialog,
+  Loading,
+  LoadFailed,
+  NoAccess,
+  Notice,
+  TextArea,
+} from "@/components/legacy-ui";
 import { PatientName } from "@/components/PatientName";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -25,7 +33,7 @@ type Payload = {
 export default function RegistrationReviewsPage() {
   // Tenant admins see held registrations for oversight; desk staff and doctors decide.
   const canDecide = usePermissions().hasRole("front_desk", "doctor");
-  const [reviews, setReviews] = useState<Review[] | "forbidden" | null>(null);
+  const [reviews, setReviews] = useState<Review[] | "forbidden" | "error" | null>(null);
   const [deciding, setDeciding] = useState<Review | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -33,7 +41,9 @@ export default function RegistrationReviewsPage() {
     const { data, response } = await api.GET("/api/patients/duplicate-reviews/", {
       params: { query: { status: "pending" } },
     });
-    setReviews(response.status === 403 ? "forbidden" : (data?.results ?? []));
+    setReviews(
+      response.status === 403 ? "forbidden" : response.ok ? (data?.results ?? []) : "error",
+    );
   }
 
   useEffect(() => {
@@ -48,6 +58,8 @@ export default function RegistrationReviewsPage() {
         <Loading />
       ) : reviews === "forbidden" ? (
         <NoAccess />
+      ) : reviews === "error" ? (
+        <LoadFailed what="The registrations" onRetry={load} />
       ) : reviews.length === 0 ? (
         <p className="text-slate-600">No registrations are waiting for review.</p>
       ) : (

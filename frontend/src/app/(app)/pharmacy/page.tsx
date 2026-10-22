@@ -3,7 +3,15 @@
 import Link from "next/link";
 import { useEffect, useState, type FormEvent } from "react";
 
-import { Button, Dialog, Field, Loading, NoAccess, Notice } from "@/components/legacy-ui";
+import {
+  Button,
+  Dialog,
+  Field,
+  Loading,
+  LoadFailed,
+  NoAccess,
+  Notice,
+} from "@/components/legacy-ui";
 import { PatientName } from "@/components/PatientName";
 import { api, apiError, type Schemas } from "@/lib/api";
 import { formatDateTime, humanise } from "@/lib/format";
@@ -12,7 +20,7 @@ type Prescription = Schemas["Prescription"];
 
 /** Pharmacy worklist: signed prescriptions waiting to be dispensed. */
 export default function PharmacyPage() {
-  const [worklist, setWorklist] = useState<Prescription[] | "forbidden" | null>(null);
+  const [worklist, setWorklist] = useState<Prescription[] | "forbidden" | "error" | null>(null);
   const [dispensing, setDispensing] = useState<Prescription | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -24,6 +32,7 @@ export default function PharmacyPage() {
       }),
     ]);
     if (authorised.response.status === 403) return setWorklist("forbidden");
+    if (!authorised.response.ok || !partial.response.ok) return setWorklist("error");
     setWorklist([...(authorised.data?.results ?? []), ...(partial.data?.results ?? [])]);
   }
 
@@ -44,6 +53,8 @@ export default function PharmacyPage() {
         <Loading />
       ) : worklist === "forbidden" ? (
         <NoAccess />
+      ) : worklist === "error" ? (
+        <LoadFailed what="The dispensing list" onRetry={load} />
       ) : worklist.length === 0 ? (
         <p className="text-slate-600">Nothing waiting to be dispensed.</p>
       ) : (

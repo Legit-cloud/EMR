@@ -8,6 +8,7 @@ import {
   Dialog,
   Field,
   Loading,
+  LoadFailed,
   NoAccess,
   Notice,
   Select,
@@ -22,7 +23,7 @@ const FORMS = ["tablet", "capsule", "syrup", "injection", "cream", "inhaler", "d
 
 /** Formulary and stock. Pharmacists maintain them; prescribers can read the formulary. */
 export default function FormularyPage() {
-  const [drugs, setDrugs] = useState<Drug[] | "forbidden" | null>(null);
+  const [drugs, setDrugs] = useState<Drug[] | "forbidden" | "error" | null>(null);
   const [batches, setBatches] = useState<Batch[]>([]);
   const [addingDrug, setAddingDrug] = useState(false);
   const [receiving, setReceiving] = useState<Drug | null>(null);
@@ -32,7 +33,9 @@ export default function FormularyPage() {
       api.GET("/api/pharmacy/drugs/"),
       api.GET("/api/pharmacy/stock/"),
     ]);
-    setDrugs(d.response.status === 403 ? "forbidden" : (d.data?.results ?? []));
+    setDrugs(
+      d.response.status === 403 ? "forbidden" : d.response.ok ? (d.data?.results ?? []) : "error",
+    );
     setBatches(b.data?.results ?? []);
   }
 
@@ -42,6 +45,7 @@ export default function FormularyPage() {
 
   if (drugs === null) return <Loading />;
   if (drugs === "forbidden") return <NoAccess />;
+  if (drugs === "error") return <LoadFailed what="The formulary" onRetry={load} />;
 
   const stockOf = (drug: Drug) => batches.filter((b) => b.drug === drug.id);
 
