@@ -225,7 +225,7 @@ class Command(BaseCommand):
                 end_at=datetime.combine(tomorrow, time(9, 15), tzinfo=zone),
             )
 
-            # A patient with a portal login, a visit and a bill, so the portal has something to show.
+            # A patient with a portal login, a visit and a bill, so the portal has data to show.
             chioma = Patient.objects.create(
                 first_name="Chioma",
                 last_name="Nwosu",
