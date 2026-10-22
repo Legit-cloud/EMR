@@ -43,6 +43,7 @@ class PatientsConfig(AppConfig):
             model=Allergy,
             grants=[
                 policy.grant(clinicians | {Role.PHARMACIST}, {view, create, update, remove}),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
             ],
         )
         policy.register(
@@ -50,6 +51,7 @@ class PatientsConfig(AppConfig):
             model=Attachment,
             grants=[
                 policy.grant(clinicians | {Role.FRONT_DESK}, {view, create}),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
                 policy.grant({Role.DOCTOR, Role.FRONT_DESK}, {remove}),
             ],
         )

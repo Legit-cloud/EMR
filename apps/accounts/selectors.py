@@ -4,7 +4,7 @@ import uuid
 
 from django.conf import settings
 from django.utils import timezone
-from django_otp.plugins.otp_totp.models import TOTPDevice
+from django_otp.plugins.otp_email.models import EmailDevice
 
 from apps.core.policy import PATIENT_RESOURCE, Assignment
 
@@ -59,13 +59,13 @@ def active_patient_grant(user_id, patient_id) -> BreakGlassGrant | None:
     )
 
 
-def confirmed_totp_device(user) -> TOTPDevice | None:
-    return TOTPDevice.objects.filter(user=user, confirmed=True).first()
+def confirmed_device(user) -> EmailDevice | None:
+    return EmailDevice.objects.filter(user=user, confirmed=True).first()
 
 
 def mfa_required(user) -> bool:
     """MFA applies once a device is confirmed, and always for roles that must use it."""
-    if confirmed_totp_device(user) is not None:
+    if confirmed_device(user) is not None:
         return True
     return bool(roles_of(user.pk) & set(settings.MFA_REQUIRED_ROLES))
 

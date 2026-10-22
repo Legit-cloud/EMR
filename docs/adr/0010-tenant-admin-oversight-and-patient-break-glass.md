@@ -27,6 +27,16 @@ resource it has no grant for. Out-of-scope reads by eligible clinicians answer 4
 `GET /api/accounts/break-glass/patients/<id>/` reports hidden records and any open grant.
 List reads made visible by a grant carry the grant id in the audit log.
 
+## Amendment, 2026-10-21: admin may read clinical content
+
+The product owner widened the tenant admin to view clinical content as well: encounters,
+vitals, diagnoses, consultation notes, allergies, attachments and prescriptions. The grant
+is view-only and tenant-wide. Only the care team can create, change or remove clinical
+records, and the admin still cannot use break-glass or dispense. Reads are audited as for
+any other role. `tests/test_admin_oversight.py` pins the new lists. This weakens the
+data-minimisation argument below (DG-01), so the DPIA (DG-07) must cover administrator
+access to clinical content before go-live.
+
 ## Consequences
 
 - Administrators can supervise activity without reading clinical notes, in line with data

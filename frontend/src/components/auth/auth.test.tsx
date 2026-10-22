@@ -47,14 +47,15 @@ async function enterPassword(username: string, password = MOCK_PASSWORD) {
 }
 
 describe("sign-in (mock layer)", () => {
-  it("asks for the authenticator code after the password, then opens the next page", async () => {
+  it("asks for the emailed code after the password, then opens the next page", async () => {
     navigation.search = "next=/patients";
     renderWithApp(<LoginPage />);
     await enterPassword("ada.doctor");
 
-    const code = await screen.findByLabelText("Authenticator code");
+    const code = await screen.findByLabelText("Sign-in code");
     expect(code).toHaveFocus();
     expect(screen.getByRole("heading", { name: "Enter your code" })).toBeInTheDocument();
+    expect(screen.getByText(/We emailed a 6-digit code/)).toBeInTheDocument();
     await userEvent.type(code, MOCK_OTP);
     await userEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith("/patients"));
@@ -63,10 +64,10 @@ describe("sign-in (mock layer)", () => {
   it("keeps the code step and explains a wrong code", async () => {
     renderWithApp(<LoginPage />);
     await enterPassword("ada.doctor");
-    await userEvent.type(await screen.findByLabelText("Authenticator code"), "000000");
+    await userEvent.type(await screen.findByLabelText("Sign-in code"), "000000");
     await userEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
     expect(await screen.findByRole("alert")).toHaveTextContent("That code is not valid");
-    expect(screen.getByLabelText("Authenticator code")).toHaveValue("");
+    expect(screen.getByLabelText("Sign-in code")).toHaveValue("");
     expect(navigation.replace).not.toHaveBeenCalled();
   });
 
@@ -78,10 +79,20 @@ describe("sign-in (mock layer)", () => {
     );
   });
 
-  it("sends accounts without an authenticator to set one up", async () => {
+  it("asks every account for a code, not only clinicians", async () => {
     renderWithApp(<LoginPage />);
     await enterPassword("tunde.desk");
-    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith("/mfa"));
+    await userEvent.type(await screen.findByLabelText("Sign-in code"), MOCK_OTP);
+    await userEvent.click(screen.getByRole("button", { name: "Verify and sign in" }));
+    await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith("/dashboard"));
+  });
+
+  it("offers a new code without asking for the password again", async () => {
+    renderWithApp(<LoginPage />);
+    await enterPassword("ada.doctor");
+    await userEvent.click(await screen.findByRole("button", { name: "Send a new code" }));
+    expect(await screen.findByText(/a new code was due/)).toBeInTheDocument();
+    expect(screen.getByLabelText("Sign-in code")).toBeInTheDocument();
   });
 
   it("says why the user was signed out", () => {

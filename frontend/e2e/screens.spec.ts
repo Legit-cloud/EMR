@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from "@playwright/test";
 
-import { apiPost, authFile, lettersFrom, loadSeed, totp } from "./helpers";
+import { apiPost, authFile, emailedCode, lettersFrom, loadSeed, mailIdsFor } from "./helpers";
 
 const seed = loadSeed();
 
@@ -40,16 +40,17 @@ async function dragTo(page: Page, name: RegExp, column: Locator, offset: number)
 }
 
 test.describe("sign-in", () => {
-  test("password then authenticator code", async ({ page }) => {
+  test("password then the emailed code", async ({ page }) => {
     const user = seed.users.login;
+    const before = await mailIdsFor(user.email);
     await page.goto("/patients");
     await expect(page).toHaveURL(/\/login/);
     await page.getByLabel("Username").fill(user.username);
     await page.getByLabel("Password").fill(seed.password);
     await page.getByRole("button", { name: "Continue" }).click();
-    const code = page.getByLabel("Authenticator code");
+    const code = page.getByLabel("Sign-in code");
     await expect(code).toBeFocused();
-    await code.fill(totp(user.totp_key));
+    await code.fill(await emailedCode(user.email, before));
     await page.getByRole("button", { name: "Verify and sign in" }).click();
     await expect(page.getByRole("heading", { name: "Patients" })).toBeVisible();
     await expect(page.getByTestId("signed-in-user")).toHaveText("Login Tester");

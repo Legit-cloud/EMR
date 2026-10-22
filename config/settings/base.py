@@ -27,7 +27,7 @@ THIRD_PARTY_APPS = [
     "rest_framework",
     "drf_spectacular",
     "django_otp",
-    "django_otp.plugins.otp_totp",
+    "django_otp.plugins.otp_email",
 ]
 LOCAL_APPS = [
     "apps.core",
@@ -223,8 +223,12 @@ SMS_SENDER_ID = env("SMS_SENDER_ID", default="EMR")
 
 # Accounts and access control (CLAUDE.md Section 7)
 API_TOKEN_TTL_MINUTES = env.int("API_TOKEN_TTL_MINUTES", default=12 * 60)
-OTP_TOTP_ISSUER = env("OTP_TOTP_ISSUER", default="EMR")
-# Roles that must use MFA. Users of other roles need it once they enrol a device.
+# Sign-in codes are emailed after the password. How long a code works, and the minimum wait
+# before another one is sent to the same account.
+OTP_EMAIL_TOKEN_VALIDITY = env.int("OTP_EMAIL_TOKEN_VALIDITY", default=300)
+OTP_EMAIL_COOLDOWN_DURATION = env.int("OTP_EMAIL_COOLDOWN_DURATION", default=30)
+# Roles that must use MFA. Every other user gets a device on first sign-in, so in practice
+# everyone signs in with a code.
 MFA_REQUIRED_ROLES = env.list(
     "MFA_REQUIRED_ROLES",
     default=[

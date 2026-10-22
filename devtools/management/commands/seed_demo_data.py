@@ -13,7 +13,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
-from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from apps.accounts.models import ApiToken, RoleAssignment
 from apps.core.roles import Role
@@ -73,7 +72,7 @@ class Command(BaseCommand):
         }
         self.stdout.write(f"Created tenant {tenant.slug} with {patients} synthetic patients.")
         self.stdout.write("Users: " + ", ".join(u for u, _ in STAFF))
-        self.stdout.write("Each user has an authenticator device; enrol it from the admin.")
+        self.stdout.write("Sign-in codes are emailed to <username>@example.test (see Mailpit).")
         for name, token in tokens.items():
             self.stdout.write(f"MFA-verified API token for {name} (24 h): {token}")
 
@@ -88,7 +87,6 @@ class Command(BaseCommand):
                 first_name=username.split("-")[1].title(),
                 last_name="Demo",
             )
-            TOTPDevice.objects.create(user=user, name="demo", confirmed=True)
             users[username] = user
         return users
 

@@ -193,13 +193,27 @@ def test_sec_02_pharmacist_reads_vitals_and_diagnoses_but_writes_nothing(
     assert response.status_code == 403
 
 
-@pytest.mark.parametrize("role", [Role.FRONT_DESK, Role.BILLING_OFFICER, Role.TENANT_ADMIN])
+@pytest.mark.parametrize("role", [Role.FRONT_DESK, Role.BILLING_OFFICER])
 def test_sec_02_non_clinical_roles_see_no_clinical_data(
     role, make_user, tenant_a, signed_in, encounter
 ):
     client = signed_in(make_user("someone", tenant_a, [role]))
     for url in (ENCOUNTERS, "/api/clinical/vitals/", "/api/clinical/diagnoses/", NOTES):
         assert client.get(url).status_code == 403, url
+
+
+def test_sec_02_tenant_admin_reads_clinical_data_but_cannot_change_it(
+    make_user, tenant_a, signed_in, encounter
+):
+    client = signed_in(make_user("someone", tenant_a, [Role.TENANT_ADMIN]))
+    for url in (ENCOUNTERS, "/api/clinical/vitals/", "/api/clinical/diagnoses/", NOTES):
+        assert client.get(url).status_code == 200, url
+    for url, body in (
+        ("/api/clinical/diagnoses/", {"encounter": str(encounter.pk), "code": "I10"}),
+        ("/api/clinical/vitals/", {"encounter": str(encounter.pk)}),
+        (NOTES, {"encounter": str(encounter.pk)}),
+    ):
+        assert client.post(url, body, format="json").status_code == 403, url
 
 
 def test_sec_07_another_tenants_encounter_is_invisible(doctor, tenant_b, as_tenant, make_user):

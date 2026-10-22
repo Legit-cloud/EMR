@@ -1,4 +1,3 @@
-import { createHmac } from "node:crypto";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
@@ -9,7 +8,7 @@ export type Seed = {
   password: string;
   users: Record<
     "doctor" | "desk" | "billing" | "login" | "pharmacist" | "admin" | "hr" | "compliance",
-    { username: string; totp_key: string }
+    { username: string; email: string }
   >;
   physician_id: string;
   patient: { id: string; name: string; mrn: string };
@@ -33,14 +32,36 @@ export function authFile(role: string): string {
   return path.join(__dirname, ".auth", `${role}.json`);
 }
 
-/** RFC 6238 TOTP, matching django-otp's defaults (SHA-1, 30 s steps, 6 digits). */
-export function totp(hexKey: string, now = Date.now()): string {
-  const counter = Buffer.alloc(8);
-  counter.writeBigUInt64BE(BigInt(Math.floor(now / 1000 / 30)));
-  const hmac = createHmac("sha1", Buffer.from(hexKey, "hex")).update(counter).digest();
-  const offset = hmac[hmac.length - 1] & 0xf;
-  const code = (hmac.readUInt32BE(offset) & 0x7fffffff) % 1_000_000;
-  return code.toString().padStart(6, "0");
+const MAILPIT = process.env.MAILPIT_URL ?? "http://localhost:8026";
+
+async function mailpit(pathAndQuery: string) {
+  const response = await fetch(`${MAILPIT}${pathAndQuery}`);
+  if (!response.ok) throw new Error(`Mailpit ${pathAndQuery}: ${response.status}`);
+  return response.json();
+}
+
+/** IDs of the messages already sent to an address, to tell a new sign-in code from an old one. */
+export async function mailIdsFor(email: string): Promise<Set<string>> {
+  const found = await mailpit(`/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`);
+  return new Set((found.messages ?? []).map((m: { ID: string }) => m.ID));
+}
+
+/**
+ * The 6-digit sign-in code in the newest email to an address that is not in `before`.
+ * The worker delivers the email after the sign-in request returns, so this waits for it.
+ */
+export async function emailedCode(email: string, before: Set<string>): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const found = await mailpit(`/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`);
+    const fresh = (found.messages ?? []).find((m: { ID: string }) => !before.has(m.ID));
+    if (fresh) {
+      const message = await mailpit(`/api/v1/message/${fresh.ID}`);
+      const match = /code is (\d{6})/.exec(message.Text ?? "");
+      if (match) return match[1];
+    }
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  throw new Error(`No sign-in code arrived for ${email}`);
 }
 
 /** Letters only (names reject digits), derived from the run id so each run is unique. */

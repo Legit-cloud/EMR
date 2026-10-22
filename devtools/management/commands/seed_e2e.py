@@ -1,7 +1,7 @@
 """A fresh synthetic tenant for the Playwright end-to-end suite. Development only.
 
 Each run gets its own tenant, users and data, so runs never interfere. Writes the
-credentials (including the TOTP keys the tests use to compute codes) to a JSON file the
+credentials (and the email addresses the tests read sign-in codes from) to a JSON file the
 browser tests read. Refuses to run unless DEBUG is on.
 """
 
@@ -16,7 +16,6 @@ from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
-from django_otp.plugins.otp_totp.models import TOTPDevice
 
 from apps.accounts.models import BreakGlassGrant, RoleAssignment
 from apps.billing import services as billing
@@ -76,8 +75,7 @@ class Command(BaseCommand):
                 last_name="Tester",
                 email=f"e2e-{key}-{run}@example.test",
             )
-            device = TOTPDevice.objects.create(user=user, name="e2e", confirmed=True)
-            users[key] = {"user": user, "role": role, "totp_key": device.key}
+            users[key] = {"user": user, "role": role}
 
         doctor = users["doctor"]["user"]
         zone = ZoneInfo(settings.MRN_TIME_ZONE)
@@ -272,7 +270,7 @@ class Command(BaseCommand):
             "run": run,
             "password": password,
             "users": {
-                key: {"username": entry["user"].username, "totp_key": entry["totp_key"]}
+                key: {"username": entry["user"].username, "email": entry["user"].email}
                 for key, entry in users.items()
             },
             "physician_id": str(doctor.pk),

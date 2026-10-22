@@ -80,10 +80,10 @@ def api_client():
 
 @pytest.fixture
 def otp_device(db):
-    from django_otp.plugins.otp_totp.models import TOTPDevice
+    from django_otp.plugins.otp_email.models import EmailDevice
 
     def make(user):
-        return TOTPDevice.objects.create(user=user, name="test device", confirmed=True)
+        return EmailDevice.objects.create(user=user, name="test device", confirmed=True)
 
     return make
 
@@ -92,13 +92,13 @@ def otp_device(db):
 def signed_in(otp_device):
     """``signed_in(user)``: a session client, with MFA satisfied unless ``mfa=False``."""
     from django_otp import DEVICE_ID_SESSION_KEY
-    from django_otp.plugins.otp_totp.models import TOTPDevice
+    from django_otp.plugins.otp_email.models import EmailDevice
 
     def make(user, *, mfa=True):
         client = APIClient()
         client.force_login(user)
         if mfa:
-            device = TOTPDevice.objects.filter(user=user, confirmed=True).first()
+            device = EmailDevice.objects.filter(user=user, confirmed=True).first()
             device = device or otp_device(user)
             session = client.session
             session[DEVICE_ID_SESSION_KEY] = device.persistent_id

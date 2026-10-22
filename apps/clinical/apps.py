@@ -32,6 +32,7 @@ class ClinicalConfig(AppConfig):
             [
                 policy.grant({Role.DOCTOR}, {view, create, update, remove}, dept),
                 policy.grant({Role.NURSE}, {view, create, update}, dept),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
             ],
             via_encounter=False,
         )
@@ -40,7 +41,7 @@ class ClinicalConfig(AppConfig):
             VitalSigns,
             [
                 policy.grant({Role.DOCTOR, Role.NURSE}, {view, create, remove}, dept),
-                policy.grant({Role.PHARMACIST}, {view}),
+                policy.grant({Role.PHARMACIST, Role.TENANT_ADMIN}, {view}),
             ],
         )
         register(
@@ -49,7 +50,7 @@ class ClinicalConfig(AppConfig):
             [
                 policy.grant({Role.DOCTOR}, {view, create, update, remove}, dept),
                 policy.grant({Role.NURSE}, {view}, dept),
-                policy.grant({Role.PHARMACIST}, {view}),
+                policy.grant({Role.PHARMACIST, Role.TENANT_ADMIN}, {view}),
             ],
         )
         register(
@@ -58,5 +59,6 @@ class ClinicalConfig(AppConfig):
             [
                 policy.grant({Role.DOCTOR}, {view, create, update, remove}, dept),
                 policy.grant({Role.NURSE}, {view}, dept),
+                policy.grant({Role.TENANT_ADMIN}, {view}),
             ],
         )

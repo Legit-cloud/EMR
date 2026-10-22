@@ -21,8 +21,11 @@ paths:
   /api/accounts/auth/login/:
     post:
       operationId: accounts_auth_login_create
-      description: Sign in with password and, when set up, a one-time code. Session
-        or bearer token.
+      description: |-
+        Sign in with the password, then the one-time code emailed to the account.
+
+        A request without ``otp_token`` emails a code and answers ``mfa_required``; send the same
+        credentials again with the code. Session or bearer token.
       tags:
       - accounts
       requestBody:
@@ -71,49 +74,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Me'
-          description: ''
-  /api/accounts/auth/mfa/totp/confirm/:
-    post:
-      operationId: accounts_auth_mfa_totp_confirm_create
-      tags:
-      - accounts
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OTPTokenRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/OTPTokenRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/OTPTokenRequest'
-        required: true
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MfaEnabled'
-          description: ''
-  /api/accounts/auth/mfa/totp/enrol/:
-    post:
-      operationId: accounts_auth_mfa_totp_enrol_create
-      description: Start authenticator-app enrolment. Allowed before MFA is set up.
-      tags:
-      - accounts
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EnrolResult'
           description: ''
   /api/accounts/auth/password-reset/:
     post:
@@ -5789,13 +5749,6 @@ components:
           $ref: '#/components/schemas/EncounterStatusEnum'
       required:
       - status
-    EnrolResult:
-      type: object
-      properties:
-        config_url:
-          type: string
-      required:
-      - config_url
     EnteredInErrorRequest:
       type: object
       description: Request body of every Entered-in-Error action.
@@ -6268,12 +6221,9 @@ components:
         user_id:
           type: string
           format: uuid
-        mfa_enrolment_required:
-          type: boolean
         token:
           type: string
       required:
-      - mfa_enrolment_required
       - user_id
     LoincCode:
       type: object
@@ -6411,13 +6361,6 @@ components:
       - on_duty
       - roles
       - username
-    MfaEnabled:
-      type: object
-      properties:
-        mfa_enabled:
-          type: boolean
-      required:
-      - mfa_enabled
     ModeEnum:
       enum:
       - session
@@ -6450,15 +6393,6 @@ components:
       description: |-
         * `open` - Open
         * `closed` - Closed
-    OTPTokenRequest:
-      type: object
-      properties:
-        token:
-          type: string
-          minLength: 1
-          maxLength: 12
-      required:
-      - token
     Observation:
       type: object
       properties:

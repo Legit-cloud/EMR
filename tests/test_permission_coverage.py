@@ -15,8 +15,6 @@ NOT_POLICY_CHECKED = {
     "auth-password-reset-confirm": "anonymous, needs a signed one-time token",
     "auth-logout": "acts only on the caller's own session or token",
     "auth-me": "returns only the caller's own profile",
-    "auth-totp-enrol": "caller's own MFA set-up, before MFA can be satisfied",
-    "auth-totp-confirm": "caller's own MFA set-up, before MFA can be satisfied",
     "break-glass-request": "TenantUserPermission plus business checks in the service",
     "break-glass-patient": "TenantUserPermission; reports only the caller's own access and grants",
     "reports-dashboard": "TenantUserPermission; each card checks tenant-wide view in the service",

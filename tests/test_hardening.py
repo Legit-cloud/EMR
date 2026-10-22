@@ -130,7 +130,9 @@ def test_sec_06_session_sign_in_requires_csrf(user_a):
     response = client.post(
         "/api/accounts/auth/login/", credentials, format="json", HTTP_X_CSRFTOKEN=token
     )
-    assert response.status_code == 200
+    # Past the CSRF check and the password: the emailed code is the next step.
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "mfa_required"
 
 
 @pytest.mark.django_db
@@ -141,7 +143,8 @@ def test_sec_06_token_sign_in_needs_no_csrf(user_a):
         {"username": "alice", "password": "not-a-real-password-123", "mode": "token"},
         format="json",
     )
-    assert response.status_code == 200 and response.json()["token"]
+    assert response.status_code == 401
+    assert response.json()["error"]["code"] == "mfa_required"
 
 
 @pytest.mark.django_db

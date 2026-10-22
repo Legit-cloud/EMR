@@ -8,16 +8,7 @@ from ..models import BreakGlassGrant, BreakGlassReview, RoleAssignment, User
 
 class LoginResultSerializer(serializers.Serializer):
     user_id = serializers.UUIDField()
-    mfa_enrolment_required = serializers.BooleanField()
     token = serializers.CharField(required=False)
-
-
-class EnrolResultSerializer(serializers.Serializer):
-    config_url = serializers.CharField()
-
-
-class MfaEnabledSerializer(serializers.Serializer):
-    mfa_enabled = serializers.BooleanField()
 
 
 class LoginSerializer(serializers.Serializer):
@@ -25,10 +16,6 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(max_length=128, trim_whitespace=False)
     otp_token = serializers.CharField(max_length=12, required=False, allow_blank=True)
     mode = serializers.ChoiceField(choices=["session", "token"], default="session")
-
-
-class OTPTokenSerializer(serializers.Serializer):
-    token = serializers.CharField(max_length=12)
 
 
 class PasswordResetRequestSerializer(serializers.Serializer):
