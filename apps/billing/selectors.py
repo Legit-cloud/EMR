@@ -122,3 +122,15 @@ def patient_balance(patient_id) -> tuple[int, str]:
     """What the patient still owes across all bills, and the currency (the first bill's)."""
     rows = patient_invoices(patient_id)
     return sum(r["due_minor"] for r in rows), (rows[0]["currency"] if rows else "NGN")
+
+
+def claim_ageing() -> dict:
+    """What insurers still owe, by how long ago each claim was sent (for the dashboard)."""
+    from . import claims
+
+    bands = claims.ageing()
+    return {
+        "bands": bands,
+        "claims": sum(b["claims"] for b in bands),
+        "outstanding_minor": sum(b["outstanding_minor"] for b in bands),
+    }

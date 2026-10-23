@@ -62,6 +62,35 @@ class MyDaySerializer(serializers.Serializer):
     licence_expires_on = serializers.DateField(
         allow_null=True, help_text="Set only when the licence expires within 60 days."
     )
+    results_to_review = serializers.IntegerField(
+        allow_null=True, help_text="Results waiting for a doctor to review. Null for other roles."
+    )
+
+
+class WardsSerializer(serializers.Serializer):
+    beds = serializers.IntegerField()
+    occupied = serializers.IntegerField()
+    vacant = serializers.IntegerField()
+    cleaning = serializers.IntegerField()
+    out_of_service = serializers.IntegerField()
+    admitted = serializers.IntegerField()
+
+
+class DiagnosticsSerializer(serializers.Serializer):
+    open_orders = serializers.IntegerField(help_text="Ordered, not yet resulted.")
+    results_to_review = serializers.IntegerField(help_text="Resulted, not yet reviewed.")
+
+
+class ClaimBandSerializer(serializers.Serializer):
+    band = serializers.CharField(help_text="Days since the claim was sent.")
+    claims = serializers.IntegerField()
+    outstanding_minor = serializers.IntegerField()
+
+
+class ClaimsSerializer(serializers.Serializer):
+    bands = ClaimBandSerializer(many=True)
+    claims = serializers.IntegerField()
+    outstanding_minor = serializers.IntegerField(help_text="What insurers still owe.")
 
 
 class DashboardSerializer(serializers.Serializer):
@@ -73,3 +102,6 @@ class DashboardSerializer(serializers.Serializer):
     popular_services = ServiceCountSerializer(many=True, allow_null=True)
     stock = StockSerializer(allow_null=True)
     my_day = MyDaySerializer(allow_null=True)
+    wards = WardsSerializer(allow_null=True)
+    diagnostics = DiagnosticsSerializer(allow_null=True)
+    claims = ClaimsSerializer(allow_null=True)

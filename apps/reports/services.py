@@ -15,6 +15,8 @@ from apps.billing import selectors as billing
 from apps.clinical import selectors as clinical
 from apps.core import policy
 from apps.core.roles import Role
+from apps.diagnostics import selectors as diagnostics
+from apps.inpatient import selectors as inpatient
 from apps.patients import selectors as patients
 from apps.pharmacy import selectors as pharmacy
 from apps.scheduling import selectors as scheduling
@@ -85,12 +87,13 @@ def _patients(range_key, today):
     return {"new": len(seen) - returning, "returning": returning}
 
 
-def _my_day(user, today):
+def _my_day(user, today, reviews_results):
     expires = staff.licence_expiry(user.pk)
     days_left = (expires - today).days if expires else None
     return {
         "open_notes": clinical.open_note_count(user.pk),
         "draft_prescriptions": pharmacy.draft_prescription_count(user.pk),
+        "results_to_review": diagnostics.unreviewed_result_count() if reviews_results else None,
         "licence_expires_on": expires
         if days_left is not None and days_left <= LICENCE_WARNING_DAYS
         else None,
@@ -116,5 +119,13 @@ def dashboard(user, subject: policy.Subject, range_key: str) -> dict:
         if sees("billing.invoice")
         else None,
         "stock": pharmacy.stock_summary(today, currency) if sees("pharmacy.stockbatch") else None,
-        "my_day": _my_day(user, today) if clinician else None,
+        "my_day": _my_day(user, today, Role.DOCTOR in subject.roles) if clinician else None,
+        "wards": inpatient.bed_summary() if sees("inpatient.admission") else None,
+        "diagnostics": {
+            "open_orders": diagnostics.open_order_count(),
+            "results_to_review": diagnostics.unreviewed_result_count(),
+        }
+        if sees("diagnostics.order")
+        else None,
+        "claims": billing.claim_ageing() if sees("billing.claim") else None,
     }

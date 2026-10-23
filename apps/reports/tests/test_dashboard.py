@@ -86,20 +86,39 @@ def get(client, range_key="12m"):
 
 
 def test_sec_02_cards_follow_tenant_wide_view_by_role(make_user, tenant_a, signed_in):
-    cards = ("finance", "patients", "popular_services", "stock", "my_day")
+    cards = (
+        "finance",
+        "patients",
+        "popular_services",
+        "stock",
+        "my_day",
+        "wards",
+        "diagnostics",
+        "claims",
+    )
 
     def shown(role):
         body = get(signed_in(make_user(f"dash-{role}", tenant_a, [role])))
         return {card for card in cards if body[card] is not None}
 
-    assert shown(Role.FINANCE) == {"finance", "popular_services"}
-    assert shown(Role.BILLING_OFFICER) == {"finance", "popular_services"}
-    assert shown(Role.TENANT_ADMIN) == {"finance", "patients", "popular_services", "stock"}
+    assert shown(Role.FINANCE) == {"finance", "popular_services", "claims"}
+    assert shown(Role.BILLING_OFFICER) == {"finance", "popular_services", "claims"}
+    assert shown(Role.TENANT_ADMIN) == {
+        "finance",
+        "patients",
+        "popular_services",
+        "stock",
+        "wards",
+        "diagnostics",
+        "claims",
+    }
     assert shown(Role.FRONT_DESK) == {"patients", "popular_services"}
     assert shown(Role.PHARMACIST) == {"stock"}
-    # Clinicians see only their own day: their scope is a department, not the tenant.
-    assert shown(Role.DOCTOR) == {"my_day"}
-    assert shown(Role.NURSE) == {"my_day"}
+    # Clinicians also get their own day. Ward and test counts are open to the care team, which
+    # can already list every ward and order.
+    assert shown(Role.DOCTOR) == {"my_day", "wards", "diagnostics"}
+    assert shown(Role.NURSE) == {"my_day", "wards", "diagnostics"}
+    assert shown(Role.LAB_TECHNICIAN) == {"diagnostics"}
 
 
 def test_finance_totals_by_month_with_the_previous_period(
@@ -233,3 +252,52 @@ def test_sec_07_figures_never_include_another_tenant(
 def test_rejects_an_unknown_range(make_user, tenant_a, signed_in):
     client = signed_in(make_user("dash-fin", tenant_a, [Role.FINANCE]))
     assert client.get(URL, {"range": "5y"}).status_code == 400
+
+
+def test_ward_test_and_claim_cards_count_real_records(make_user, tenant_a, signed_in, make_patient):
+    from apps.diagnostics.models import DiagnosticOrder, DiagnosticResult, Investigation
+    from apps.inpatient.models import Bed, BedStatus, Ward
+
+    patient = make_patient()
+    doctor = make_user("dash-doc-r2", tenant_a, [Role.DOCTOR])
+    with tenant_context(tenant_a.id, doctor.pk):
+        ward = Ward.objects.create(
+            facility=Facility.objects.create(name="Main", code="main"), name="Medical"
+        )
+        Bed.objects.create(ward=ward, label="1", status=BedStatus.OCCUPIED)
+        Bed.objects.create(ward=ward, label="2")
+        test = Investigation.objects.create(kind="lab", name="FBC", price_minor=1000)
+        waiting = DiagnosticOrder.objects.create(
+            patient=patient,
+            investigation=test,
+            ordered_by=doctor,
+            reason="x",
+            unit_price_minor=1000,
+            currency="NGN",
+        )
+        done = DiagnosticOrder.objects.create(
+            patient=patient,
+            investigation=test,
+            ordered_by=doctor,
+            reason="y",
+            unit_price_minor=1000,
+            currency="NGN",
+            status="resulted",
+        )
+        DiagnosticResult.objects.create(
+            order=done, value="1", reported_by=doctor, reported_at=timezone.now()
+        )
+        assert waiting.status == "ordered"
+    body = get(signed_in(doctor))
+    assert body["wards"]["beds"] == 2 and body["wards"]["occupied"] == 1
+    assert body["wards"]["vacant"] == 1
+    assert body["diagnostics"] == {"open_orders": 1, "results_to_review": 1}
+    assert body["my_day"]["results_to_review"] == 1
+    finance = get(signed_in(make_user("dash-fin-r2", tenant_a, [Role.FINANCE])))
+    assert finance["claims"]["claims"] == 0 and len(finance["claims"]["bands"]) == 4
+    assert (
+        get(signed_in(make_user("dash-nurse-r2", tenant_a, [Role.NURSE])))["my_day"][
+            "results_to_review"
+        ]
+        is None
+    )

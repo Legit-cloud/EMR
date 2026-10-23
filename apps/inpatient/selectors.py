@@ -1,8 +1,10 @@
 """Read-only queries that other modules, and the ward board, may use."""
 
+from django.db.models import Count
+
 from apps.patients import selectors as patients
 
-from .models import Admission, Bed, Ward
+from .models import Admission, Bed, BedStatus, Ward
 
 
 def open_admission_count() -> int:
@@ -35,3 +37,18 @@ def board():
 def names_for(patient_ids) -> dict:
     """``{patient_id: {"name", "mrn"}}`` from the patients module."""
     return patients.summaries(patient_ids)
+
+
+def bed_summary() -> dict:
+    """Beds in active wards by state, and how many patients are admitted."""
+    counts = {status: 0 for status in BedStatus.values}
+    for row in Bed.objects.filter(ward__active=True).values("status").annotate(total=Count("pk")):
+        counts[row["status"]] = row["total"]
+    return {
+        "beds": sum(counts.values()),
+        "occupied": counts[BedStatus.OCCUPIED],
+        "vacant": counts[BedStatus.VACANT],
+        "cleaning": counts[BedStatus.CLEANING],
+        "out_of_service": counts[BedStatus.OUT_OF_SERVICE],
+        "admitted": open_admission_count(),
+    }
