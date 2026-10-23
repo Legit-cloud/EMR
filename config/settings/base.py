@@ -184,7 +184,7 @@ SPECTACULAR_SETTINGS = {
         "ResultFlagEnum": "apps.diagnostics.models.Flag",
         "OrderPriorityEnum": "apps.diagnostics.models.Priority",
         "ClaimStatusEnum": "apps.billing.models.ClaimStatus",
-        "InvoiceLineStatusEnum":"apps.billing.models.LineStatus",
+        "InvoiceLineStatusEnum": "apps.billing.models.LineStatus",
         "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
         "DosageFormEnum": "apps.pharmacy.models.DosageForm",
         "PaymentMethodEnum": "apps.billing.models.PaymentMethod",

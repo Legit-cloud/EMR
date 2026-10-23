@@ -98,6 +98,21 @@ Posted entries are never changed; every payment has a reference; a paid invoice 
 entry (debit bank, credit receivables); the same payment cannot be recorded twice. Review the failed
 and flagged payments list weekly.
 
+## 10. Insurer claims (built, ADR 0025)
+
+**Recommendation.** Send each claim within the insurer's filing window (check each HMO agreement;
+commonly 30 to 60 days from discharge). Chase anything over 60 days. When an insurer approves less than
+claimed, decide in writing who bears the difference: the patient (if the plan says so), or the hospital
+as a discount, approved by a second person. Write off a rejected claim only after the appeal period,
+with a reason and an approver.
+
+**System.** Claims are made from an invoice, sent, answered (approved in full or part, or rejected with a
+reason) and paid as money arrives, each remittance entered once by its reference. The ageing report and
+dashboard card show what insurers owe. **Not built:** moving a shortfall to the patient, write-offs,
+electronic submission. **Confirm:** the filing window per insurer, shortfall policy, write-off approval.
+
+- [ ] Approved  Signed: ____________  Date: ________
+
 ## Not verified by software
 
 Finance logic needs a human review before release (CLAUDE.md Section 8): reconciliation against real

@@ -72,3 +72,9 @@ Paying is now built, with Paystack: the portal can start a payment and the bill 
 Paystack confirms it (ADR 0023). The "Not built, on purpose: Paying" note above no longer applies, and
 the portal's "SMS" consent is gone with the SMS channel. The remaining consent choices are redesigned in
 ADR 0024.
+
+## Amendment 2026-10-23: results
+
+Results are now released by the diagnostics module (ADR 0025). The portal shows only current results
+that a doctor has reviewed; opening one marks it seen. A corrected result is hidden until it is
+reviewed again.

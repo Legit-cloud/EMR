@@ -67,7 +67,11 @@ Emergency may overbook a slot (already allowed).
 it, and critical results are phoned to the clinician, not just displayed. Sensitive results (HIV, pregnancy
 in a minor, cancer) are released by a clinician in person.
 
-**System.** Diagnostics are not built yet (Release 2 later phase). Record this as a requirement.
+**System.** Built (ADR 0025). A doctor must review a result before the portal shows it; a critical result
+is emailed to the ordering doctor at once (the email carries no value, so phone as well); a correction
+needs review again. There is no way to hold back a sensitive result by type: every result waits for
+review, and the doctor decides when to review it. **Confirm:** which tests are sensitive and who may
+review them.
 
 - [ ] Approved  Signed: ____________  Date: ________
 
