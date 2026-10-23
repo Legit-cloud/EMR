@@ -218,5 +218,19 @@ def test_demo_seed_creates_synthetic_data(settings):
     settings.DEBUG = True
     out = io.StringIO()
     call_command("seed_demo_data", "--password", "demo-pass-123456", "--patients", "5", stdout=out)
-    assert Patient.all_tenants.count() == 5
+    # The requested patients, plus one with an insurer for the demo claim.
+    assert Patient.all_tenants.count() == 6
     assert "MFA-verified API token for demo-doctor" in out.getvalue()
+
+
+@pytest.mark.django_db
+def test_demo_seed_adds_a_ward_tests_and_a_claim(settings):
+    from apps.billing.models import Claim
+    from apps.diagnostics.models import DiagnosticOrder
+    from apps.inpatient.models import Admission
+
+    settings.DEBUG = True
+    call_command("seed_demo_data", "--password", "demo-pass-123456", "--patients", "5")
+    assert Admission.all_tenants.filter(discharged_at__isnull=True).count() == 1
+    assert DiagnosticOrder.all_tenants.count() == 3
+    assert Claim.all_tenants.filter(status="submitted").count() == 1
