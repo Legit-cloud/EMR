@@ -7,6 +7,7 @@ import { billingHandlers } from "./billing";
 import { chartHandlers } from "./chart";
 import { dashboardHandlers } from "./dashboard";
 import { dataRequestHandlers } from "./data-requests";
+import { diagnosticsHandlers } from "./diagnostics";
 import { inpatientHandlers } from "./inpatient";
 import { patientHandlers } from "./patients";
 import { pharmacyHandlers } from "./pharmacy";
@@ -29,6 +30,7 @@ export const handlers: HttpHandler[] = [
   ...chartHandlers,
   ...dashboardHandlers,
   ...dataRequestHandlers,
+  ...diagnosticsHandlers,
   ...inpatientHandlers,
   ...patientHandlers,
   ...portalHandlers,

@@ -721,6 +721,263 @@ paths:
               schema:
                 $ref: '#/components/schemas/AuditSummary'
           description: ''
+  /api/billing/claims/:
+    get:
+      operationId: billing_claims_list
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: query
+        name: insurer
+        schema:
+          type: string
+      - in: query
+        name: invoice
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedClaimList'
+          description: ''
+    post:
+      operationId: billing_claims_create
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateClaimRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/{id}/:
+    get:
+      operationId: billing_claims_retrieve
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/{id}/approve/:
+    post:
+      operationId: billing_claims_approve_create
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApproveClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ApproveClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ApproveClaimRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/{id}/reject/:
+    post:
+      operationId: billing_claims_reject_create
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RejectClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RejectClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RejectClaimRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/{id}/settle/:
+    post:
+      operationId: billing_claims_settle_create
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SettleClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SettleClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SettleClaimRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/{id}/submit/:
+    post:
+      operationId: billing_claims_submit_create
+      description: |-
+        Claims to insurers. Billing officers make and send them and record the answers; finance
+        and the administrator look.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubmitClaimRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubmitClaimRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubmitClaimRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+          description: ''
+  /api/billing/claims/ageing/:
+    get:
+      operationId: billing_claims_ageing_list
+      description: What insurers still owe, by how long ago the claim was sent.
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgeingBand'
+          description: ''
   /api/billing/insurers/:
     get:
       operationId: billing_insurers_list
@@ -2219,6 +2476,420 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VitalSigns'
+          description: ''
+  /api/diagnostics/investigations/:
+    get:
+      operationId: diagnostics_investigations_list
+      description: The catalogue of tests and scans. The administrator sets it up
+        with POST and PATCH.
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedInvestigationList'
+          description: ''
+    post:
+      operationId: diagnostics_investigations_create
+      description: The catalogue of tests and scans. The administrator sets it up
+        with POST and PATCH.
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvestigationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/InvestigationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/InvestigationRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Investigation'
+          description: ''
+  /api/diagnostics/investigations/{id}/:
+    get:
+      operationId: diagnostics_investigations_retrieve
+      description: The catalogue of tests and scans. The administrator sets it up
+        with POST and PATCH.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Investigation'
+          description: ''
+    patch:
+      operationId: diagnostics_investigations_partial_update
+      description: The catalogue of tests and scans. The administrator sets it up
+        with POST and PATCH.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedInvestigationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedInvestigationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedInvestigationRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Investigation'
+          description: ''
+  /api/diagnostics/orders/:
+    get:
+      operationId: diagnostics_orders_list
+      description: Orders for tests and scans. Ordering, collecting and cancelling
+        are actions.
+      parameters:
+      - in: query
+        name: kind
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: patient
+        schema:
+          type: string
+        description: Only rows of this patient (id).
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDiagnosticOrderList'
+          description: ''
+    post:
+      operationId: diagnostics_orders_create
+      description: Orders for tests and scans. Ordering, collecting and cancelling
+        are actions.
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceDiagnosticOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PlaceDiagnosticOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PlaceDiagnosticOrderRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticOrder'
+          description: ''
+  /api/diagnostics/orders/{id}/:
+    get:
+      operationId: diagnostics_orders_retrieve
+      description: Orders for tests and scans. Ordering, collecting and cancelling
+        are actions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticOrder'
+          description: ''
+  /api/diagnostics/orders/{id}/cancel/:
+    post:
+      operationId: diagnostics_orders_cancel_create
+      description: Orders for tests and scans. Ordering, collecting and cancelling
+        are actions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CancelDiagnosticOrderRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CancelDiagnosticOrderRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CancelDiagnosticOrderRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticOrder'
+          description: ''
+  /api/diagnostics/orders/{id}/collect/:
+    post:
+      operationId: diagnostics_orders_collect_create
+      description: Orders for tests and scans. Ordering, collecting and cancelling
+        are actions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosticOrder'
+          description: ''
+  /api/diagnostics/results/:
+    get:
+      operationId: diagnostics_results_list
+      description: |-
+        Results, newest version first. Recording and correcting are for the technician; a
+        doctor reviews.
+      parameters:
+      - in: query
+        name: order
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: patient
+        schema:
+          type: string
+        description: Only rows of this patient (id).
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResultList'
+          description: ''
+    post:
+      operationId: diagnostics_results_create
+      description: |-
+        Results, newest version first. Recording and correcting are for the technician; a
+        doctor reviews.
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecordResultRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecordResultRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecordResultRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+          description: ''
+  /api/diagnostics/results/{id}/:
+    get:
+      operationId: diagnostics_results_retrieve
+      description: |-
+        Results, newest version first. Recording and correcting are for the technician; a
+        doctor reviews.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+          description: ''
+  /api/diagnostics/results/{id}/correct/:
+    post:
+      operationId: diagnostics_results_correct_create
+      description: |-
+        Results, newest version first. Recording and correcting are for the technician; a
+        doctor reviews.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CorrectResultRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CorrectResultRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CorrectResultRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
+          description: ''
+  /api/diagnostics/results/{id}/review/:
+    post:
+      operationId: diagnostics_results_review_create
+      description: |-
+        Results, newest version first. Recording and correcting are for the technician; a
+        doctor reviews.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - diagnostics
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Result'
           description: ''
   /api/inpatient/admissions/:
     get:
@@ -6078,6 +6749,19 @@ components:
       - bed
       - patient
       - reason
+    AgeingBand:
+      type: object
+      properties:
+        band:
+          type: string
+        claims:
+          type: integer
+        outstanding_minor:
+          type: integer
+      required:
+      - band
+      - claims
+      - outstanding_minor
     Allergy:
       type: object
       properties:
@@ -6387,6 +7071,18 @@ components:
         reason:
           type: string
           maxLength: 500
+    ApproveClaimRequest:
+      type: object
+      properties:
+        approved_minor:
+          type: integer
+          minimum: 1
+        note:
+          type: string
+          default: ''
+          maxLength: 500
+      required:
+      - approved_minor
     Assignment:
       type: object
       properties:
@@ -6872,6 +7568,15 @@ components:
           maxLength: 2000
       required:
       - outcome
+    CancelDiagnosticOrderRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+      required:
+      - reason
     CancelRequest:
       type: object
       properties:
@@ -6881,6 +7586,152 @@ components:
           maxLength: 500
       required:
       - reason
+    Claim:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        insurer_reference:
+          type: string
+          readOnly: true
+        invoice:
+          type: string
+          format: uuid
+          readOnly: true
+        invoice_reference:
+          type: string
+          readOnly: true
+        patient_name:
+          type: string
+          readOnly: true
+          default: ''
+        patient_mrn:
+          type: string
+          readOnly: true
+          default: ''
+        insurer:
+          type: string
+          format: uuid
+          readOnly: true
+        insurer_name:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ClaimStatusEnum'
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        claimed_minor:
+          type: integer
+          readOnly: true
+        approved_minor:
+          type: integer
+          readOnly: true
+          nullable: true
+        received_minor:
+          type: integer
+          readOnly: true
+        outstanding_minor:
+          type: integer
+          readOnly: true
+        attempt:
+          type: integer
+          readOnly: true
+        submitted_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        decided_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        settled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        decision_note:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - approved_minor
+      - attempt
+      - claimed_minor
+      - created_at
+      - currency
+      - decided_at
+      - decision_note
+      - id
+      - insurer
+      - insurer_name
+      - insurer_reference
+      - invoice
+      - invoice_reference
+      - outstanding_minor
+      - patient_mrn
+      - patient_name
+      - received_minor
+      - reference
+      - settled_at
+      - status
+      - submitted_at
+    ClaimBand:
+      type: object
+      properties:
+        band:
+          type: string
+          description: Days since the claim was sent.
+        claims:
+          type: integer
+        outstanding_minor:
+          type: integer
+      required:
+      - band
+      - claims
+      - outstanding_minor
+    ClaimStatusEnum:
+      enum:
+      - draft
+      - submitted
+      - approved
+      - rejected
+      - paid
+      type: string
+      description: |-
+        * `draft` - Draft
+        * `submitted` - Submitted
+        * `approved` - Approved
+        * `rejected` - Rejected
+        * `paid` - Paid
+    Claims:
+      type: object
+      properties:
+        bands:
+          type: array
+          items:
+            $ref: '#/components/schemas/ClaimBand'
+        claims:
+          type: integer
+        outstanding_minor:
+          type: integer
+          description: What insurers still owe.
+      required:
+      - bands
+      - claims
+      - outstanding_minor
     ClinicalStatusEnum:
       enum:
       - active
@@ -6989,6 +7840,26 @@ components:
           nullable: true
       required:
       - encounter
+    CorrectResultRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        value:
+          type: string
+          default: ''
+          maxLength: 200
+        report:
+          type: string
+          default: ''
+          maxLength: 5000
+        flag:
+          $ref: '#/components/schemas/ResultFlagEnum'
+      required:
+      - flag
+      - reason
     CoverageRequest:
       type: object
       properties:
@@ -7002,6 +7873,14 @@ components:
           minimum: 0
       required:
       - coverage_bp
+    CreateClaimRequest:
+      type: object
+      properties:
+        invoice:
+          type: string
+          format: uuid
+      required:
+      - invoice
     CsrfToken:
       type: object
       properties:
@@ -7036,13 +7915,28 @@ components:
           allOf:
           - $ref: '#/components/schemas/MyDay'
           nullable: true
+        wards:
+          allOf:
+          - $ref: '#/components/schemas/Wards'
+          nullable: true
+        diagnostics:
+          allOf:
+          - $ref: '#/components/schemas/Diagnostics'
+          nullable: true
+        claims:
+          allOf:
+          - $ref: '#/components/schemas/Claims'
+          nullable: true
       required:
+      - claims
+      - diagnostics
       - finance
       - my_day
       - patients
       - popular_services
       - range
       - stock
+      - wards
     DataRequestKindEnum:
       enum:
       - access
@@ -7226,6 +8120,128 @@ components:
       - code
       - code_system
       - encounter
+    DiagnosticKindEnum:
+      enum:
+      - lab
+      - imaging
+      type: string
+      description: |-
+        * `lab` - Laboratory
+        * `imaging` - Imaging
+    DiagnosticOrder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        patient_name:
+          type: string
+          readOnly: true
+          default: ''
+        patient_mrn:
+          type: string
+          readOnly: true
+          default: ''
+        investigation:
+          type: string
+          format: uuid
+          readOnly: true
+        investigation_name:
+          type: string
+          readOnly: true
+        kind:
+          type: string
+          readOnly: true
+        reason:
+          type: string
+          readOnly: true
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/OrderPriorityEnum'
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DiagnosticOrderStatusEnum'
+          readOnly: true
+        encounter_id:
+          type: string
+          format: uuid
+          readOnly: true
+          nullable: true
+        unit_price_minor:
+          type: integer
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        ordered_by_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        collected_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        cancelled_reason:
+          type: string
+          readOnly: true
+        current_result:
+          allOf:
+          - $ref: '#/components/schemas/Result'
+          nullable: true
+          readOnly: true
+      required:
+      - cancelled_reason
+      - collected_at
+      - created_at
+      - currency
+      - current_result
+      - encounter_id
+      - id
+      - investigation
+      - investigation_name
+      - kind
+      - ordered_by_name
+      - patient
+      - patient_mrn
+      - patient_name
+      - priority
+      - reason
+      - status
+      - unit_price_minor
+    DiagnosticOrderStatusEnum:
+      enum:
+      - ordered
+      - collected
+      - resulted
+      - cancelled
+      type: string
+      description: |-
+        * `ordered` - Ordered
+        * `collected` - Sample taken or patient arrived
+        * `resulted` - Resulted
+        * `cancelled` - Cancelled
+    Diagnostics:
+      type: object
+      properties:
+        open_orders:
+          type: integer
+          description: Ordered, not yet resulted.
+        results_to_review:
+          type: integer
+          description: Resulted, not yet reviewed.
+      required:
+      - open_orders
+      - results_to_review
     DischargeRequest:
       type: object
       properties:
@@ -7747,18 +8763,6 @@ components:
       - billed_minor
       - collected_minor
       - start
-    FlagEnum:
-      enum:
-      - normal
-      - low
-      - high
-      - abnormal
-      type: string
-      description: |-
-        * `normal` - normal
-        * `low` - low
-        * `high` - high
-        * `abnormal` - abnormal
     FreeSlot:
       type: object
       properties:
@@ -7883,6 +8887,85 @@ components:
       - strength
       - unit_price_minor
       - value_minor
+    Investigation:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          $ref: '#/components/schemas/DiagnosticKindEnum'
+        name:
+          type: string
+          maxLength: 150
+        code:
+          type: string
+          maxLength: 20
+        unit:
+          type: string
+          title: UCUM unit
+          maxLength: 32
+        reference_range:
+          type: string
+          maxLength: 100
+        price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          maxLength: 3
+        active:
+          type: boolean
+      required:
+      - id
+      - kind
+      - name
+    InvestigationRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        kind:
+          $ref: '#/components/schemas/DiagnosticKindEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          type: string
+          maxLength: 20
+        unit:
+          type: string
+          title: UCUM unit
+          maxLength: 32
+        reference_range:
+          type: string
+          maxLength: 100
+        price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        active:
+          type: boolean
+      required:
+      - kind
+      - name
     InviteRequest:
       type: object
       properties:
@@ -8480,10 +9563,15 @@ components:
           format: date
           nullable: true
           description: Set only when the licence expires within 60 days.
+        results_to_review:
+          type: integer
+          nullable: true
+          description: Results waiting for a doctor to review. Null for other roles.
       required:
       - draft_prescriptions
       - licence_expires_on
       - open_notes
+      - results_to_review
     MyInformation:
       type: object
       properties:
@@ -8763,6 +9851,16 @@ components:
       - units_received
       - vendor
       - vendor_name
+    OrderPriorityEnum:
+      enum:
+      - routine
+      - urgent
+      - stat
+      type: string
+      description: |-
+        * `routine` - Routine
+        * `urgent` - Urgent
+        * `stat` - Immediately
     OrderReceipt:
       type: object
       properties:
@@ -9002,6 +10100,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/BreakGlassGrant'
+    PaginatedClaimList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Claim'
     PaginatedConsultationNoteList:
       type: object
       required:
@@ -9071,6 +10192,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Diagnosis'
+    PaginatedDiagnosticOrderList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosticOrder'
     PaginatedDrugList:
       type: object
       required:
@@ -9232,6 +10376,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/InventoryRow'
+    PaginatedInvestigationList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Investigation'
     PaginatedInvoiceListList:
       type: object
       required:
@@ -9416,6 +10583,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Prescription'
+    PaginatedResultList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Result'
     PaginatedRoleAssignmentList:
       type: object
       required:
@@ -9872,6 +11062,41 @@ components:
           maxLength: 32
           pattern: ^[-a-zA-Z0-9_]+$
         is_active:
+          type: boolean
+    PatchedInvestigationRequest:
+      type: object
+      description: |-
+        ModelSerializer that runs the model's ``full_clean`` before every save.
+
+        Business rules that live on the model (status transitions, cross-field checks,
+        constraints) then apply to API writes exactly as they do in services.
+      properties:
+        kind:
+          $ref: '#/components/schemas/DiagnosticKindEnum'
+        name:
+          type: string
+          minLength: 1
+          maxLength: 150
+        code:
+          type: string
+          maxLength: 20
+        unit:
+          type: string
+          title: UCUM unit
+          maxLength: 32
+        reference_range:
+          type: string
+          maxLength: 100
+        price_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        active:
           type: boolean
     PatchedPatientRequest:
       type: object
@@ -10687,6 +11912,31 @@ components:
         * `unpaid` - Unpaid
         * `partially_paid` - Partially paid
         * `paid` - Paid
+    PlaceDiagnosticOrderRequest:
+      type: object
+      properties:
+        patient:
+          type: string
+          format: uuid
+        investigation:
+          type: string
+          format: uuid
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 300
+        priority:
+          allOf:
+          - $ref: '#/components/schemas/OrderPriorityEnum'
+          default: routine
+        encounter_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+      - investigation
+      - patient
+      - reason
     PlaceOrderLineRequest:
       type: object
       properties:
@@ -11030,7 +12280,7 @@ components:
         seen:
           type: boolean
         flag:
-          $ref: '#/components/schemas/FlagEnum'
+          $ref: '#/components/schemas/PortalResultFlagEnum'
         value:
           type: string
         unit:
@@ -11058,6 +12308,18 @@ components:
       - taken_at
       - unit
       - value
+    PortalResultFlagEnum:
+      enum:
+      - normal
+      - low
+      - high
+      - abnormal
+      type: string
+      description: |-
+        * `normal` - normal
+        * `low` - low
+        * `high` - high
+        * `abnormal` - abnormal
     PortalResultKindEnum:
       enum:
       - lab
@@ -11483,6 +12745,26 @@ components:
       required:
       - problems
       - reconciled
+    RecordResultRequest:
+      type: object
+      properties:
+        order:
+          type: string
+          format: uuid
+        value:
+          type: string
+          default: ''
+          maxLength: 200
+        report:
+          type: string
+          default: ''
+          maxLength: 5000
+        flag:
+          allOf:
+          - $ref: '#/components/schemas/ResultFlagEnum'
+          default: normal
+      required:
+      - order
     RecordStateEnum:
       enum:
       - active
@@ -11555,6 +12837,15 @@ components:
       - reaction
       - severity
       - substance
+    RejectClaimRequest:
+      type: object
+      properties:
+        reason:
+          type: string
+          minLength: 1
+          maxLength: 500
+      required:
+      - reason
     ReminderResult:
       type: object
       properties:
@@ -11628,6 +12919,85 @@ components:
       description: |-
         * `completed` - completed
         * `refused` - refused
+    Result:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        order:
+          type: string
+          format: uuid
+          readOnly: true
+        version:
+          type: integer
+          readOnly: true
+          default: 1
+        superseded:
+          type: boolean
+          readOnly: true
+          default: false
+        value:
+          type: string
+          readOnly: true
+        unit:
+          type: string
+          readOnly: true
+          title: UCUM unit
+        reference_range:
+          type: string
+          readOnly: true
+        flag:
+          allOf:
+          - $ref: '#/components/schemas/ResultFlagEnum'
+          readOnly: true
+        report:
+          type: string
+          readOnly: true
+        reported_by_name:
+          type: string
+          readOnly: true
+        reported_at:
+          type: string
+          format: date-time
+          readOnly: true
+        correction_reason:
+          type: string
+          readOnly: true
+        is_reviewed:
+          type: boolean
+          readOnly: true
+        reviewed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - correction_reason
+      - flag
+      - id
+      - is_reviewed
+      - order
+      - reference_range
+      - report
+      - reported_at
+      - reported_by_name
+      - reviewed_at
+      - superseded
+      - unit
+      - value
+      - version
+    ResultFlagEnum:
+      enum:
+      - normal
+      - abnormal
+      - critical
+      type: string
+      description: |-
+        * `normal` - Normal
+        * `abnormal` - Abnormal
+        * `critical` - Critical
     RevenueCategoryEnum:
       enum:
       - pharmacy
@@ -11767,6 +13137,19 @@ components:
       required:
       - count
       - name
+    SettleClaimRequest:
+      type: object
+      properties:
+        amount_minor:
+          type: integer
+          minimum: 1
+        reference:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+      - amount_minor
+      - reference
     SexEnum:
       enum:
       - female
@@ -12167,6 +13550,13 @@ components:
       - out
       - products
       - value_minor
+    SubmitClaimRequest:
+      type: object
+      properties:
+        insurer_reference:
+          type: string
+          default: ''
+          maxLength: 64
     TransferRequest:
       type: object
       properties:
@@ -12455,6 +13845,28 @@ components:
       required:
       - facility
       - name
+    Wards:
+      type: object
+      properties:
+        beds:
+          type: integer
+        occupied:
+          type: integer
+        vacant:
+          type: integer
+        cleaning:
+          type: integer
+        out_of_service:
+          type: integer
+        admitted:
+          type: integer
+      required:
+      - admitted
+      - beds
+      - cleaning
+      - occupied
+      - out_of_service
+      - vacant
   securitySchemes:
     bearerAuth:
       type: http

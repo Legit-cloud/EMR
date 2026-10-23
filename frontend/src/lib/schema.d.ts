@@ -412,6 +412,147 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/billing/claims/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        get: operations["billing_claims_list"];
+        put?: never;
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        post: operations["billing_claims_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        get: operations["billing_claims_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/{id}/approve/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        post: operations["billing_claims_approve_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/{id}/reject/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        post: operations["billing_claims_reject_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/{id}/settle/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        post: operations["billing_claims_settle_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/{id}/submit/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Claims to insurers. Billing officers make and send them and record the answers; finance
+         *     and the administrator look.
+         */
+        post: operations["billing_claims_submit_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/claims/ageing/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description What insurers still owe, by how long ago the claim was sent. */
+        get: operations["billing_claims_ageing_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/billing/insurers/": {
         parameters: {
             query?: never;
@@ -1251,6 +1392,195 @@ export interface paths {
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
         post: operations["clinical_vitals_entered_in_error_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/investigations/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
+        get: operations["diagnostics_investigations_list"];
+        put?: never;
+        /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
+        post: operations["diagnostics_investigations_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/investigations/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
+        get: operations["diagnostics_investigations_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
+        patch: operations["diagnostics_investigations_partial_update"];
+        trace?: never;
+    };
+    "/api/diagnostics/orders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
+        get: operations["diagnostics_orders_list"];
+        put?: never;
+        /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
+        post: operations["diagnostics_orders_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/orders/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
+        get: operations["diagnostics_orders_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/orders/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
+        post: operations["diagnostics_orders_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/orders/{id}/collect/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
+        post: operations["diagnostics_orders_collect_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/results/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Results, newest version first. Recording and correcting are for the technician; a
+         *     doctor reviews.
+         */
+        get: operations["diagnostics_results_list"];
+        put?: never;
+        /**
+         * @description Results, newest version first. Recording and correcting are for the technician; a
+         *     doctor reviews.
+         */
+        post: operations["diagnostics_results_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/results/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Results, newest version first. Recording and correcting are for the technician; a
+         *     doctor reviews.
+         */
+        get: operations["diagnostics_results_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/results/{id}/correct/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Results, newest version first. Recording and correcting are for the technician; a
+         *     doctor reviews.
+         */
+        post: operations["diagnostics_results_correct_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/diagnostics/results/{id}/review/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Results, newest version first. Recording and correcting are for the technician; a
+         *     doctor reviews.
+         */
+        post: operations["diagnostics_results_review_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3195,6 +3525,11 @@ export interface components {
             bed: string;
             reason: string;
         };
+        AgeingBand: {
+            band: string;
+            claims: number;
+            outstanding_minor: number;
+        };
         Allergy: {
             /** Format: uuid */
             readonly id: string;
@@ -3328,6 +3663,11 @@ export interface components {
         /** @description Only the visit reason can be edited; times move by cancelling and rebooking. */
         AppointmentUpdate: {
             reason?: string;
+        };
+        ApproveClaimRequest: {
+            approved_minor: number;
+            /** @default  */
+            note: string;
         };
         Assignment: {
             role: string;
@@ -3540,8 +3880,64 @@ export interface components {
             /** @default  */
             note: string;
         };
+        CancelDiagnosticOrderRequest: {
+            reason: string;
+        };
         CancelRequest: {
             reason: string;
+        };
+        Claim: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly reference: string;
+            readonly insurer_reference: string;
+            /** Format: uuid */
+            readonly invoice: string;
+            readonly invoice_reference: string;
+            /** @default  */
+            readonly patient_name: string;
+            /** @default  */
+            readonly patient_mrn: string;
+            /** Format: uuid */
+            readonly insurer: string;
+            readonly insurer_name: string;
+            readonly status: components["schemas"]["ClaimStatusEnum"];
+            readonly currency: string;
+            readonly claimed_minor: number;
+            readonly approved_minor: number | null;
+            readonly received_minor: number;
+            readonly outstanding_minor: number;
+            readonly attempt: number;
+            /** Format: date-time */
+            readonly submitted_at: string | null;
+            /** Format: date-time */
+            readonly decided_at: string | null;
+            /** Format: date-time */
+            readonly settled_at: string | null;
+            readonly decision_note: string;
+            /** Format: date-time */
+            readonly created_at: string;
+        };
+        ClaimBand: {
+            /** @description Days since the claim was sent. */
+            band: string;
+            claims: number;
+            outstanding_minor: number;
+        };
+        /**
+         * @description * `draft` - Draft
+         *     * `submitted` - Submitted
+         *     * `approved` - Approved
+         *     * `rejected` - Rejected
+         *     * `paid` - Paid
+         * @enum {string}
+         */
+        ClaimStatusEnum: "draft" | "submitted" | "approved" | "rejected" | "paid";
+        Claims: {
+            bands: components["schemas"]["ClaimBand"][];
+            claims: number;
+            /** @description What insurers still owe. */
+            outstanding_minor: number;
         };
         /**
          * @description * `active` - Active
@@ -3602,10 +3998,22 @@ export interface components {
             /** Format: uuid */
             addendum_to?: string | null;
         };
+        CorrectResultRequest: {
+            reason: string;
+            /** @default  */
+            value: string;
+            /** @default  */
+            report: string;
+            flag: components["schemas"]["ResultFlagEnum"];
+        };
         CoverageRequest: {
             /** Format: uuid */
             insurer?: string | null;
             coverage_bp: number;
+        };
+        CreateClaimRequest: {
+            /** Format: uuid */
+            invoice: string;
         };
         CsrfToken: {
             csrf_token: string;
@@ -3618,6 +4026,9 @@ export interface components {
             popular_services: components["schemas"]["ServiceCount"][] | null;
             stock: components["schemas"]["Stock"] | null;
             my_day: components["schemas"]["MyDay"] | null;
+            wards: components["schemas"]["Wards"] | null;
+            diagnostics: components["schemas"]["Diagnostics"] | null;
+            claims: components["schemas"]["Claims"] | null;
         };
         /**
          * @description * `access` - A copy of my records
@@ -3717,6 +4128,54 @@ export interface components {
             abatement_date?: string | null;
             rank?: number;
             note?: string;
+        };
+        /**
+         * @description * `lab` - Laboratory
+         *     * `imaging` - Imaging
+         * @enum {string}
+         */
+        DiagnosticKindEnum: "lab" | "imaging";
+        DiagnosticOrder: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly patient: string;
+            /** @default  */
+            readonly patient_name: string;
+            /** @default  */
+            readonly patient_mrn: string;
+            /** Format: uuid */
+            readonly investigation: string;
+            readonly investigation_name: string;
+            readonly kind: string;
+            readonly reason: string;
+            readonly priority: components["schemas"]["OrderPriorityEnum"];
+            readonly status: components["schemas"]["DiagnosticOrderStatusEnum"];
+            /** Format: uuid */
+            readonly encounter_id: string | null;
+            readonly unit_price_minor: number;
+            readonly currency: string;
+            readonly ordered_by_name: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly collected_at: string | null;
+            readonly cancelled_reason: string;
+            readonly current_result: components["schemas"]["Result"] | null;
+        };
+        /**
+         * @description * `ordered` - Ordered
+         *     * `collected` - Sample taken or patient arrived
+         *     * `resulted` - Resulted
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        DiagnosticOrderStatusEnum: "ordered" | "collected" | "resulted" | "cancelled";
+        Diagnostics: {
+            /** @description Ordered, not yet resulted. */
+            open_orders: number;
+            /** @description Resulted, not yet reviewed. */
+            results_to_review: number;
         };
         DischargeRequest: {
             status: components["schemas"]["DischargeStatusEnum"];
@@ -3962,14 +4421,6 @@ export interface components {
             /** @description Charges raised (not voided). */
             billed_minor: number;
         };
-        /**
-         * @description * `normal` - normal
-         *     * `low` - low
-         *     * `high` - high
-         *     * `abnormal` - abnormal
-         * @enum {string}
-         */
-        FlagEnum: "normal" | "low" | "high" | "abnormal";
         FreeSlot: {
             /** Format: date-time */
             start_at: string;
@@ -4026,6 +4477,44 @@ export interface components {
             on_order: number;
             value_minor: number;
             stock_status: components["schemas"]["StockStatusEnum"];
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Investigation: {
+            /** Format: uuid */
+            readonly id: string;
+            kind: components["schemas"]["DiagnosticKindEnum"];
+            name: string;
+            code?: string;
+            /** UCUM unit */
+            unit?: string;
+            reference_range?: string;
+            /** Format: int64 */
+            price_minor?: number;
+            currency?: string;
+            active?: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        InvestigationRequest: {
+            kind: components["schemas"]["DiagnosticKindEnum"];
+            name: string;
+            code?: string;
+            /** UCUM unit */
+            unit?: string;
+            reference_range?: string;
+            /** Format: int64 */
+            price_minor?: number;
+            currency?: string;
+            active?: boolean;
         };
         InviteRequest: {
             /** Format: uuid */
@@ -4261,6 +4750,8 @@ export interface components {
              * @description Set only when the licence expires within 60 days.
              */
             licence_expires_on: string | null;
+            /** @description Results waiting for a doctor to review. Null for other roles. */
+            results_to_review: number | null;
         };
         MyInformation: {
             /** Format: date-time */
@@ -4356,6 +4847,13 @@ export interface components {
             /** Format: date-time */
             readonly created_at: string;
         };
+        /**
+         * @description * `routine` - Routine
+         *     * `urgent` - Urgent
+         *     * `stat` - Immediately
+         * @enum {string}
+         */
+        OrderPriorityEnum: "routine" | "urgent" | "stat";
         OrderReceipt: {
             /** Format: uuid */
             readonly id: string;
@@ -4503,6 +5001,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["BreakGlassGrant"][];
         };
+        PaginatedClaimList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Claim"][];
+        };
         PaginatedConsultationNoteList: {
             /** @example 123 */
             count: number;
@@ -4547,6 +5060,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Diagnosis"][];
+        };
+        PaginatedDiagnosticOrderList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["DiagnosticOrder"][];
         };
         PaginatedDrugList: {
             /** @example 123 */
@@ -4652,6 +5180,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["InventoryRow"][];
+        };
+        PaginatedInvestigationList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Investigation"][];
         };
         PaginatedInvoiceListList: {
             /** @example 123 */
@@ -4772,6 +5315,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["Prescription"][];
+        };
+        PaginatedResultList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Result"][];
         };
         PaginatedRoleAssignmentList: {
             /** @example 123 */
@@ -5042,6 +5600,24 @@ export interface components {
             name?: string;
             code?: string;
             is_active?: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        PatchedInvestigationRequest: {
+            kind?: components["schemas"]["DiagnosticKindEnum"];
+            name?: string;
+            code?: string;
+            /** UCUM unit */
+            unit?: string;
+            reference_range?: string;
+            /** Format: int64 */
+            price_minor?: number;
+            currency?: string;
+            active?: boolean;
         };
         PatchedPatientRequest: {
             first_name?: string;
@@ -5375,6 +5951,17 @@ export interface components {
          * @enum {string}
          */
         PaymentStatusEnum: "unpaid" | "partially_paid" | "paid";
+        PlaceDiagnosticOrderRequest: {
+            /** Format: uuid */
+            patient: string;
+            /** Format: uuid */
+            investigation: string;
+            reason: string;
+            /** @default routine */
+            priority: components["schemas"]["OrderPriorityEnum"];
+            /** Format: uuid */
+            encounter_id?: string | null;
+        };
         PlaceOrderLineRequest: {
             /** Format: uuid */
             drug: string;
@@ -5513,7 +6100,7 @@ export interface components {
             taken_at: string;
             ordered_by: string;
             seen: boolean;
-            flag: components["schemas"]["FlagEnum"];
+            flag: components["schemas"]["PortalResultFlagEnum"];
             value: string;
             unit: string;
             /** Format: double */
@@ -5522,6 +6109,14 @@ export interface components {
             high: number | null;
             note: string;
         };
+        /**
+         * @description * `normal` - normal
+         *     * `low` - low
+         *     * `high` - high
+         *     * `abnormal` - abnormal
+         * @enum {string}
+         */
+        PortalResultFlagEnum: "normal" | "low" | "high" | "abnormal";
         /**
          * @description * `lab` - lab
          *     * `imaging` - imaging
@@ -5686,6 +6281,16 @@ export interface components {
             reconciled: boolean;
             problems: string[];
         };
+        RecordResultRequest: {
+            /** Format: uuid */
+            order: string;
+            /** @default  */
+            value: string;
+            /** @default  */
+            report: string;
+            /** @default normal */
+            flag: components["schemas"]["ResultFlagEnum"];
+        };
         /**
          * @description * `active` - Active
          *     * `entered_in_error` - Entered in error
@@ -5713,6 +6318,9 @@ export interface components {
             category: components["schemas"]["AllergyCategoryEnum"];
             reaction: string;
             severity: components["schemas"]["AllergySeverityEnum"];
+        };
+        RejectClaimRequest: {
+            reason: string;
         };
         ReminderResult: {
             channels: string[];
@@ -5749,6 +6357,36 @@ export interface components {
          * @enum {string}
          */
         RespondStatusEnum: "completed" | "refused";
+        Result: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly order: string;
+            /** @default 1 */
+            readonly version: number;
+            /** @default false */
+            readonly superseded: boolean;
+            readonly value: string;
+            /** UCUM unit */
+            readonly unit: string;
+            readonly reference_range: string;
+            readonly flag: components["schemas"]["ResultFlagEnum"];
+            readonly report: string;
+            readonly reported_by_name: string;
+            /** Format: date-time */
+            readonly reported_at: string;
+            readonly correction_reason: string;
+            readonly is_reviewed: boolean;
+            /** Format: date-time */
+            readonly reviewed_at: string | null;
+        };
+        /**
+         * @description * `normal` - Normal
+         *     * `abnormal` - Abnormal
+         *     * `critical` - Critical
+         * @enum {string}
+         */
+        ResultFlagEnum: "normal" | "abnormal" | "critical";
         /**
          * @description * `pharmacy` - Pharmacy
          *     * `consultation` - Consultations
@@ -5817,6 +6455,10 @@ export interface components {
         ServiceCount: {
             name: string;
             count: number;
+        };
+        SettleClaimRequest: {
+            amount_minor: number;
+            reference: string;
         };
         /**
          * @description * `female` - Female
@@ -5989,6 +6631,10 @@ export interface components {
             out: number;
             low_items: components["schemas"]["LowItem"][];
         };
+        SubmitClaimRequest: {
+            /** @default  */
+            insurer_reference: string;
+        };
         TransferRequest: {
             /** Format: uuid */
             bed: string;
@@ -6115,6 +6761,14 @@ export interface components {
             daily_charge_minor?: number;
             currency?: string;
             active?: boolean;
+        };
+        Wards: {
+            beds: number;
+            occupied: number;
+            vacant: number;
+            cleaning: number;
+            out_of_service: number;
+            admitted: number;
         };
     };
     responses: never;
@@ -6682,6 +7336,205 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditSummary"];
+                };
+            };
+        };
+    };
+    billing_claims_list: {
+        parameters: {
+            query?: {
+                insurer?: string;
+                invoice?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedClaimList"];
+                };
+            };
+        };
+    };
+    billing_claims_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateClaimRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CreateClaimRequest"];
+                "multipart/form-data": components["schemas"]["CreateClaimRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_approve_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ApproveClaimRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ApproveClaimRequest"];
+                "multipart/form-data": components["schemas"]["ApproveClaimRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_reject_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RejectClaimRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RejectClaimRequest"];
+                "multipart/form-data": components["schemas"]["RejectClaimRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_settle_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SettleClaimRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SettleClaimRequest"];
+                "multipart/form-data": components["schemas"]["SettleClaimRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_submit_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["SubmitClaimRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SubmitClaimRequest"];
+                "multipart/form-data": components["schemas"]["SubmitClaimRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Claim"];
+                };
+            };
+        };
+    };
+    billing_claims_ageing_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AgeingBand"][];
                 };
             };
         };
@@ -7801,6 +8654,342 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["VitalSigns"];
+                };
+            };
+        };
+    };
+    diagnostics_investigations_list: {
+        parameters: {
+            query?: {
+                kind?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedInvestigationList"];
+                };
+            };
+        };
+    };
+    diagnostics_investigations_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvestigationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["InvestigationRequest"];
+                "multipart/form-data": components["schemas"]["InvestigationRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Investigation"];
+                };
+            };
+        };
+    };
+    diagnostics_investigations_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Investigation"];
+                };
+            };
+        };
+    };
+    diagnostics_investigations_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedInvestigationRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedInvestigationRequest"];
+                "multipart/form-data": components["schemas"]["PatchedInvestigationRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Investigation"];
+                };
+            };
+        };
+    };
+    diagnostics_orders_list: {
+        parameters: {
+            query?: {
+                kind?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows of this patient (id). */
+                patient?: string;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedDiagnosticOrderList"];
+                };
+            };
+        };
+    };
+    diagnostics_orders_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaceDiagnosticOrderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PlaceDiagnosticOrderRequest"];
+                "multipart/form-data": components["schemas"]["PlaceDiagnosticOrderRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosticOrder"];
+                };
+            };
+        };
+    };
+    diagnostics_orders_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosticOrder"];
+                };
+            };
+        };
+    };
+    diagnostics_orders_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CancelDiagnosticOrderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CancelDiagnosticOrderRequest"];
+                "multipart/form-data": components["schemas"]["CancelDiagnosticOrderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosticOrder"];
+                };
+            };
+        };
+    };
+    diagnostics_orders_collect_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DiagnosticOrder"];
+                };
+            };
+        };
+    };
+    diagnostics_results_list: {
+        parameters: {
+            query?: {
+                order?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows of this patient (id). */
+                patient?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedResultList"];
+                };
+            };
+        };
+    };
+    diagnostics_results_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordResultRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RecordResultRequest"];
+                "multipart/form-data": components["schemas"]["RecordResultRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Result"];
+                };
+            };
+        };
+    };
+    diagnostics_results_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Result"];
+                };
+            };
+        };
+    };
+    diagnostics_results_correct_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectResultRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["CorrectResultRequest"];
+                "multipart/form-data": components["schemas"]["CorrectResultRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Result"];
+                };
+            };
+        };
+    };
+    diagnostics_results_review_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Result"];
                 };
             };
         };

@@ -63,6 +63,24 @@ describe("dashboard, management view (mock layer)", () => {
     expect(patients).toHaveTextContent("Returning11275% of visits");
   });
 
+  it("shows beds, tests and what insurers owe, and a doctor's results to review", async () => {
+    const { unmount } = renderAs("bisi.finance");
+    const wards = await screen.findByRole("region", { name: "Wards and beds" });
+    expect(wards).toHaveTextContent("Patients admitted17");
+    expect(wards).toHaveTextContent("17 of 24 beds in use");
+    expect(screen.getByRole("region", { name: "Tests and scans" })).toHaveTextContent(
+      "Waiting for a result6",
+    );
+    const claims = screen.getByRole("region", { name: "Insurer claims" });
+    expect(claims).toHaveTextContent("₦42,000.00");
+    expect(within(claims).getAllByRole("listitem")).toHaveLength(4);
+    unmount();
+
+    renderAs("ada.doctor");
+    const tasks = await screen.findByRole("region", { name: "Your tasks" });
+    expect(tasks).toHaveTextContent("Results to review3");
+  });
+
   it("switches the whole dashboard to the last 30 days", async () => {
     renderAs("bisi.finance");
     const cashflow = await screen.findByRole("region", { name: "Cashflow" });

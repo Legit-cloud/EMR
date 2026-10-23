@@ -189,6 +189,30 @@ export const BED_STATUS: Record<BedStatus, StatusSpec> = {
   out_of_service: { label: "Out of service", tone: "grey", icon: Prohibit },
 };
 
+/** A laboratory or imaging order. */
+export const DIAGNOSTIC_STATUS: Record<Schemas["DiagnosticOrderStatusEnum"], StatusSpec> = {
+  ordered: { label: "Ordered", tone: "sky", icon: Hourglass },
+  collected: { label: "In progress", tone: "purple", icon: Flask },
+  resulted: { label: "Resulted", tone: "green", icon: CheckCircle },
+  cancelled: { label: "Cancelled", tone: "grey", icon: Prohibit },
+};
+
+/** How a result reads: normal, abnormal, or critical (DESIGN.md: pink is for urgent). */
+export const RESULT_FLAG: Record<Schemas["ResultFlagEnum"], StatusSpec> = {
+  normal: { label: "Normal", tone: "green", icon: CheckCircle },
+  abnormal: { label: "Abnormal", tone: "amber", icon: WarningCircle },
+  critical: { label: "Critical", tone: "pink", icon: Siren },
+};
+
+/** An insurer claim. */
+export const CLAIM_STATUS: Record<Schemas["ClaimStatusEnum"], StatusSpec> = {
+  draft: { label: "Draft", tone: "grey", icon: Receipt },
+  submitted: { label: "Sent", tone: "sky", icon: Hourglass },
+  approved: { label: "Approved", tone: "teal", icon: CheckSquare },
+  rejected: { label: "Rejected", tone: "pink", icon: XCircle },
+  paid: { label: "Paid", tone: "green", icon: CheckCircle },
+};
+
 /** Stock level of one drug (DESIGN.md Section 2.2: amber low stock, pink out of stock). */
 export const STOCK_LEVEL = {
   in_stock: { label: "In stock", tone: "teal", icon: CheckCircle },

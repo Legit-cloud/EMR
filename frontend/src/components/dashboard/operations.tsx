@@ -124,3 +124,110 @@ export function StockCard({ stock, className }: { stock: Schemas["Stock"]; class
     </Card>
   );
 }
+
+/** Beds by state and how many patients are admitted. */
+export function WardsCard({ wards, className }: { wards: Schemas["Wards"]; className?: string }) {
+  return (
+    <Card
+      title="Wards and beds"
+      className={className}
+      action={
+        <Link href="/inpatient" className={LINK}>
+          Open the board
+        </Link>
+      }
+    >
+      <KpiBlock
+        label="Patients admitted"
+        value={String(wards.admitted)}
+        caption={`${wards.occupied} of ${wards.beds} beds in use`}
+      />
+      <SegmentedStatBar
+        label="Beds by state"
+        segments={[
+          { label: "Occupied", value: wards.occupied, fill: "bg-chart-sky" },
+          { label: "Vacant", value: wards.vacant, fill: "bg-teal" },
+          { label: "Being cleaned", value: wards.cleaning, fill: "bg-amber" },
+          { label: "Out of service", value: wards.out_of_service, fill: STOCK_SERIES.out },
+        ]}
+        emptyText="No wards have been set up yet."
+      />
+    </Card>
+  );
+}
+
+/** Laboratory and imaging work waiting. */
+export function DiagnosticsCard({
+  figures,
+  className,
+}: {
+  figures: Schemas["Diagnostics"];
+  className?: string;
+}) {
+  return (
+    <Card
+      title="Tests and scans"
+      className={className}
+      action={
+        <Link href="/diagnostics" className={LINK}>
+          View all
+        </Link>
+      }
+    >
+      <div className="grid grid-cols-2 gap-4">
+        <KpiBlock
+          label="Waiting for a result"
+          value={String(figures.open_orders)}
+          caption="Ordered, not yet resulted"
+        />
+        <KpiBlock
+          label="To review"
+          value={String(figures.results_to_review)}
+          caption="Resulted, not yet reviewed by a doctor"
+        />
+      </div>
+    </Card>
+  );
+}
+
+/** What insurers still owe, by how long ago each claim was sent. */
+export function ClaimsCard({
+  claims,
+  className,
+}: {
+  claims: Schemas["Claims"];
+  className?: string;
+}) {
+  return (
+    <Card
+      title="Insurer claims"
+      className={className}
+      action={
+        <Link href="/claims" className={LINK}>
+          View all
+        </Link>
+      }
+    >
+      <KpiBlock
+        label="Owed by insurers"
+        value={formatMoney(claims.outstanding_minor, "NGN")}
+        icon={{ icon: Coins, tone: "amber" }}
+        caption={`${claims.claims} ${claims.claims === 1 ? "claim" : "claims"} waiting`}
+      />
+      <ul aria-label="Claims by age" className="flex flex-col">
+        {claims.bands.map((band) => (
+          <li
+            key={band.band}
+            className="border-line text-body flex items-center gap-3 border-t py-2.5 first:border-t-0"
+          >
+            <span className="text-ink-900 flex-1">{band.band} days</span>
+            <span className="text-ink-600 tnum">{band.claims}</span>
+            <span className="text-ink-900 tnum w-32 text-right">
+              {formatMoney(band.outstanding_minor, "NGN")}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </Card>
+  );
+}

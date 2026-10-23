@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
 from apps.core.api.fields import TenantPrimaryKeyRelatedField
@@ -52,7 +53,7 @@ class ResultSerializer(serializers.ModelSerializer):
         return user.get_full_name() or user.get_username()
 
 
-class OrderSerializer(serializers.ModelSerializer):
+class DiagnosticOrderSerializer(serializers.ModelSerializer):
     investigation_name = serializers.CharField(source="investigation.name", read_only=True)
     kind = serializers.CharField(source="investigation.kind", read_only=True)
     patient_name = serializers.CharField(read_only=True, default="")
@@ -88,12 +89,13 @@ class OrderSerializer(serializers.ModelSerializer):
         user = order.ordered_by
         return user.get_full_name() or user.get_username()
 
-    def get_current_result(self, order) -> ResultSerializer | None:
+    @extend_schema_field(ResultSerializer(allow_null=True))
+    def get_current_result(self, order):
         result = next((r for r in order.results.all() if not r.superseded), None)
         return ResultSerializer(result).data if result else None
 
 
-class PlaceOrderSerializer(serializers.Serializer):
+class PlaceDiagnosticOrderSerializer(serializers.Serializer):
     patient = serializers.UUIDField()
     investigation = TenantPrimaryKeyRelatedField(Investigation)
     reason = serializers.CharField(max_length=300)
@@ -101,7 +103,7 @@ class PlaceOrderSerializer(serializers.Serializer):
     encounter_id = serializers.UUIDField(required=False, allow_null=True, default=None)
 
 
-class CancelSerializer(serializers.Serializer):
+class CancelDiagnosticOrderSerializer(serializers.Serializer):
     reason = serializers.CharField(max_length=300)
 
 

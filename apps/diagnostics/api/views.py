@@ -44,7 +44,7 @@ class OrderViewSet(TenantReadOnlyViewSet):
     model = DiagnosticOrder
     policy_resource = "diagnostics.order"
     policy_actions = {"collect": Action.UPDATE, "cancel": Action.UPDATE}
-    serializer_class = s.OrderSerializer
+    serializer_class = s.DiagnosticOrderSerializer
 
     def get_base_queryset(self):
         queryset = (
@@ -57,23 +57,25 @@ class OrderViewSet(TenantReadOnlyViewSet):
         if params.get("patient"):
             queryset = queryset.filter(patient_id=params["patient"])
         if params.get("status"):
-            queryset = queryset.filter(status=params["status"])
+            queryset = queryset.filter(status__in=params["status"].split(","))
         if params.get("kind"):
             queryset = queryset.filter(investigation__kind=params["kind"])
         return queryset
 
     def list(self, request, *args, **kwargs):
         page = self.paginate_queryset(self.filter_queryset(self.get_queryset()))
-        data = s.OrderSerializer(_with_names(page), many=True).data
+        data = s.DiagnosticOrderSerializer(_with_names(page), many=True).data
         return self.get_paginated_response(data)
 
     def retrieve(self, request, *args, **kwargs):
         order = _with_names([self.get_object()])[0]
-        return Response(s.OrderSerializer(order).data)
+        return Response(s.DiagnosticOrderSerializer(order).data)
 
-    @extend_schema(request=s.PlaceOrderSerializer, responses={201: s.OrderSerializer})
+    @extend_schema(
+        request=s.PlaceDiagnosticOrderSerializer, responses={201: s.DiagnosticOrderSerializer}
+    )
     def create(self, request):
-        data = s.PlaceOrderSerializer(data=request.data)
+        data = s.PlaceDiagnosticOrderSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         with transaction.atomic():
             order = services.place_order(
@@ -84,27 +86,27 @@ class OrderViewSet(TenantReadOnlyViewSet):
                 encounter_id=data.validated_data["encounter_id"],
             )
             self.audit_write(Action.CREATE, order, ["investigation", "priority"])
-        return Response(s.OrderSerializer(_with_names([order])[0]).data, status=201)
+        return Response(s.DiagnosticOrderSerializer(_with_names([order])[0]).data, status=201)
 
-    @extend_schema(request=None, responses=s.OrderSerializer)
+    @extend_schema(request=None, responses=s.DiagnosticOrderSerializer)
     @action(detail=True, methods=["post"])
     def collect(self, request, pk=None):
         order = self.get_object()
         with transaction.atomic():
             order = services.mark_collected(order)
             self.audit_write(Action.UPDATE, order, ["status"])
-        return Response(s.OrderSerializer(_with_names([order])[0]).data)
+        return Response(s.DiagnosticOrderSerializer(_with_names([order])[0]).data)
 
-    @extend_schema(request=s.CancelSerializer, responses=s.OrderSerializer)
+    @extend_schema(request=s.CancelDiagnosticOrderSerializer, responses=s.DiagnosticOrderSerializer)
     @action(detail=True, methods=["post"])
     def cancel(self, request, pk=None):
         order = self.get_object()
-        data = s.CancelSerializer(data=request.data)
+        data = s.CancelDiagnosticOrderSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         with transaction.atomic():
             order = services.cancel_order(order, reason=data.validated_data["reason"])
             self.audit_write(Action.UPDATE, order, ["status", "cancelled_reason"])
-        return Response(s.OrderSerializer(_with_names([order])[0]).data)
+        return Response(s.DiagnosticOrderSerializer(_with_names([order])[0]).data)
 
 
 @list_filters("order", "patient")

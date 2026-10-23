@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardText, Pill } from "@phosphor-icons/react";
+import { ClipboardText, Flask, Pill } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -155,6 +155,17 @@ export function MyTasksCard({ myDay, className }: { myDay: Schemas["MyDay"]; cla
       label: "Prescriptions to sign",
       count: myDay.draft_prescriptions,
     },
+    // Only a doctor reviews results; the figure is null for other roles.
+    ...(myDay.results_to_review === null
+      ? []
+      : [
+          {
+            icon: Flask,
+            tone: "teal" as const,
+            label: "Results to review",
+            count: myDay.results_to_review,
+          },
+        ]),
   ];
   return (
     <Card title="Your tasks" className={className}>
