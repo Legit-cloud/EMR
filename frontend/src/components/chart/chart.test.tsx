@@ -12,6 +12,7 @@ import { SessionContext } from "@/lib/session";
 import { undoConfig } from "@/lib/use-undoable";
 import { MOCK_USERS, resetAuthMocks } from "@/mocks/auth";
 import { CHART_PATIENT, chart, resetChartMocks } from "@/mocks/chart";
+import { resetDiagnosticsMocks } from "@/mocks/diagnostics";
 
 // A full chart is a dozen queries and several dialogs: allow for a slow, busy host.
 vi.setConfig({ testTimeout: 90_000 });
@@ -62,6 +63,7 @@ beforeEach(() => {
   nav.push.mockReset();
   undoConfig.delayMs = 6000;
   resetChartMocks();
+  resetDiagnosticsMocks();
 });
 
 const heading = () => screen.findByRole("heading", { level: 1, name: "Ngozi Eze" });
@@ -98,9 +100,20 @@ describe("the banner and overview", () => {
       "Diagnoses",
       "Notes",
       "Prescriptions",
+      "Tests and scans",
       "Billing",
       "Documents",
     ]);
+  });
+
+  it("shows the patient's tests and scans with their results on their own tab", async () => {
+    renderChart();
+    await heading();
+    await userEvent.click(screen.getByRole("tab", { name: "Tests and scans" }));
+    const card = await screen.findByText("Full blood count");
+    const item = card.closest("li") as HTMLElement;
+    expect(item).toHaveTextContent("13.1 g/dL");
+    expect(item).toHaveTextContent("Reviewed by a doctor.");
   });
 
   it("shows the latest vital signs with change since last time and flags out-of-range values", async () => {

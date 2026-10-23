@@ -3,6 +3,7 @@ import { http, HttpResponse } from "msw";
 import type { DiagnosticOrder, DiagnosticResult, Investigation } from "@/lib/diagnostics";
 
 import { mockSignedIn } from "./auth";
+import { CHART_PATIENT } from "./chart";
 
 /**
  * Laboratory and imaging as apps/diagnostics serves them. A result is recorded once and then
@@ -89,12 +90,24 @@ function seeded() {
     is_reviewed: false,
     reviewed_at: null,
   };
+  const chartOrder = order("ord-04", "Ngozi Eze", "2026-000301", tests[0], "resulted", 30);
+  chartOrder.patient = CHART_PATIENT;
+  chartOrder.current_result = {
+    ...resulted.current_result!,
+    id: "res-04",
+    order: "ord-04",
+    value: "13.1",
+    flag: "normal",
+    is_reviewed: true,
+    reviewed_at: ago(20),
+  };
   return {
     tests,
     orders: [
       order("ord-01", "Tolu Okafor", "2026-000201", tests[0], "ordered", 1),
       order("ord-02", "Bisi Lawal", "2026-000202", tests[1], "ordered", 3),
       resulted,
+      chartOrder,
     ],
   };
 }
