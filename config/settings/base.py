@@ -335,3 +335,12 @@ CONTENT_SECURITY_POLICY = (
 )
 PERMISSIONS_POLICY = "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
 SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin"
+
+# Payments (Paystack, ADR 0023). The secret key authorises everything: keep it in the environment,
+# never in Git. With no key, online payment is simply unavailable.
+PAYMENT_GATEWAY = env("PAYMENT_GATEWAY", default="apps.billing.gateway.PaystackGateway")
+PAYSTACK_SECRET_KEY = env("PAYSTACK_SECRET_KEY", default="")
+PAYSTACK_BASE_URL = env("PAYSTACK_BASE_URL", default="https://api.paystack.co")
+PAYSTACK_TIMEOUT_SECONDS = env.int("PAYSTACK_TIMEOUT_SECONDS", default=15)
+# A started payment that nobody finishes stops blocking a new one after this long.
+PAYMENT_INTENT_MINUTES = env.int("PAYMENT_INTENT_MINUTES", default=30)

@@ -12,6 +12,7 @@ Ledger rules (CLAUDE.md Section 5):
   moved to Cash/Bank.
 """
 
+import logging
 import uuid
 from datetime import timedelta
 
@@ -20,22 +21,27 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q, Sum
 from django.utils import timezone
 
+from apps.accounts import selectors as accounts
 from apps.core import events
 from apps.core.errors import DomainError
 from apps.core.money import Money
+from apps.core.roles import Role
 from apps.core.tenancy import get_current_user_id
 from apps.notifications import services as notifications
 from apps.patients import selectors as patients
 
+from . import gateway as payment_gateway
 from . import ledger
 from .events import INVOICE_PAID
 from .models import (
     FULL_COVERAGE_BP,
+    IntentStatus,
     Invoice,
     InvoiceLine,
     LineStatus,
     Payer,
     Payment,
+    PaymentIntent,
     PaymentMethod,
     PaymentStatus,
     RevenueCategory,
@@ -245,6 +251,7 @@ _CASH_ACCOUNT = {
     PaymentMethod.CARD: ledger.BANK,
     PaymentMethod.TRANSFER: ledger.BANK,
     PaymentMethod.INSURER_REMITTANCE: ledger.BANK,
+    PaymentMethod.ONLINE: ledger.BANK,
 }
 
 
@@ -434,3 +441,184 @@ def reconcile(currency: str = "NGN") -> list[str]:
             f"{payments_total}"
         )
     return problems
+
+
+# -- online payments (Paystack, ADR 0023) ----------------------------------------------------
+#
+# The rule that matters: a bill is credited only after the gateway has confirmed the same
+# reference and amount, and then once. A patient's browser coming back from the payment page
+# proves nothing by itself; the server asks the gateway (or receives its signed webhook).
+
+logger = logging.getLogger(__name__)
+
+
+class OnlinePaymentRefused(DomainError):
+    code = "online_payment_refused"
+    status_code = 409
+
+
+class OnlinePaymentNotFound(DomainError):
+    code = "not_found"
+    status_code = 404
+
+
+def new_reference() -> str:
+    return f"emr_{uuid.uuid4().hex}"
+
+
+def patient_owes(invoice: Invoice) -> int:
+    """What the patient still owes on the bill (their own share, not the insurer's)."""
+    return max(invoice.patient_due_minor - invoice.patient_paid_minor, 0)
+
+
+def start_online_payment(
+    *, patient_id, invoice_id, amount_minor: int, email: str, callback_url: str
+) -> PaymentIntent:
+    """Begin a hosted checkout for part or all of what the patient owes on one of their bills.
+
+    Returns the intent, whose ``authorization_url`` is where to send the patient. The bill is not
+    touched. Someone else's bill is simply not found. The gateway is called outside the database
+    transaction so a slow gateway never holds a lock.
+    """
+    with transaction.atomic():
+        invoice = (
+            Invoice.objects.select_for_update().filter(pk=invoice_id, patient_id=patient_id).first()
+        )
+        if invoice is None:
+            raise OnlinePaymentNotFound("Not found.")
+        if invoice.currency != "NGN":
+            raise OnlinePaymentRefused("Online payment is only for bills in naira.")
+        if invoice.estate_review or patients.is_deceased(patient_id):
+            raise OnlinePaymentRefused("Please contact the billing office about this bill.")
+        owed = patient_owes(invoice)
+        if owed <= 0:
+            raise OnlinePaymentRefused("Nothing is due on this bill.")
+        if amount_minor < 1:
+            raise OnlinePaymentRefused("Enter the amount you want to pay.")
+        if amount_minor > owed:
+            raise OnlinePaymentRefused(f"You owe {Money(owed, invoice.currency)} on this bill.")
+        if not email:
+            raise OnlinePaymentRefused("Add your email address to your profile first.")
+        recent = timezone.now() - timedelta(minutes=settings.PAYMENT_INTENT_MINUTES)
+        open_intent = PaymentIntent.objects.filter(
+            invoice=invoice, status=IntentStatus.PENDING, created_at__gte=recent
+        ).first()
+        if open_intent is not None:
+            if open_intent.amount_minor == amount_minor and open_intent.authorization_url:
+                return open_intent  # the patient closed the tab: send them back to the same page
+            raise OnlinePaymentRefused(
+                "A payment for this bill is already in progress. Finish it, "
+                "or try again in a few minutes."
+            )
+        intent = PaymentIntent.objects.create(
+            invoice=invoice,
+            amount_minor=amount_minor,
+            currency=invoice.currency,
+            reference=new_reference(),
+        )
+    try:
+        url = payment_gateway.get_gateway().initialize(
+            email=email,
+            amount_minor=amount_minor,
+            currency=intent.currency,
+            reference=intent.reference,
+            callback_url=callback_url,
+        )
+    except DomainError:
+        intent.status = IntentStatus.FAILED
+        intent.note = "The payment page could not be opened."
+        intent.completed_at = timezone.now()
+        intent.save(update_fields=["status", "note", "completed_at", "updated_at", "updated_by"])
+        raise
+    intent.authorization_url = url
+    intent.save(update_fields=["authorization_url", "updated_at", "updated_by"])
+    return intent
+
+
+def _flag(intent: PaymentIntent, reason: str) -> PaymentIntent:
+    """The gateway took money that cannot be applied. Park it and tell finance."""
+    intent.status = IntentStatus.FLAGGED
+    intent.note = reason[:300]
+    intent.completed_at = timezone.now()
+    intent.save(update_fields=["status", "note", "completed_at", "updated_at", "updated_by"])
+    logger.error("Online payment %s needs review: %s", intent.reference, reason)
+    for to in accounts.emails_of_role_holders([Role.BILLING_OFFICER, Role.FINANCE]):
+        notifications.queue_email(
+            to=to,
+            subject="An online payment needs review",
+            body=(
+                f"Payment {intent.reference} for bill {invoice_reference(intent.invoice)} was "
+                f"taken by the payment service but could not be applied: {reason}\n\n"
+                "Please check it in the payment service dashboard and refund or apply it by hand."
+            ),
+            purpose="payment_flagged",
+            related_object=f"billing.paymentintent:{intent.pk}",
+        )
+    return intent
+
+
+@transaction.atomic
+def settle_online_payment(reference: str, confirmation: dict) -> PaymentIntent | None:
+    """Apply a payment the gateway has confirmed. Safe to call any number of times.
+
+    ``confirmation`` is what the gateway reported: status, amount_minor, currency, and an id. The
+    payment is recorded only if the gateway says it succeeded for exactly the amount and currency
+    that was asked for. Returns the intent, or None for a reference we never issued.
+    """
+    intent = (
+        PaymentIntent.objects.select_for_update()
+        .select_related("invoice")
+        .filter(reference=reference)
+        .first()
+    )
+    if intent is None:
+        return None
+    if intent.status in (IntentStatus.SUCCEEDED, IntentStatus.FLAGGED):
+        return intent
+    if confirmation.get("status") != "success":
+        return intent
+    if (
+        confirmation.get("amount_minor") != intent.amount_minor
+        or confirmation.get("currency") != intent.currency
+    ):
+        return _flag(intent, "The amount paid does not match the amount requested.")
+    try:
+        payment = record_payment(
+            intent.invoice,
+            payer=Payer.PATIENT,
+            method=PaymentMethod.ONLINE,
+            amount=Money(intent.amount_minor, intent.currency),
+            reference=reference,
+            idempotency_key=f"paystack:{reference}",
+        )
+    except PaymentRefused as error:
+        return _flag(intent, f"The bill could not take it: {error.message}")
+    intent.status = IntentStatus.SUCCEEDED
+    intent.payment = payment
+    intent.completed_at = timezone.now()
+    intent.gateway_transaction_id = str(confirmation.get("gateway_id", ""))[:40]
+    intent.save(
+        update_fields=[
+            "status",
+            "payment",
+            "completed_at",
+            "gateway_transaction_id",
+            "updated_at",
+            "updated_by",
+        ]
+    )
+    return intent
+
+
+def verify_online_payment(reference: str, *, patient_id=None) -> PaymentIntent:
+    """Ask the gateway about a payment still waiting, and apply it if it succeeded.
+
+    With ``patient_id``, a reference that belongs to someone else's bill is not found.
+    """
+    intent = PaymentIntent.objects.select_related("invoice").filter(reference=reference).first()
+    if intent is None or (patient_id is not None and intent.invoice.patient_id != patient_id):
+        raise OnlinePaymentNotFound("Not found.")
+    if intent.status == IntentStatus.PENDING:
+        confirmation = payment_gateway.get_gateway().verify(reference)
+        intent = settle_online_payment(reference, confirmation) or intent
+    return intent

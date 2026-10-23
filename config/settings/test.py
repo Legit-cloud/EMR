@@ -38,3 +38,7 @@ PRESCRIPTION_SIGNING_KEY = "dGVzdC1vbmx5LXByZXNjcmlwdGlvbi1zaWduaW5nLWs="
 INSTALLED_APPS = [*INSTALLED_APPS, "devtools"]  # noqa: F405
 # One audit chain in tests, so sequence assertions stay simple; sharding has its own test.
 AUDIT_CHAIN_SHARDS = 1
+
+PAYMENT_GATEWAY = "apps.billing.gateway.FakeGateway"
+PAYSTACK_SECRET_KEY = "sk_test_unit_tests_only"
+PORTAL_URL = "https://hospital.example.test"

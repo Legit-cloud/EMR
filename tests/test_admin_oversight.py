@@ -21,6 +21,7 @@ OVERSIGHT = {
     "billing.journalentry",
     "billing.ledger",
     "billing.payment",
+    "billing.paymentintent",
     "patients.duplicatereview",
     "patients.patient",
     "pharmacy.drug",

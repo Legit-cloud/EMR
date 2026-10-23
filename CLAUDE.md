@@ -254,7 +254,7 @@ Target layout:
    - worker: `celery -A config worker -l info --concurrency 4`
    - beat: `celery -A config beat -l info` (**exactly one replica**)
 4. Web pre-deploy command: `python manage.py migrate --noinput`. Health check path: `/healthz` (returns 200 only if the database and Redis respond).
-5. Variables per environment (never committed): `DJANGO_SETTINGS_MODULE=config.settings.production`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `S3_*` (endpoint, bucket, key, secret, region), `FIELD_ENCRYPTION_KEY`, `SENTRY_DSN`, `EMAIL_URL` (mail provider), `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`.
+5. Variables per environment (never committed): `DJANGO_SETTINGS_MODULE=config.settings.production`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `S3_*` (endpoint, bucket, key, secret, region), `FIELD_ENCRYPTION_KEY`, `SENTRY_DSN`, `EMAIL_URL` (mail provider), `PAYSTACK_SECRET_KEY`, `PORTAL_URL`.
 6. Deploy the `staging` environment from the `staging` branch automatically on every push to it (the pre-push hook has already run the checks locally). Deploy `production` by manual promotion or a protected tag.
 7. Before any real patient data: confirm Railway region and terms against data-residency rules (DG-06), enable and test backups, set up an encrypted off-platform backup copy (SEC-08).
 

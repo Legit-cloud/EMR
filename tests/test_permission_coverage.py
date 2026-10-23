@@ -24,6 +24,7 @@ NOT_POLICY_CHECKED = {
     "codes-icd10": "shared reference codes, no tenant data; TenantUserPermission",
     "shift-clock-in": "acts only on the caller's own shift; TenantUserPermission",
     "shift-clock-out": "acts only on the caller's own shift; TenantUserPermission",
+    "paystack-webhook": "anonymous by design; the HMAC-SHA512 signature is checked first",
     "portal-home": PORTAL,
     "portal-appointments": PORTAL,
     "portal-slots": PORTAL,
@@ -32,6 +33,8 @@ NOT_POLICY_CHECKED = {
     "portal-result-seen": PORTAL,
     "portal-prescriptions": PORTAL,
     "portal-invoices": PORTAL,
+    "portal-invoice-pay": PORTAL,
+    "portal-payment-verify": PORTAL,
     "portal-profile": PORTAL,
 }
 

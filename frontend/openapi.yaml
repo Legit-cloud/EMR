@@ -1268,6 +1268,63 @@ paths:
               schema:
                 $ref: '#/components/schemas/JournalEntry'
           description: ''
+  /api/billing/payment-intents/:
+    get:
+      operationId: billing_payment_intents_list
+      description: Online payments started by patients, so finance can see any that
+        need review.
+      parameters:
+      - in: query
+        name: invoice
+        schema:
+          type: string
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: query
+        name: status
+        schema:
+          type: string
+        description: Only rows with this status.
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPaymentIntentList'
+          description: ''
+  /api/billing/payment-intents/{id}/:
+    get:
+      operationId: billing_payment_intents_retrieve
+      description: Online payments started by patients, so finance can see any that
+        need review.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - billing
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentIntent'
+          description: ''
   /api/billing/payments/:
     get:
       operationId: billing_payments_list
@@ -1346,6 +1403,16 @@ paths:
               schema:
                 $ref: '#/components/schemas/Payment'
           description: ''
+  /api/billing/webhooks/paystack/:
+    post:
+      operationId: billing_webhooks_paystack_create
+      tags:
+      - billing
+      responses:
+        '200':
+          description: No response body
+        '401':
+          description: No response body
   /api/clinical/codes/icd10/:
     get:
       operationId: clinical_codes_icd10_list
@@ -4390,6 +4457,66 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/PortalInvoice'
+          description: ''
+  /api/portal/invoices/{id}/pay/:
+    post:
+      operationId: portal_invoices_pay_create
+      description: Start paying part or all of one of the patient's own bills at Paystack's
+        page.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PayRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PayRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PayRequestRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PayStart'
+          description: ''
+  /api/portal/payments/{reference}/verify/:
+    post:
+      operationId: portal_payments_verify_create
+      description: |-
+        Called when the patient comes back from the payment page: ask Paystack, then say what
+        happened. The browser's word is never taken for it.
+      parameters:
+      - in: path
+        name: reference
+        schema:
+          type: string
+        required: true
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResult'
           description: ''
   /api/portal/prescriptions/:
     get:
@@ -8993,6 +9120,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/PatientList'
+    PaginatedPaymentIntentList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentIntent'
     PaginatedPaymentList:
       type: object
       required:
@@ -10072,6 +10222,32 @@ components:
         * `active` - Active
         * `inactive` - Inactive
         * `deceased` - Deceased
+    PayRequestRequest:
+      type: object
+      properties:
+        amount_minor:
+          type: integer
+          maximum: 1000000000
+          minimum: 1
+      required:
+      - amount_minor
+    PayStart:
+      type: object
+      properties:
+        reference:
+          type: string
+        authorization_url:
+          type: string
+          format: uri
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+      required:
+      - amount_minor
+      - authorization_url
+      - currency
+      - reference
     PayerEnum:
       enum:
       - patient
@@ -10127,7 +10303,83 @@ components:
       - received_at
       - received_by
       - reference
+    PaymentIntent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        invoice:
+          type: string
+          format: uuid
+          readOnly: true
+        reference_number:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        reference:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/PaymentIntentStatusEnum'
+          readOnly: true
+        note:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - amount_minor
+      - completed_at
+      - created_at
+      - currency
+      - id
+      - invoice
+      - note
+      - reference
+      - reference_number
+      - status
+    PaymentIntentStatusEnum:
+      enum:
+      - pending
+      - succeeded
+      - failed
+      - flagged
+      type: string
+      description: |-
+        * `pending` - Waiting for the patient to pay
+        * `succeeded` - Paid and recorded
+        * `failed` - Failed
+        * `flagged` - Needs finance review
     PaymentMethodEnum:
+      enum:
+      - cash
+      - card
+      - transfer
+      - insurer_remittance
+      - online
+      type: string
+      description: |-
+        * `cash` - Cash
+        * `card` - Card / POS
+        * `transfer` - Bank transfer
+        * `insurer_remittance` - Insurer remittance
+        * `online` - Online (Paystack)
+    PaymentRequestMethodEnum:
       enum:
       - cash
       - card
@@ -10145,7 +10397,7 @@ components:
         payer:
           $ref: '#/components/schemas/PayerEnum'
         method:
-          $ref: '#/components/schemas/PaymentMethodEnum'
+          $ref: '#/components/schemas/PaymentRequestMethodEnum'
         amount_minor:
           type: integer
           minimum: 1
@@ -10161,6 +10413,31 @@ components:
       - amount_minor
       - method
       - payer
+    PaymentResult:
+      type: object
+      properties:
+        reference:
+          type: string
+        status:
+          $ref: '#/components/schemas/PaymentResultStatusEnum'
+        amount_minor:
+          type: integer
+      required:
+      - amount_minor
+      - reference
+      - status
+    PaymentResultStatusEnum:
+      enum:
+      - pending
+      - succeeded
+      - failed
+      - review
+      type: string
+      description: |-
+        * `pending` - pending
+        * `succeeded` - succeeded
+        * `failed` - failed
+        * `review` - review
     PaymentStatusEnum:
       enum:
       - unpaid

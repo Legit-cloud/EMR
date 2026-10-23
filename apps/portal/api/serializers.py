@@ -139,3 +139,20 @@ class PortalHomeSerializer(serializers.Serializer):
     new_results = serializers.IntegerField()
     balance_minor = serializers.IntegerField()
     currency = serializers.CharField()
+
+
+class PayRequestSerializer(serializers.Serializer):
+    amount_minor = serializers.IntegerField(min_value=1, max_value=1_000_000_000)
+
+
+class PayStartSerializer(serializers.Serializer):
+    reference = serializers.CharField()
+    authorization_url = serializers.URLField()
+    amount_minor = serializers.IntegerField()
+    currency = serializers.CharField()
+
+
+class PaymentResultSerializer(serializers.Serializer):
+    reference = serializers.CharField()
+    status = serializers.ChoiceField(choices=["pending", "succeeded", "failed", "review"])
+    amount_minor = serializers.IntegerField()

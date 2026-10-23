@@ -1,6 +1,7 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { api, apiError, type Schemas, unwrap } from "@/lib/api";
+import { formatMoney, toMinor } from "@/lib/money";
 
 /**
  * The patient portal, from apps/portal (docs/adr/0022). Every call is for the signed-in patient
@@ -139,3 +140,60 @@ export const refusalMessage = (failure: unknown) => apiError(failure).message;
 
 /** Results the patient has not opened yet. */
 export const unseen = (results: readonly PortalResult[]) => results.filter((r) => !r.seen);
+
+// -- paying a bill online (Paystack, docs/adr/0023) --------------------------------------------
+
+/** What the patient typed, as a payment: any amount up to what they owe, in whole kobo. */
+export function checkPaymentAmount(
+  text: string,
+  due: number,
+  currency: string,
+): { minor: number } | { error: string } {
+  const minor = toMinor(text, currency);
+  if (minor === null) return { error: "Enter an amount such as 1500.00." };
+  if (minor < 1) return { error: "The amount must be more than zero." };
+  if (minor > due) return { error: `You owe ${formatMoney(due, currency)} on this bill.` };
+  return { minor };
+}
+
+export function usePayOnline(invoice: string) {
+  return useMutation({
+    mutationFn: (body: Schemas["PayRequestRequest"]) =>
+      unwrap(
+        api.POST("/api/portal/invoices/{id}/pay/", { params: { path: { id: invoice } }, body }),
+      ),
+    meta: { quietErrors: true },
+  });
+}
+
+/** Ask the server what happened to a payment, when the patient comes back from the payment page. */
+export function useVerifyPayment() {
+  const refresh = useRefresh();
+  return useMutation({
+    mutationFn: (reference: string) =>
+      unwrap(
+        api.POST("/api/portal/payments/{reference}/verify/", { params: { path: { reference } } }),
+      ),
+    onSettled: () => refresh(),
+    meta: { quietErrors: true },
+  });
+}
+
+/** The sentence shown to the patient for each outcome. */
+export const PAYMENT_OUTCOME: Record<
+  Schemas["PaymentResultStatusEnum"],
+  { tone: "info" | "danger" | "warning"; title: string }
+> = {
+  succeeded: { tone: "info", title: "Payment received. Thank you." },
+  pending: {
+    tone: "info",
+    title:
+      "We have not been told about your payment yet. If you have paid, it will show here shortly.",
+  },
+  failed: { tone: "danger", title: "The payment did not go through. You have not been charged." },
+  review: {
+    tone: "warning",
+    title:
+      "We received your payment and are checking it. The billing office will contact you if anything is needed.",
+  },
+};

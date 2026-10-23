@@ -11,6 +11,7 @@ Two kinds of endpoint live here.
   refused request is logged too.
 """
 
+from django.conf import settings
 from django.http import Http404
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
@@ -22,6 +23,7 @@ from rest_framework.views import APIView
 
 from apps.audit import services as audit
 from apps.billing import selectors as billing
+from apps.billing import services as billing_services
 from apps.core.api.mixins import TenantModelViewSet, TenantScopedAPIMixin
 from apps.core.api.permissions import require_verified_tenant_user
 from apps.core.policy import Action
@@ -32,6 +34,7 @@ from apps.scheduling import services as scheduling
 
 from .. import selectors, services
 from ..models import PortalAccount
+from ..services import PortalAccountError
 from . import serializers as s
 
 
@@ -284,3 +287,68 @@ class ProfileView(PortalView):
         if changed:
             self.record(audit.AuditAction.UPDATE, changed)
         return Response(s.PortalProfileSerializer(_profile(self.account)).data)
+
+
+class InvoicePayView(PortalView):
+    """Start paying part or all of one of the patient's own bills at Paystack's page."""
+
+    audit_name = "payment"
+
+    @extend_schema(request=s.PayRequestSerializer, responses={201: s.PayStartSerializer})
+    def post(self, request, pk):
+        data = s.PayRequestSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        if not settings.PORTAL_URL:
+            raise PortalAccountError("Online payment is not available yet.")
+        profile = patients.portal_profile(self.patient_id)
+        # The address Paystack sends the patient back to is ours, never the client's.
+        intent = billing_services.start_online_payment(
+            patient_id=self.patient_id,
+            invoice_id=pk,
+            amount_minor=data.validated_data["amount_minor"],
+            email=profile["email"],
+            callback_url=f"{settings.PORTAL_URL.rstrip('/')}/portal/invoices",
+        )
+        self.record(audit.AuditAction.CREATE, {"payment_reference": intent.reference})
+        return Response(
+            s.PayStartSerializer(
+                {
+                    "reference": intent.reference,
+                    "authorization_url": intent.authorization_url,
+                    "amount_minor": intent.amount_minor,
+                    "currency": intent.currency,
+                }
+            ).data,
+            status=201,
+        )
+
+
+_PATIENT_STATUS = {
+    "pending": "pending",
+    "succeeded": "succeeded",
+    "failed": "failed",
+    "flagged": "review",
+}
+
+
+class PaymentVerifyView(PortalView):
+    """Called when the patient comes back from the payment page: ask Paystack, then say what
+    happened. The browser's word is never taken for it."""
+
+    audit_name = "payment"
+
+    @extend_schema(request=None, responses=s.PaymentResultSerializer)
+    def post(self, request, reference):
+        intent = billing_services.verify_online_payment(reference, patient_id=self.patient_id)
+        self.record(
+            audit.AuditAction.UPDATE, {"payment_reference": reference, "result": intent.status}
+        )
+        return Response(
+            s.PaymentResultSerializer(
+                {
+                    "reference": intent.reference,
+                    "status": _PATIENT_STATUS[intent.status],
+                    "amount_minor": intent.amount_minor,
+                }
+            ).data
+        )

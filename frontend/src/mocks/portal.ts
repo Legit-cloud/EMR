@@ -29,6 +29,11 @@ type State = {
   prescriptions: PortalPrescription[];
   invoices: PortalInvoice[];
   profile: PortalProfile;
+  /** Payments started at the gateway. A test sets `outcome` to say what the gateway will report. */
+  intents: Record<
+    string,
+    { invoice: string; amount: number; outcome: "pending" | "paid" | "done" | "flagged" }
+  >;
   calls: { path: string; body: unknown }[];
   next: number;
   forbidden: boolean;
@@ -215,6 +220,7 @@ function seeded(): State {
       email: "chioma@example.test",
       consents,
     },
+    intents: {},
     calls: [],
     next: 10,
     forbidden: false,
@@ -324,6 +330,60 @@ export const portalHandlers = [
   ),
 
   http.get("*/api/portal/invoices/", () => refusal() ?? HttpResponse.json(portal.invoices)),
+
+  http.post("*/api/portal/invoices/:id/pay/", async ({ params, request }) => {
+    const refused = refusal();
+    if (refused) return refused;
+    const body = (await request.json()) as { amount_minor: number };
+    portal.calls.push({ path: "pay", body });
+    const found = portal.invoices.find((i) => i.id === params.id);
+    if (!found) return failure(404, "not_found", "Not found.");
+    if (body.amount_minor < 1 || body.amount_minor > found.due_minor) {
+      return failure(409, "online_payment_refused", "You owe that much or less on this bill.");
+    }
+    const reference = `emr_mock_${portal.next++}`;
+    portal.intents[reference] = {
+      invoice: found.id,
+      amount: body.amount_minor,
+      outcome: "pending",
+    };
+    return HttpResponse.json(
+      {
+        reference,
+        authorization_url: `https://checkout.paystack.test/${reference}`,
+        amount_minor: body.amount_minor,
+        currency: found.currency,
+      },
+      { status: 201 },
+    );
+  }),
+
+  http.post("*/api/portal/payments/:reference/verify/", ({ params }) => {
+    const refused = refusal();
+    if (refused) return refused;
+    const intent = portal.intents[String(params.reference)];
+    if (!intent) return failure(404, "not_found", "Not found.");
+    portal.calls.push({ path: "verify", body: params.reference });
+    if (intent.outcome === "paid") {
+      const bill = portal.invoices.find((i) => i.id === intent.invoice)!;
+      bill.paid_minor += intent.amount;
+      bill.due_minor -= intent.amount;
+      bill.status = bill.due_minor === 0 ? "paid" : "partially_paid";
+      intent.outcome = "done";
+    }
+    if (intent.outcome === "done") {
+      return HttpResponse.json({
+        reference: params.reference,
+        status: "succeeded",
+        amount_minor: intent.amount,
+      });
+    }
+    return HttpResponse.json({
+      reference: params.reference,
+      status: intent.outcome === "flagged" ? "review" : "pending",
+      amount_minor: intent.amount,
+    });
+  }),
 
   http.get("*/api/portal/profile/", () => refusal() ?? HttpResponse.json(portal.profile)),
 

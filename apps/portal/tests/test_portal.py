@@ -17,9 +17,7 @@ from apps.patients.models import Patient
 from apps.portal import services
 from apps.portal.api.views import PortalPermission
 from apps.portal.models import PortalAccount
-from apps.scheduling.models import Appointment, AvailabilityWindow
-from apps.staff.models import StaffProfile
-from apps.tenants.models import Facility
+from apps.scheduling.models import Appointment
 
 pytestmark = pytest.mark.django_db
 
@@ -30,81 +28,6 @@ PORTAL = "/api/portal/"
 def at(day_offset: int, hour: int, minute: int = 0) -> datetime:
     day = datetime.now(LAGOS).date() + timedelta(days=day_offset)
     return datetime.combine(day, time(hour, minute), tzinfo=LAGOS)
-
-
-@pytest.fixture
-def facility(tenant_a):
-    with tenant_context(tenant_a.id):
-        return Facility.objects.create(name="Main hospital", code="main")
-
-
-@pytest.fixture
-def make_patient(tenant_a):
-    def make(first, email=None):
-        with tenant_context(tenant_a.id):
-            return Patient.objects.create(
-                first_name=first,
-                last_name="Okoro",
-                date_of_birth=date(1990, 3, 3),
-                phone="+2348031234567",
-                email=f"{first.lower()}@example.test" if email is None else email,
-            )
-
-    return make
-
-
-@pytest.fixture
-def ada(make_patient):
-    return make_patient("Ada")
-
-
-@pytest.fixture
-def bola(make_patient):
-    return make_patient("Bola")
-
-
-@pytest.fixture
-def front_desk(make_user, signed_in, tenant_a):
-    return signed_in(make_user("desk-portal", tenant_a, [Role.FRONT_DESK]))
-
-
-@pytest.fixture
-def physician(make_user, tenant_a, facility):
-    user = make_user("dr-portal", tenant_a, [Role.DOCTOR], first_name="Chidi", last_name="Eze")
-    with tenant_context(tenant_a.id):
-        StaffProfile.objects.create(
-            user=user,
-            staff_type="physician",
-            title="Dr",
-            specialty="Cardiology",
-            licensing_body="mdcn",
-            licence_number="MDCN-portal",
-            licence_expires_on=date(2031, 1, 1),
-        )
-        AvailabilityWindow.objects.create(
-            physician=user, facility=facility, start_at=at(2, 9), end_at=at(2, 10)
-        )
-    return user
-
-
-@pytest.fixture
-def invite(tenant_a):
-    """Give a patient a portal sign-in and return (account, signed-in client factory result)."""
-
-    def make(patient):
-        with tenant_context(tenant_a.id):
-            return services.invite(patient.pk)
-
-    return make
-
-
-@pytest.fixture
-def as_patient(invite, signed_in):
-    def make(patient):
-        account = invite(patient)
-        return signed_in(User.objects.get(pk=account.user_id)), account
-
-    return make
 
 
 # -- invitations ---------------------------------------------------------------------------
@@ -225,7 +148,7 @@ def test_sec_02_every_patient_endpoint_uses_the_portal_permission():
                 seen.append((prefix + str(pattern.pattern), pattern.callback.cls))
 
     walk(get_resolver().url_patterns)
-    assert len(seen) == 9
+    assert len(seen) == 11
     for route, view in seen:
         assert view.permission_classes == [PortalPermission], route
 
@@ -424,13 +347,10 @@ def test_bills_show_what_the_patient_owes_and_part_payments(as_patient, ada, ten
     assert home["balance_minor"] == 600_000
 
 
-def test_there_is_no_way_for_a_patient_to_record_a_payment(as_patient, ada):
+def test_there_is_no_endpoint_that_records_a_payment_without_the_gateway(as_patient, ada):
     client, _ = as_patient(ada)
-    for path in ("invoices/pay/", "payments/", "invoices/1/pay/"):
-        assert client.post(f"{PORTAL}{path}", {"amount_minor": 1}, format="json").status_code in (
-            404,
-            405,
-        )
+    for path in ("payments/", "invoices/pay/"):
+        assert client.post(f"{PORTAL}{path}", {"amount_minor": 1}, format="json").status_code == 404
 
 
 def test_results_are_empty_until_the_diagnostics_module_releases_them(as_patient, ada):

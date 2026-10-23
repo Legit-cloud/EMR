@@ -9,6 +9,8 @@ export type InvoiceRow = Schemas["InvoiceList"];
 export type InvoiceLine = Schemas["InvoiceLine"];
 export type Payer = Schemas["PayerEnum"];
 export type PaymentMethod = Schemas["PaymentMethodEnum"];
+/** What staff can choose when taking a payment: "online" is set only by the gateway. */
+export type ManualMethod = Exclude<PaymentMethod, "online">;
 
 /** Billing is a Nigerian-naira product for now; invoices carry their own currency. */
 export const REPORTING_CURRENCY = "NGN";
@@ -18,6 +20,7 @@ export const METHOD_LABEL: Record<PaymentMethod, string> = {
   card: "Card / POS",
   transfer: "Bank transfer",
   insurer_remittance: "Insurer remittance",
+  online: "Online (Paystack)",
 };
 
 // -- money still to collect -------------------------------------------------------------------
