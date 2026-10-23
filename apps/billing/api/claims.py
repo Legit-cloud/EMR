@@ -42,11 +42,12 @@ class ClaimViewSet(TenantReadOnlyViewSet):
     def get_base_queryset(self):
         queryset = super().get_base_queryset().select_related("insurer", "invoice")
         params = self.request.query_params
-        for field in ("status", "insurer", "invoice"):
-            if params.get(field):
-                queryset = queryset.filter(
-                    **{f"{field}_id" if field != "status" else field: params[field]}
-                )
+        if params.get("status"):
+            queryset = queryset.filter(status__in=params["status"].split(","))
+        if params.get("insurer"):
+            queryset = queryset.filter(insurer_id=params["insurer"])
+        if params.get("invoice"):
+            queryset = queryset.filter(invoice_id=params["invoice"])
         return queryset
 
     def list(self, request, *args, **kwargs):
