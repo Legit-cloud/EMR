@@ -1,5 +1,7 @@
 """Read-only portal queries."""
 
+from apps.diagnostics import selectors as diagnostics
+
 from .models import PortalAccount
 
 
@@ -15,8 +17,6 @@ def account_for_patient(patient_id) -> PortalAccount | None:
 def released_results(patient_id) -> list[dict]:
     """Lab and imaging results released to the patient.
 
-    The diagnostics module does not exist yet (Release 2), so there is nothing to release.
-    When it does, this is the one place that reads its selectors and only ever returns results a
-    clinician has marked as released.
+    Only results a clinician has reviewed are ever returned (ADR 0025).
     """
-    return []
+    return diagnostics.released_results(patient_id)

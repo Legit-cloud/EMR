@@ -46,6 +46,8 @@ class Action(StrEnum):
     DELETE = "delete"
     # Separate from update so prescribers cannot also dispense.
     DISPENSE = "dispense"
+    # Separate from update so whoever enters a result cannot also sign it off.
+    APPROVE = "approve"
 
 
 class Scope(StrEnum):

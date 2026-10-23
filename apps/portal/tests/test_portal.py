@@ -355,7 +355,7 @@ def test_there_is_no_endpoint_that_records_a_payment_without_the_gateway(as_pati
         assert client.post(f"{PORTAL}{path}", {"amount_minor": 1}, format="json").status_code == 404
 
 
-def test_results_are_empty_until_the_diagnostics_module_releases_them(as_patient, ada):
+def test_a_patient_with_no_released_results_sees_none(as_patient, ada):
     client, _ = as_patient(ada)
     assert client.get(f"{PORTAL}results/").json() == []
     assert client.get(f"{PORTAL}home/").json()["new_results"] == 0

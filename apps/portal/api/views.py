@@ -27,6 +27,7 @@ from apps.billing import services as billing_services
 from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet, TenantScopedAPIMixin
 from apps.core.api.permissions import require_verified_tenant_user
 from apps.core.policy import Action
+from apps.diagnostics import services as diagnostics
 from apps.patients import selectors as patients
 from apps.pharmacy import selectors as pharmacy
 from apps.scheduling import selectors as scheduling_selectors
@@ -232,9 +233,11 @@ class ResultSeenView(PortalView):
         responses=s.PortalResultSerializer,
     )
     def post(self, request, pk):
-        # Results are released by the diagnostics module, which is not built yet, so a patient
-        # has none to mark as read.
-        raise Http404
+        if not diagnostics.mark_seen(pk, patient_id=self.patient_id):
+            raise Http404
+        self.record(audit.AuditAction.UPDATE, {"result": str(pk), "seen": True})
+        row = next(r for r in selectors.released_results(self.patient_id) if r["id"] == pk)
+        return Response(s.PortalResultSerializer(row).data)
 
 
 class PrescriptionsView(PortalView):

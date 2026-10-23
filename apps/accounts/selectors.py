@@ -87,6 +87,16 @@ def emails_of_role_holders(roles) -> list[str]:
     return sorted(set(rows))
 
 
+def email_of(user_id) -> str:
+    """A user's email address, or an empty string."""
+    return (
+        RoleAssignment.objects.filter(user_id=user_id, user__is_active=True)
+        .values_list("user__email", flat=True)
+        .first()
+        or ""
+    )
+
+
 def is_session_mfa_verified(session, user) -> bool:
     """MFA check for WebSocket connections, which do not pass through OTPMiddleware."""
     from django_otp import DEVICE_ID_SESSION_KEY
