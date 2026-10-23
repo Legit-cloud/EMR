@@ -8,6 +8,7 @@
  */
 import {
   Bed,
+  Buildings,
   BookOpen,
   FileLock,
   Files,
@@ -172,6 +173,12 @@ export const NAV: NavGroup[] = [
     caption: "Admin",
     items: [
       { label: "Users and roles", href: "/manage", icon: UserGear, roles: ["tenant_admin", "hr"] },
+      {
+        label: "Facilities and departments",
+        href: "/departments",
+        icon: Buildings,
+        roles: ["tenant_admin"],
+      },
       {
         label: "Break-glass review",
         href: "/compliance",

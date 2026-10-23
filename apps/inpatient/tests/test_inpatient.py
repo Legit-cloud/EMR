@@ -536,3 +536,17 @@ def test_finalising_a_stay_twice_changes_nothing(nurse, patients, beds, tenant_a
         first = services.finalise_charges(admission)
         second = services.finalise_charges(admission)
     assert second <= first
+
+
+def test_a_ward_can_belong_to_a_department_of_its_own_facility_only(admin, tenant_a, ward):
+    from apps.tenants.models import Department
+
+    with tenant_context(tenant_a.id):
+        main = ward.facility
+        other = Facility.objects.create(name="Annex", code="annex")
+        mine = Department.objects.create(facility=main, name="Medicine")
+        theirs = Department.objects.create(facility=other, name="Surgery")
+    ok = admin.patch(f"{WARDS}{ward.pk}/", {"department": str(mine.pk)}, format="json")
+    assert ok.status_code == 200 and ok.json()["department"] == str(mine.pk)
+    bad = admin.patch(f"{WARDS}{ward.pk}/", {"department": str(theirs.pk)}, format="json")
+    assert bad.status_code == 400

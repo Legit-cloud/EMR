@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Q
 
@@ -25,6 +26,10 @@ class Ward(TenantModel):
     """A ward of a facility. The daily charge is billed for every day a patient has a bed in it."""
 
     facility = models.ForeignKey("tenants.Facility", on_delete=models.PROTECT, related_name="+")
+    # The unit the ward belongs to, if the facility groups its wards that way.
+    department = models.ForeignKey(
+        "tenants.Department", on_delete=models.PROTECT, null=True, blank=True, related_name="+"
+    )
     name = models.CharField(max_length=100)
     daily_charge_minor = models.PositiveBigIntegerField(default=0)
     currency = models.CharField(max_length=3, default="NGN")
@@ -46,9 +51,9 @@ class Ward(TenantModel):
     def clean(self):
         super().clean()
         if self.currency not in CURRENCY_EXPONENTS:
-            from django.core.exceptions import ValidationError
-
             raise ValidationError({"currency": "Unsupported currency."})
+        if self.department_id and self.department.facility_id != self.facility_id:
+            raise ValidationError({"department": "The department is in a different facility."})
 
 
 class Bed(TenantModel):

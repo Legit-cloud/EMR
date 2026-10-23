@@ -39,7 +39,15 @@ class BoardWardSerializer(serializers.Serializer):
 class WardSerializer(CleanModelSerializer):
     class Meta:
         model = Ward
-        fields = ["id", "facility", "name", "daily_charge_minor", "currency", "active"]
+        fields = [
+            "id",
+            "facility",
+            "department",
+            "name",
+            "daily_charge_minor",
+            "currency",
+            "active",
+        ]
         read_only_fields = ["id"]
 
 

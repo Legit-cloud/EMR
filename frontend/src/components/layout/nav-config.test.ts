@@ -48,6 +48,7 @@ describe("visibleNav", () => {
       "Stock",
       "Formulary",
       "Users and roles",
+      "Facilities and departments",
       "Break-glass review",
       "Audit log",
       "Data requests",

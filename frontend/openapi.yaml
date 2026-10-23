@@ -11293,6 +11293,10 @@ components:
         facility:
           type: string
           format: uuid
+        department:
+          type: string
+          format: uuid
+          nullable: true
         name:
           type: string
           minLength: 1
@@ -13799,6 +13803,10 @@ components:
         facility:
           type: string
           format: uuid
+        department:
+          type: string
+          format: uuid
+          nullable: true
         name:
           type: string
           maxLength: 100
@@ -13827,6 +13835,10 @@ components:
         facility:
           type: string
           format: uuid
+        department:
+          type: string
+          format: uuid
+          nullable: true
         name:
           type: string
           minLength: 1

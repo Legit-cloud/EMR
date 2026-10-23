@@ -5710,6 +5710,8 @@ export interface components {
         PatchedWardRequest: {
             /** Format: uuid */
             facility?: string;
+            /** Format: uuid */
+            department?: string | null;
             name?: string;
             /** Format: int64 */
             daily_charge_minor?: number;
@@ -6741,6 +6743,8 @@ export interface components {
             readonly id: string;
             /** Format: uuid */
             facility: string;
+            /** Format: uuid */
+            department?: string | null;
             name: string;
             /** Format: int64 */
             daily_charge_minor?: number;
@@ -6756,6 +6760,8 @@ export interface components {
         WardRequest: {
             /** Format: uuid */
             facility: string;
+            /** Format: uuid */
+            department?: string | null;
             name: string;
             /** Format: int64 */
             daily_charge_minor?: number;
