@@ -96,6 +96,7 @@ Open (need infrastructure or a decision):
 
 ## Open decisions (CLAUDE.md Section 12)
 
-All ten remain open. The ones blocking go-live: 2 (interaction knowledge base: the current
-rules are synthetic examples), 3 (SMS and email providers), 4 (object storage and backup
+Eight remain open (3: SMS and push dropped, email only; 9: Paystack chosen, HMO partners open). The
+ones blocking go-live: 2 (interaction knowledge base: the current
+rules are synthetic examples), 3 (the mail provider), 4 (object storage and backup
 destination), 5 (Railway region and residency). FR/AC mapping needs `docs/PRD.pdf`.

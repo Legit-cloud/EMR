@@ -353,7 +353,7 @@ describe("invoice drawer", () => {
     const drawer = await openDrawer(REF(INV_UNPAID));
     await userEvent.click(await within(drawer).findByRole("button", { name: "Send Reminder" }));
     expect(await screen.findByText("Reminder sent")).toBeInTheDocument();
-    expect(screen.getByText("SMS and Email")).toBeInTheDocument();
+    expect(screen.getByText("Sent by email")).toBeInTheDocument();
     await within(drawer).findByText(/Last reminder sent/);
 
     await userEvent.click(within(drawer).getByRole("button", { name: "Send Reminder" }));
@@ -366,9 +366,7 @@ describe("invoice drawer", () => {
     renderPage("billing", INV_PART);
     const drawer = await openDrawer(REF(INV_PART));
     await userEvent.click(await within(drawer).findByRole("button", { name: "Send Reminder" }));
-    expect(await within(drawer).findByRole("alert")).toHaveTextContent(
-      "no phone number or email on file",
-    );
+    expect(await within(drawer).findByRole("alert")).toHaveTextContent("no email address on file");
   });
 
   it("offers no reminder for a paid invoice or one held for estate review", async () => {

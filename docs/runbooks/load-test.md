@@ -48,5 +48,5 @@ Still open (decisions for a human):
    Railway), or keep ASGI and scale workers and replicas.
 2. **Measure on staging** with Railway-sized instances and the generator elsewhere, then
    set worker and replica counts from those numbers.
-3. **Booking latency** includes queuing the SMS and email confirmation in the request
+3. **Booking latency** includes queuing the email confirmation in the request
    transaction; moving that to an event handler would take it off the booking path.

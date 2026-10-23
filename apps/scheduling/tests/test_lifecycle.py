@@ -14,7 +14,6 @@ from django.utils import timezone
 from apps.clinical.models import Encounter
 from apps.core.roles import Role
 from apps.core.tenancy import tenant_context
-from apps.notifications.backends import LocmemSmsBackend
 from apps.patients.models import Patient
 from apps.scheduling import services
 from apps.scheduling.models import Appointment
@@ -249,7 +248,6 @@ def test_reminders_go_out_once_per_offset(
         assert services.send_due_reminders(now=start - timedelta(hours=22)) == 0
         assert services.send_due_reminders(now=start - timedelta(hours=1)) == 1
         assert services.send_due_reminders(now=start - timedelta(minutes=30)) == 0
-    assert len(LocmemSmsBackend.outbox) == 2
     assert len(mail.outbox) == 2
     with as_tenant(tenant_a):
         assert sorted(appointment.reminders.values_list("offset_hours", flat=True)) == [2, 24]
@@ -262,7 +260,7 @@ def test_late_booking_gets_a_single_reminder(
     with as_tenant(tenant_a), django_capture_on_commit_callbacks(execute=True):
         assert services.send_due_reminders() == 1
         assert services.send_due_reminders() == 0
-    assert len(LocmemSmsBackend.outbox) == 1
+    assert len(mail.outbox) == 1
     with as_tenant(tenant_a):
         assert appointment.reminders.count() == 2
 

@@ -355,15 +355,6 @@ def send_booking_confirmation(appointment: Appointment, *, moved: bool = False) 
     reference = str(appointment.pk)[:8].upper()
     related = f"scheduling.appointment:{appointment.pk}"
     purpose = "appointment_rescheduled" if moved else "appointment_booked"
-    if contact["phone"]:
-        sms = (
-            f"Your appointment with {doctor} has moved to {when}. Ref {reference}."
-            if moved
-            else f"Appointment booked with {doctor} on {when}. Ref {reference}."
-        )
-        notifications.queue_sms(
-            to=contact["phone"], body=sms, purpose=purpose, related_object=related
-        )
     if contact["email"]:
         invite = build_ics(
             uid=f"{appointment.pk}@{settings.ICS_UID_DOMAIN}",
@@ -425,10 +416,6 @@ def _send_reminder(appointment: Appointment) -> None:
         return
     related = f"scheduling.appointment:{appointment.pk}"
     text = f"Reminder: appointment with {doctor} on {when}."
-    if contact["phone"]:
-        notifications.queue_sms(
-            to=contact["phone"], body=text, purpose="appointment_reminder", related_object=related
-        )
     if contact["email"]:
         notifications.queue_email(
             to=contact["email"],

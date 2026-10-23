@@ -336,10 +336,10 @@ function DrawerFooter({ invoice, canCollect }: { invoice: Invoice; canCollect: b
   async function sendReminder() {
     setProblem(null);
     try {
-      const result = await remind.mutateAsync(invoice.id);
+      await remind.mutateAsync(invoice.id);
       toast({
         title: "Reminder sent",
-        description: result.channels.map((c) => (c === "sms" ? "SMS" : "Email")).join(" and "),
+        description: "Sent by email",
         tone: "success",
       });
     } catch (failure) {

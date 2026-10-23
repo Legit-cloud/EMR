@@ -3362,13 +3362,11 @@ export interface components {
          */
         CodeSystemEnum: "icd10" | "snomed";
         Consents: {
-            sms_reminders: boolean;
             email_reminders: boolean;
             share_in_facility: boolean;
             research: boolean;
         };
         ConsentsRequest: {
-            sms_reminders: boolean;
             email_reminders: boolean;
             share_in_facility: boolean;
             research: boolean;

@@ -20,13 +20,12 @@ class PortalAccount(TenantModel):
     revoked_at = models.DateTimeField(null=True, blank=True)
     revoked_reason = models.CharField(max_length=100, blank=True)
 
-    sms_reminders = models.BooleanField(default=True)
     email_reminders = models.BooleanField(default=False)
     share_in_facility = models.BooleanField(default=True)
     research = models.BooleanField(default=False)
     consents_updated_at = models.DateTimeField(null=True, blank=True)
 
-    CONSENT_FIELDS = ("sms_reminders", "email_reminders", "share_in_facility", "research")
+    CONSENT_FIELDS = ("email_reminders", "share_in_facility", "research")
 
     def __str__(self) -> str:
         return f"Portal account of patient {self.patient_id}"

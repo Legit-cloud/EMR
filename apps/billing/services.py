@@ -324,19 +324,27 @@ def invoice_reference(invoice: Invoice) -> str:
 
 @transaction.atomic
 def send_payment_reminder(invoice: Invoice) -> list[str]:
-    """Message the patient about what is still due. Returns the channels used.
+    """Email the patient what they still owe on a bill. Returns the channels used (email only).
 
-    Refused when nothing is due, when the bill is held for estate review, when the patient
-    has no phone or email on file, or when a reminder went out recently.
+    Only the patient's own share is asked for, never the insurer's. Refused when nothing is due from
+    the patient, when the bill is held for estate review, when the patient has no email address on
+    file, after ``BILLING_REMINDER_MAX`` reminders (then a person should call), or too soon after
+    the last one. The subject carries the bill number but not the amount.
     """
     invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
-    if invoice.payment_status == PaymentStatus.PAID or invoice.net_due_minor <= 0:
-        raise ReminderRefused("Nothing is due on this invoice.")
+    owed = max(invoice.patient_due_minor - invoice.patient_paid_minor, 0)
+    if invoice.payment_status == PaymentStatus.PAID or owed <= 0:
+        raise ReminderRefused("Nothing is due from the patient on this invoice.")
     if invoice.estate_review or patients.is_deceased(invoice.patient_id):
         raise ReminderRefused("This invoice is held for estate review. Do not send a reminder.")
     contact = patients.contact_details(invoice.patient_id)
-    if not contact or not (contact["phone"] or contact["email"]):
-        raise ReminderRefused("The patient has no phone number or email on file.")
+    if not contact or not contact["email"]:
+        raise ReminderRefused("The patient has no email address on file.")
+    if invoice.reminder_count >= settings.BILLING_REMINDER_MAX:
+        raise ReminderRefused(
+            f"{invoice.reminder_count} reminders have already been sent. "
+            "Contact the patient directly."
+        )
     wait = timedelta(hours=settings.BILLING_REMINDER_INTERVAL_HOURS)
     if invoice.last_reminder_at and timezone.now() - invoice.last_reminder_at < wait:
         raise ReminderRefused(
@@ -344,30 +352,31 @@ def send_payment_reminder(invoice: Invoice) -> list[str]:
             "hours between reminders."
         )
 
-    body = (
-        f"Hello {contact['first_name']}, this is a reminder that "
-        f"{Money(invoice.net_due_minor, invoice.currency)} is still due on bill "
-        f"{invoice_reference(invoice)}. Please settle it at the cashier. Thank you."
+    reference = invoice_reference(invoice)
+    online = (
+        f"\nYou can also pay online: {settings.PORTAL_URL.rstrip('/')}/portal/invoices\n"
+        if settings.PORTAL_URL
+        else ""
     )
-    related = f"billing.invoice:{invoice.pk}"
-    channels = []
-    if contact["phone"]:
-        notifications.queue_sms(
-            to=contact["phone"], body=body, purpose="invoice_reminder", related_object=related
-        )
-        channels.append("sms")
-    if contact["email"]:
-        notifications.queue_email(
-            to=contact["email"],
-            subject="Payment reminder",
-            body=body,
-            purpose="invoice_reminder",
-            related_object=related,
-        )
-        channels.append("email")
+    body = (
+        f"Dear {contact['first_name']},\n\n"
+        f"This is a friendly reminder that {Money(owed, invoice.currency)} is still to be paid on "
+        f"your bill {reference}.\n\n"
+        f"You can pay at the cashier or by bank transfer, quoting {reference}.{online}\n"
+        "If you have already paid, or you think this reminder is a mistake, please speak to our "
+        "billing office. Thank you.\n"
+    )
+    notifications.queue_email(
+        to=contact["email"],
+        subject=f"A reminder about your bill {reference}",
+        body=body,
+        purpose="invoice_reminder",
+        related_object=f"billing.invoice:{invoice.pk}",
+    )
     invoice.last_reminder_at = timezone.now()
-    invoice.save(update_fields=["last_reminder_at", "updated_at", "updated_by"])
-    return channels
+    invoice.reminder_count += 1
+    invoice.save(update_fields=["last_reminder_at", "reminder_count", "updated_at", "updated_by"])
+    return ["email"]
 
 
 def reconcile(currency: str = "NGN") -> list[str]:

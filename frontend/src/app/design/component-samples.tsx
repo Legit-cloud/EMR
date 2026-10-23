@@ -452,7 +452,7 @@ function Overlays() {
         onOpenChange={setConfirm}
         size="confirm"
         title="Cancel this appointment?"
-        description="The patient is told by SMS. This cannot be undone."
+        description="The patient is told by email. This cannot be undone."
         footer={
           <ModalFooter
             start={

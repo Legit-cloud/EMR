@@ -5,7 +5,6 @@ from apps.core.models import TenantModel
 
 class Channel(models.TextChoices):
     EMAIL = "email", "Email"
-    SMS = "sms", "SMS"
 
 
 class DeliveryStatus(models.TextChoices):

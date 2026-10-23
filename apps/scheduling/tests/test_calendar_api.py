@@ -4,13 +4,13 @@ patient names, and the availability around it (FR-5, SEC-02, SEC-03, SEC-07)."""
 from datetime import timedelta
 
 import pytest
+from django.core import mail
 from django.db import connection
 from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from apps.audit.models import AuditEntry
 from apps.core.roles import Role
-from apps.notifications.backends import LocmemSmsBackend
 from apps.scheduling.models import Appointment, AppointmentReminder, AvailabilityWindow
 
 from .conftest import at
@@ -73,11 +73,11 @@ def test_fr_reschedule_tells_the_patient_and_restarts_reminders(
         AppointmentReminder.objects.create(
             appointment=appointment, offset_hours=24, sent_at=timezone.now()
         )
-    LocmemSmsBackend.outbox.clear()
+    mail.outbox.clear()
     with django_capture_on_commit_callbacks(execute=True):
         move(desk, appointment, at(1, 10))
-    assert len(LocmemSmsBackend.outbox) == 1
-    assert "has moved to" in LocmemSmsBackend.outbox[0]["body"]
+    assert len(mail.outbox) == 1
+    assert mail.outbox[0].subject.startswith("Appointment moved")
     assert not AppointmentReminder.all_tenants.filter(appointment=appointment).exists()
 
 
