@@ -55,3 +55,12 @@ whole invoices with no patient name, search, sorting, paging or totals, and had 
   built; the drawer shows each invoice's payments.
 - A new invoice list response shape: clients that read `lines` from the list must use the
   detail endpoint.
+
+## Amendment 2026-10-23
+
+Reminders are now **email only** (SMS was dropped as a channel). They ask for the **patient's own
+share**, not the insurer's, and the subject carries the bill number but not the amount. The gap
+between reminders is 72 hours (`BILLING_REMINDER_INTERVAL_HOURS`), and after three
+(`BILLING_REMINDER_MAX`) the screen says to contact the patient directly. A reminder is refused
+when the patient has no email address on file. Finance still approves the wording
+(`docs/signoff/finance.md`).

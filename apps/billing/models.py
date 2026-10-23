@@ -58,6 +58,7 @@ class Invoice(TenantModel):
     estate_review = models.BooleanField(default=False)
     # When a payment reminder was last sent, so patients are not messaged repeatedly.
     last_reminder_at = models.DateTimeField(null=True, blank=True)
+    reminder_count = models.PositiveSmallIntegerField(default=0)
 
     class Meta(TenantModel.Meta):
         ordering = ["-created_at"]

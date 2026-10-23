@@ -229,9 +229,7 @@ APPOINTMENT_DEFAULT_TRIAGE_PRIORITY = 3
 ICS_PRODUCT_ID = "EMR//Appointments"
 ICS_UID_DOMAIN = env("ICS_UID_DOMAIN", default="emr.local")
 
-# Notifications. The SMS provider is an open decision (CLAUDE.md Section 12).
-SMS_BACKEND = env("SMS_BACKEND", default="apps.notifications.backends.ConsoleSmsBackend")
-SMS_SENDER_ID = env("SMS_SENDER_ID", default="EMR")
+# Notifications are email only (decided 2026-10-23); delivery uses Django's EMAIL_URL backend.
 
 # Accounts and access control (CLAUDE.md Section 7)
 API_TOKEN_TTL_MINUTES = env.int("API_TOKEN_TTL_MINUTES", default=12 * 60)
@@ -257,7 +255,12 @@ MFA_REQUIRED_ROLES = env.list(
     ],
 )
 # Least time between two payment reminders for one invoice.
-BILLING_REMINDER_INTERVAL_HOURS = env.int("BILLING_REMINDER_INTERVAL_HOURS", default=24)
+# Reminders go by email only, no sooner than this after the last one, and no more than the cap;
+# after that a person contacts the patient.
+BILLING_REMINDER_INTERVAL_HOURS = env.int("BILLING_REMINDER_INTERVAL_HOURS", default=72)
+BILLING_REMINDER_MAX = env.int("BILLING_REMINDER_MAX", default=3)
+# Public address of the web app, used in emails that link to the portal. Empty leaves the link out.
+PORTAL_URL = env("PORTAL_URL", default="")
 BREAK_GLASS_ROLES = env.list("BREAK_GLASS_ROLES", default=["doctor", "nurse"])
 BREAK_GLASS_MINUTES = env.int("BREAK_GLASS_MINUTES", default=60)
 BREAK_GLASS_MIN_REASON_LENGTH = 15

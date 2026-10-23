@@ -6611,8 +6611,6 @@ components:
     Consents:
       type: object
       properties:
-        sms_reminders:
-          type: boolean
         email_reminders:
           type: boolean
         share_in_facility:
@@ -6623,12 +6621,9 @@ components:
       - email_reminders
       - research
       - share_in_facility
-      - sms_reminders
     ConsentsRequest:
       type: object
       properties:
-        sms_reminders:
-          type: boolean
         email_reminders:
           type: boolean
         share_in_facility:
@@ -6639,7 +6634,6 @@ components:
       - email_reminders
       - research
       - share_in_facility
-      - sms_reminders
     ConsultationNote:
       type: object
       description: |-

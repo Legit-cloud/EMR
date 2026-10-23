@@ -142,18 +142,21 @@ def owed(ctx, reachable):
         return invoice_of(charge(reachable, "owed", 15_000, delivered=True))
 
 
-def test_a_reminder_goes_by_sms_and_email_and_is_audited(
-    billing, owed, django_capture_on_commit_callbacks
-):
+def test_a_reminder_goes_by_email_and_is_audited(billing, owed, django_capture_on_commit_callbacks):
     with django_capture_on_commit_callbacks(execute=True):
         response = billing.post(f"{INVOICES}{owed.pk}/remind/")
     assert response.status_code == 200, response.json()
-    assert response.json()["channels"] == ["sms", "email"]
+    assert response.json()["channels"] == ["email"]
     assert len(mail.outbox) == 1
-    body = mail.outbox[0].body
-    assert f"INV-{str(owed.pk)[:8].upper()}" in body and str(Money(15_000, "NGN")) in body
+    message = mail.outbox[0]
+    reference = f"INV-{str(owed.pk)[:8].upper()}"
+    assert (
+        reference in message.subject and "150.00" not in message.subject
+    )  # no amount in the subject
+    assert reference in message.body and str(Money(15_000, "NGN")) in message.body
     owed.refresh_from_db()
     assert owed.last_reminder_at is not None
+    assert owed.reminder_count == 1
     assert AuditEntry.objects.filter(
         action="update", resource="billing.invoice", object_id=str(owed.pk)
     ).exists()
@@ -187,7 +190,7 @@ def test_nothing_is_sent_without_contact_details(billing, ctx, unreachable):
         invoice = invoice_of(charge(unreachable, "nocontact", 5_000, delivered=True))
     response = billing.post(f"{INVOICES}{invoice.pk}/remind/")
     assert response.status_code == 409
-    assert "phone number or email" in response.json()["error"]["message"]
+    assert "no email address" in response.json()["error"]["message"]
 
 
 def test_nothing_is_sent_for_an_invoice_held_for_estate_review(billing, owed):
@@ -195,3 +198,33 @@ def test_nothing_is_sent_for_an_invoice_held_for_estate_review(billing, owed):
     response = billing.post(f"{INVOICES}{owed.pk}/remind/")
     assert response.status_code == 409
     assert "estate review" in response.json()["error"]["message"]
+
+
+def test_reminders_stop_after_the_cap_and_point_to_a_person(billing, owed, settings):
+    settings.BILLING_REMINDER_MAX = 2
+    for _ in range(2):
+        assert billing.post(f"{INVOICES}{owed.pk}/remind/").status_code == 200
+        type(owed).all_tenants.filter(pk=owed.pk).update(last_reminder_at=None)
+    third = billing.post(f"{INVOICES}{owed.pk}/remind/")
+    assert third.status_code == 409
+    assert "Contact the patient directly" in third.json()["error"]["message"]
+
+
+def test_a_reminder_asks_only_for_the_patients_share_not_the_insurers(
+    billing, ctx, reachable, django_capture_on_commit_callbacks
+):
+    from apps.billing import services as billing_services
+    from apps.billing.models import Insurer
+
+    with ctx():
+        insurer = Insurer.objects.create(name="Reminder HMO", code="rem-hmo")
+        invoice = invoice_of(charge(reachable, "insured", 100_000))
+        billing_services.set_coverage(invoice, insurer=insurer, coverage_bp=8_000)
+    with django_capture_on_commit_callbacks(execute=True):
+        assert billing.post(f"{INVOICES}{invoice.pk}/remind/").status_code == 200
+    assert str(Money(20_000, "NGN")) in mail.outbox[-1].body  # the 20% the patient owes
+    assert str(Money(100_000, "NGN")) not in mail.outbox[-1].body
+
+
+def test_the_default_gap_between_reminders_is_three_days(settings):
+    assert settings.BILLING_REMINDER_INTERVAL_HOURS == 72

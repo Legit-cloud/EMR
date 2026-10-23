@@ -112,7 +112,6 @@ class PortalInvoiceSerializer(serializers.Serializer):
 
 
 class ConsentsSerializer(serializers.Serializer):
-    sms_reminders = serializers.BooleanField()
     email_reminders = serializers.BooleanField()
     share_in_facility = serializers.BooleanField()
     research = serializers.BooleanField()

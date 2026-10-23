@@ -45,7 +45,6 @@ export const SLOT_ONE = "slot-1";
 
 function seeded(): State {
   const consents: Record<ConsentKey, boolean> = {
-    sms_reminders: true,
     email_reminders: false,
     share_in_facility: true,
     research: false,

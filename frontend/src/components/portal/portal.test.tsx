@@ -257,17 +257,16 @@ describe("profile and consent", () => {
     renderAs(<ProfilePage />);
     expect(await screen.findByText("Chioma Nwosu")).toBeInTheDocument();
     expect(screen.getByText("2026-000207")).toBeInTheDocument();
-    const sms = screen.getByRole("checkbox", { name: "Text message reminders" });
-    expect(sms).toBeChecked();
-    expect(sms).toHaveAccessibleDescription(/We text you before an appointment/);
-    expect(screen.getByRole("checkbox", { name: "Email reminders" })).not.toBeChecked();
+    const email = screen.getByRole("checkbox", { name: "Email reminders" });
+    expect(email).not.toBeChecked();
+    expect(email).toHaveAccessibleDescription(/We email you the same reminders/);
   });
 
   it("saves a consent choice straight away", async () => {
     renderAs(<ProfilePage />);
     await userEvent.click(await screen.findByRole("checkbox", { name: "Email reminders" }));
     await waitFor(() => expect(portal.profile.consents.email_reminders).toBe(true));
-    expect(portal.profile.consents.sms_reminders).toBe(true);
+    expect(portal.profile.consents.share_in_facility).toBe(true);
   });
 
   it("saves corrected contact details and refuses a phone number without a country code", async () => {

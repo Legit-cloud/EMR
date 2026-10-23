@@ -40,6 +40,8 @@ A healthcare platform with two layers. The **EMR** is the clinical record: patie
 | Backend | Python, Django, Django REST Framework |
 | Database | PostgreSQL, single instance. Relational schema, FHIR-aligned fields, JSONB for flexible clinical content. No separate FHIR server. A FHIR API may be added later. |
 | Auth | Django authentication (session for web, token for API clients), emailed one-time sign-in code for every user via django-otp (decided 2026-10-21, ADR 0017) |
+| Notifications | **Email only** (decided 2026-10-23). No SMS and no push. Messages are queued and delivered by Celery through the mail backend. |
+| Payments | **Paystack** (decided 2026-10-23, ADR 0023). The platform records a payment only after Paystack confirms it (verified webhook or verify call); nothing a client sends can mark a bill paid. |
 | Authorisation | RBAC plus object-level ABAC on every request, enforced server-side |
 | Background jobs | Celery plus Redis, Celery beat for schedules |
 | Real-time | Django Channels over WebSockets, Redis channel layer |
@@ -69,7 +71,7 @@ Railway edge (TLS, routing)
           PostgreSQL             Redis             Object storage
       (clinical + financial)  (broker, channels,   (imaging, attachments,
                                   cache)              private, signed URLs)
-External adapters (outbound only): SMS/email · insurers/HMOs · labs/PACS · payment gateway · pharmacies
+External adapters (outbound only): email · insurers/HMOs · labs/PACS · payment gateway (Paystack) · pharmacies
 ```
 
 ### Module boundary rules (enforced by a pytest test)
@@ -118,7 +120,7 @@ External adapters (outbound only): SMS/email · insurers/HMOs · labs/PACS · pa
 ### Appointments (one entity, defined once)
 - Seven states: **Booked → Confirmed → Checked-In → In-Consultation → Completed**, plus **No-Show** and **Cancelled** (cancellation reason required).
 - No double-booking of a physician slot; emergency type may overbook.
-- On Booked: send SMS and email confirmation with an ICS calendar file. Reminders on a configurable schedule.
+- On Booked: send an email confirmation with an ICS calendar file. Reminders on a configurable schedule, by email.
 - On Checked-In: broadcast over WebSockets so the physician's queue updates live, sorted by arrival time and triage priority. Record the check-in clerk.
 
 ### Prescriptions and safety
@@ -195,7 +197,7 @@ Indicative timeline for a small dedicated team using Claude Code. Re-estimate at
 7. `scheduling` (appointments, availability, reminders, queue).
 8. `pharmacy` (formulary, prescriptions, interaction and allergy checks, signing, stock).
 9. `billing` (invoices, line items, payments, ledger entries) and the prescription-to-ledger event chain.
-10. `notifications` (SMS, email, ICS) behind provider adapters.
+10. `notifications` (email, ICS) behind the mail backend.
 11. Hardening: rate limits, headers, backups, load test, pen-test fixes.
 12. Frontend for each of the above (can run in parallel once the API contract is stable).
 
@@ -252,7 +254,7 @@ Target layout:
    - worker: `celery -A config worker -l info --concurrency 4`
    - beat: `celery -A config beat -l info` (**exactly one replica**)
 4. Web pre-deploy command: `python manage.py migrate --noinput`. Health check path: `/healthz` (returns 200 only if the database and Redis respond).
-5. Variables per environment (never committed): `DJANGO_SETTINGS_MODULE=config.settings.production`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `S3_*` (endpoint, bucket, key, secret, region), `FIELD_ENCRYPTION_KEY`, `SENTRY_DSN`, SMS and email provider keys.
+5. Variables per environment (never committed): `DJANGO_SETTINGS_MODULE=config.settings.production`, `SECRET_KEY`, `ALLOWED_HOSTS`, `CSRF_TRUSTED_ORIGINS`, `DATABASE_URL`, `REDIS_URL`, `S3_*` (endpoint, bucket, key, secret, region), `FIELD_ENCRYPTION_KEY`, `SENTRY_DSN`, `EMAIL_URL` (mail provider), `PAYSTACK_SECRET_KEY`, `PAYSTACK_PUBLIC_KEY`.
 6. Deploy the `staging` environment from the `staging` branch automatically on every push to it (the pre-push hook has already run the checks locally). Deploy `production` by manual promotion or a protected tag.
 7. Before any real patient data: confirm Railway region and terms against data-residency rules (DG-06), enable and test backups, set up an encrypted off-platform backup copy (SEC-08).
 
@@ -354,13 +356,13 @@ Propose, do not perform, the extraction of module <name>: show current coupling 
 
 1. First customer type and pilot facility.
 2. Drug-interaction knowledge source and e-prescribing partners.
-3. SMS, email and push providers; sender IDs.
+3. ~~SMS, email and push providers~~ Decided 2026-10-23: email only, no SMS and no push. The mail provider and sender address are still to be chosen.
 4. Object storage provider (R2 or S3) and the off-platform backup destination.
 5. Railway regions and compliance terms for patient data; Enterprise hosting model.
 6. Is a FHIR API needed at launch, and which version?
 7. Is offline operation required for the clinical core?
 8. Pricing: SaaS tiers and Enterprise licence fees.
-9. First payment gateway and first HMO partners.
+9. ~~First payment gateway~~ Decided 2026-10-23: Paystack (ADR 0023). First HMO partners are still open.
 10. Reuse of any open-source health or ERP components (assumed: none).
 
 ## 13. When to consider splitting the monolith

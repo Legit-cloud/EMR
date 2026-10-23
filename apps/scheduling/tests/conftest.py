@@ -4,7 +4,6 @@ from zoneinfo import ZoneInfo
 import pytest
 
 from apps.core.roles import Role
-from apps.notifications.backends import LocmemSmsBackend
 from apps.patients.models import Patient
 from apps.scheduling.models import AvailabilityWindow
 from apps.staff.models import StaffProfile
@@ -17,11 +16,6 @@ def at(day_offset: int, hour: int, minute: int = 0) -> datetime:
     """A Lagos time ``day_offset`` days from today."""
     day = datetime.now(LAGOS).date() + timedelta(days=day_offset)
     return datetime.combine(day, time(hour, minute), tzinfo=LAGOS)
-
-
-@pytest.fixture(autouse=True)
-def _clear_sms_outbox():
-    LocmemSmsBackend.outbox.clear()
 
 
 @pytest.fixture

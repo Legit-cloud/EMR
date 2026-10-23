@@ -486,7 +486,6 @@ def test_the_patient_corrects_their_phone_and_email_but_not_their_name(as_patien
 def test_dg_02_consent_choices_are_saved_and_each_change_is_audited(as_patient, ada, tenant_a):
     client, account = as_patient(ada)
     choices = {
-        "sms_reminders": True,
         "email_reminders": True,
         "share_in_facility": True,
         "research": False,

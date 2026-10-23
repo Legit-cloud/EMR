@@ -18,11 +18,6 @@ export type ConsentKey = keyof Schemas["Consents"];
 
 export const CONSENTS: { key: ConsentKey; label: string; explain: string }[] = [
   {
-    key: "sms_reminders",
-    label: "Text message reminders",
-    explain: "We text you before an appointment and when a bill is due.",
-  },
-  {
     key: "email_reminders",
     label: "Email reminders",
     explain: "We email you the same reminders, with your appointment calendar file.",

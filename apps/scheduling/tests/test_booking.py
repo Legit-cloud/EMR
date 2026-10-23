@@ -10,7 +10,6 @@ from django.core import mail
 from django.db import connection
 
 from apps.core.tenancy import tenant_context
-from apps.notifications.backends import LocmemSmsBackend
 from apps.notifications.models import Notification
 from apps.scheduling import services
 from apps.scheduling.ics import build_ics
@@ -23,7 +22,7 @@ pytestmark = pytest.mark.django_db
 APPOINTMENTS = "/api/scheduling/appointments/"
 
 
-def test_booking_confirms_by_sms_and_email_with_an_ics_invite(
+def test_booking_confirms_by_email_with_an_ics_invite(
     desk, booking, window, django_capture_on_commit_callbacks
 ):
     with django_capture_on_commit_callbacks(execute=True):
@@ -33,9 +32,6 @@ def test_booking_confirms_by_sms_and_email_with_an_ics_invite(
     assert body["status"] == "booked"
     assert body["end_at"] is not None  # default slot length applied
 
-    assert len(LocmemSmsBackend.outbox) == 1
-    sms = LocmemSmsBackend.outbox[0]
-    assert sms["to"] == "+2348031234567" and "Dr" in sms["body"]
     assert len(mail.outbox) == 1
     name, content, mimetype = mail.outbox[0].attachments[0]
     assert (name, mimetype) == ("appointment.ics", "text/calendar")
@@ -46,7 +42,6 @@ def test_booking_confirms_by_sms_and_email_with_an_ics_invite(
     assert statuses == {"sent"}
     # The delivery log never stores the message or the full number.
     assert set(Notification.all_tenants.values_list("recipient_masked", flat=True)) == {
-        "+234***67",
         "n***@example.test",
     }
 

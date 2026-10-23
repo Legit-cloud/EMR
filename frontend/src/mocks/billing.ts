@@ -278,7 +278,7 @@ function ordered(invoices: Invoice[], ordering: string | null): Invoice[] {
   });
 }
 
-const oneDay = 24 * 3_600_000;
+const gap = 72 * 3_600_000;
 
 export const billingHandlers = [
   http.get("*/api/billing/invoices/summary/", ({ request }) => {
@@ -416,13 +416,13 @@ export const billingHandlers = [
     if (invoice.estate_review) {
       return refuse("This invoice is held for estate review. Do not send a reminder.");
     }
-    if (!entry.reachable) return refuse("The patient has no phone number or email on file.");
-    if (invoice.last_reminder_at && Date.now() - Date.parse(invoice.last_reminder_at) < oneDay) {
-      return refuse("A reminder was sent recently. Wait 24 hours between reminders.");
+    if (!entry.reachable) return refuse("The patient has no email address on file.");
+    if (invoice.last_reminder_at && Date.now() - Date.parse(invoice.last_reminder_at) < gap) {
+      return refuse("A reminder was sent recently. Wait 72 hours between reminders.");
     }
     invoice.last_reminder_at = new Date().toISOString();
     return HttpResponse.json({
-      channels: ["sms", "email"],
+      channels: ["email"],
       last_reminder_at: invoice.last_reminder_at,
     });
   }),
