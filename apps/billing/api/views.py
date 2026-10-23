@@ -17,7 +17,16 @@ from apps.core.policy import Action
 from apps.patients import selectors as patients
 
 from .. import ledger, services
-from ..models import Account, Insurer, Invoice, JournalEntry, LineStatus, Payment, PaymentStatus
+from ..models import (
+    Account,
+    Insurer,
+    Invoice,
+    JournalEntry,
+    LineStatus,
+    Payment,
+    PaymentIntent,
+    PaymentStatus,
+)
 from . import serializers as s
 
 STATUSES = (PaymentStatus.UNPAID, PaymentStatus.PARTIALLY_PAID, PaymentStatus.PAID)
@@ -262,3 +271,21 @@ class JournalEntryViewSet(TenantReadOnlyViewSet):
         queryset = super().get_base_queryset().prefetch_related("lines__account")
         source = self.request.query_params.get("source")
         return queryset.filter(source=source) if source else queryset
+
+
+@list_filters("status", "invoice")
+class PaymentIntentViewSet(TenantReadOnlyViewSet):
+    """Online payments started by patients, so finance can see any that need review."""
+
+    model = PaymentIntent
+    policy_resource = "billing.paymentintent"
+    serializer_class = s.PaymentIntentSerializer
+
+    def get_base_queryset(self):
+        queryset = super().get_base_queryset()
+        params = self.request.query_params
+        if params.get("status"):
+            queryset = queryset.filter(status=params["status"])
+        if params.get("invoice"):
+            queryset = queryset.filter(invoice_id=params["invoice"])
+        return queryset

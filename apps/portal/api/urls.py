@@ -19,6 +19,12 @@ urlpatterns = [
     path("results/<uuid:pk>/seen/", views.ResultSeenView.as_view(), name="portal-result-seen"),
     path("prescriptions/", views.PrescriptionsView.as_view(), name="portal-prescriptions"),
     path("invoices/", views.InvoicesView.as_view(), name="portal-invoices"),
+    path("invoices/<uuid:pk>/pay/", views.InvoicePayView.as_view(), name="portal-invoice-pay"),
+    path(
+        "payments/<str:reference>/verify/",
+        views.PaymentVerifyView.as_view(),
+        name="portal-payment-verify",
+    ),
     path("profile/", views.ProfileView.as_view(), name="portal-profile"),
     *router.urls,
 ]

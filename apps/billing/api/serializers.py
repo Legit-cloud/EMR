@@ -14,6 +14,7 @@ from ..models import (
     JournalLine,
     Payer,
     Payment,
+    PaymentIntent,
     PaymentMethod,
     RevenueCategory,
 )
@@ -147,7 +148,11 @@ class CoverageSerializer(serializers.Serializer):
 
 class PaymentRequestSerializer(serializers.Serializer):
     payer = serializers.ChoiceField(choices=Payer.choices)
-    method = serializers.ChoiceField(choices=PaymentMethod.choices)
+    # "Online" is set only by the gateway integration, never chosen by hand: otherwise a clerk could
+    # record a card payment that Paystack never took.
+    method = serializers.ChoiceField(
+        choices=[c for c in PaymentMethod.choices if c[0] != PaymentMethod.ONLINE]
+    )
     amount_minor = serializers.IntegerField(min_value=1)
     reference = serializers.CharField(max_length=100, required=False, allow_blank=True, default="")
     # Send the same key when retrying, so a timeout never records the payment twice.
@@ -215,3 +220,26 @@ class JournalEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = JournalEntry
         fields = ["id", "posted_at", "description", "source", "source_id", "currency", "lines"]
+
+
+class PaymentIntentSerializer(serializers.ModelSerializer):
+    reference_number = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PaymentIntent
+        fields = [
+            "id",
+            "invoice",
+            "reference_number",
+            "amount_minor",
+            "currency",
+            "reference",
+            "status",
+            "note",
+            "created_at",
+            "completed_at",
+        ]
+        read_only_fields = fields
+
+    def get_reference_number(self, intent) -> str:
+        return f"INV-{str(intent.invoice_id)[:8].upper()}"

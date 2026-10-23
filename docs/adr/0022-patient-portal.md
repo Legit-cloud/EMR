@@ -65,3 +65,10 @@ used to be a stub in `accounts` now lives here).
   address is taken. Children and dependants are not modelled.
 - There is no portal self-registration. Every account starts with staff, who can check identity.
 - The portal reuses the staff password-reset link; its address and wording are generic.
+
+## Amendment 2026-10-23
+
+Paying is now built, with Paystack: the portal can start a payment and the bill is credited only after
+Paystack confirms it (ADR 0023). The "Not built, on purpose: Paying" note above no longer applies, and
+the portal's "SMS" consent is gone with the SMS channel. The remaining consent choices are redesigned in
+ADR 0024.

@@ -91,3 +91,5 @@ The patient portal API now exists too (ADR 0022). Both screens call the generate
 `src/lib/planned-api.ts` has been removed. The portal differs from the contract above in one
 way: there is no payment endpoint (see ADR 0022), so "Pay now" became instructions for paying
 at the hospital.
+
+Update 2026-10-23: "Pay now" is back, now backed by Paystack (ADR 0023) rather than a plain recording step.

@@ -759,6 +759,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/billing/payment-intents/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Online payments started by patients, so finance can see any that need review. */
+        get: operations["billing_payment_intents_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/payment-intents/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Online payments started by patients, so finance can see any that need review. */
+        get: operations["billing_payment_intents_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/billing/payments/": {
         parameters: {
             query?: never;
@@ -817,6 +851,22 @@ export interface paths {
         get: operations["billing_payments_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/webhooks/paystack/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["billing_webhooks_paystack_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2295,6 +2345,43 @@ export interface paths {
         get: operations["portal_invoices_list"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/invoices/{id}/pay/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Start paying part or all of one of the patient's own bills at Paystack's page. */
+        post: operations["portal_invoices_pay_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/payments/{reference}/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Called when the patient comes back from the payment page: ask Paystack, then say what
+         *     happened. The browser's word is never taken for it.
+         */
+        post: operations["portal_payments_verify_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4498,6 +4585,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["PatientList"][];
         };
+        PaginatedPaymentIntentList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["PaymentIntent"][];
+        };
         PaginatedPaymentList: {
             /** @example 123 */
             count: number;
@@ -5025,6 +5127,16 @@ export interface components {
          * @enum {string}
          */
         PatientStatusEnum: "active" | "inactive" | "deceased";
+        PayRequestRequest: {
+            amount_minor: number;
+        };
+        PayStart: {
+            reference: string;
+            /** Format: uri */
+            authorization_url: string;
+            amount_minor: number;
+            currency: string;
+        };
         /**
          * @description * `patient` - Patient
          *     * `insurer` - Insurer
@@ -5046,6 +5158,39 @@ export interface components {
             /** Format: uuid */
             readonly received_by: string | null;
         };
+        PaymentIntent: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly invoice: string;
+            readonly reference_number: string;
+            readonly amount_minor: number;
+            readonly currency: string;
+            readonly reference: string;
+            readonly status: components["schemas"]["PaymentIntentStatusEnum"];
+            readonly note: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: date-time */
+            readonly completed_at: string | null;
+        };
+        /**
+         * @description * `pending` - Waiting for the patient to pay
+         *     * `succeeded` - Paid and recorded
+         *     * `failed` - Failed
+         *     * `flagged` - Needs finance review
+         * @enum {string}
+         */
+        PaymentIntentStatusEnum: "pending" | "succeeded" | "failed" | "flagged";
+        /**
+         * @description * `cash` - Cash
+         *     * `card` - Card / POS
+         *     * `transfer` - Bank transfer
+         *     * `insurer_remittance` - Insurer remittance
+         *     * `online` - Online (Paystack)
+         * @enum {string}
+         */
+        PaymentMethodEnum: "cash" | "card" | "transfer" | "insurer_remittance" | "online";
         /**
          * @description * `cash` - Cash
          *     * `card` - Card / POS
@@ -5053,15 +5198,28 @@ export interface components {
          *     * `insurer_remittance` - Insurer remittance
          * @enum {string}
          */
-        PaymentMethodEnum: "cash" | "card" | "transfer" | "insurer_remittance";
+        PaymentRequestMethodEnum: "cash" | "card" | "transfer" | "insurer_remittance";
         PaymentRequestRequest: {
             payer: components["schemas"]["PayerEnum"];
-            method: components["schemas"]["PaymentMethodEnum"];
+            method: components["schemas"]["PaymentRequestMethodEnum"];
             amount_minor: number;
             /** @default  */
             reference: string;
             idempotency_key?: string;
         };
+        PaymentResult: {
+            reference: string;
+            status: components["schemas"]["PaymentResultStatusEnum"];
+            amount_minor: number;
+        };
+        /**
+         * @description * `pending` - pending
+         *     * `succeeded` - succeeded
+         *     * `failed` - failed
+         *     * `review` - review
+         * @enum {string}
+         */
+        PaymentResultStatusEnum: "pending" | "succeeded" | "failed" | "review";
         /**
          * @description * `unpaid` - Unpaid
          *     * `partially_paid` - Partially paid
@@ -6719,6 +6877,52 @@ export interface operations {
             };
         };
     };
+    billing_payment_intents_list: {
+        parameters: {
+            query?: {
+                invoice?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedPaymentIntentList"];
+                };
+            };
+        };
+    };
+    billing_payment_intents_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentIntent"];
+                };
+            };
+        };
+    };
     billing_payments_list: {
         parameters: {
             query?: {
@@ -6760,6 +6964,31 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["Payment"];
                 };
+            };
+        };
+    };
+    billing_webhooks_paystack_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description No response body */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -9143,6 +9372,54 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalInvoice"][];
+                };
+            };
+        };
+    };
+    portal_invoices_pay_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PayRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PayRequestRequest"];
+                "multipart/form-data": components["schemas"]["PayRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PayStart"];
+                };
+            };
+        };
+    };
+    portal_payments_verify_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                reference: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaymentResult"];
                 };
             };
         };

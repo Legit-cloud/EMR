@@ -16,7 +16,7 @@ import {
   METHOD_LABEL,
   owedBy,
   type Payer,
-  type PaymentMethod,
+  type ManualMethod,
   refusalMessage,
   usePayInvoice,
 } from "@/lib/billing";
@@ -26,7 +26,7 @@ import { currencySymbol, formatMoney } from "@/lib/money";
 const FORM_ID = "payment-form";
 
 /** The server only accepts an insurer remittance from the insurer, and never for the patient. */
-const METHODS: Record<Payer, PaymentMethod[]> = {
+const METHODS: Record<Payer, ManualMethod[]> = {
   patient: ["cash", "card", "transfer"],
   insurer: ["insurer_remittance"],
 };
@@ -47,7 +47,7 @@ function Form({ invoice, open, onOpenChange }: Props) {
   const pay = usePayInvoice(invoice.id);
   const first = defaultPayer(invoice);
   const [payer, setPayer] = useState<Payer>(first);
-  const [method, setMethod] = useState<PaymentMethod>(METHODS[first][0]);
+  const [method, setMethod] = useState<ManualMethod>(METHODS[first][0]);
   const [amount, setAmount] = useState(fullAmountText(invoice, first));
   const [reference, setReference] = useState("");
   // The same key on every retry of this form, so a timeout can never record a payment twice.
@@ -129,7 +129,7 @@ function Form({ invoice, open, onOpenChange }: Props) {
         <Select
           label="Method"
           value={method}
-          onValueChange={(value) => setMethod(value as PaymentMethod)}
+          onValueChange={(value) => setMethod(value as ManualMethod)}
           options={METHODS[payer].map((value) => ({ value, label: METHOD_LABEL[value] }))}
         />
         <Input

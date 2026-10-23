@@ -152,11 +152,14 @@ class PaymentMethod(models.TextChoices):
     CARD = "card", "Card / POS"
     TRANSFER = "transfer", "Bank transfer"
     INSURER_REMITTANCE = "insurer_remittance", "Insurer remittance"
+    # Only ever set by the gateway integration, after Paystack confirms the payment. Staff cannot
+    # choose it when taking a payment by hand.
+    ONLINE = "online", "Online (Paystack)"
 
 
 class Payment(TenantModel):
-    """Money received against an invoice. Gateway settlement is out of scope: the status
-    and reference are recorded as given."""
+    """Money received against an invoice. For an online payment the reference is the gateway's, and
+    the payment exists only because the gateway confirmed it (see PaymentIntent)."""
 
     invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="payments")
     payer = models.CharField(max_length=8, choices=Payer.choices)
@@ -259,3 +262,42 @@ class JournalLine(TenantModel):
     def __str__(self) -> str:
         side = f"Dr {self.debit_minor}" if self.debit_minor else f"Cr {self.credit_minor}"
         return f"{self.account.code} {side}"
+
+
+class IntentStatus(models.TextChoices):
+    PENDING = "pending", "Waiting for the patient to pay"
+    SUCCEEDED = "succeeded", "Paid and recorded"
+    FAILED = "failed", "Failed"
+    # The gateway took money that could not be applied to the bill (it was paid or changed in the
+    # meantime, or the amount differed). A person must look at it; finance is emailed.
+    FLAGGED = "flagged", "Needs finance review"
+
+
+class PaymentIntent(TenantModel):
+    """A patient's start of an online payment. Nothing is credited to the bill until the gateway
+    confirms the same reference and amount, and then exactly once (the payment is keyed by it)."""
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="intents")
+    amount_minor = models.BigIntegerField()
+    currency = models.CharField(max_length=3)
+    reference = models.CharField(max_length=64, unique=True)
+    gateway = models.CharField(max_length=20, default="paystack")
+    status = models.CharField(
+        max_length=10, choices=IntentStatus.choices, default=IntentStatus.PENDING
+    )
+    authorization_url = models.TextField(blank=True)
+    gateway_transaction_id = models.CharField(max_length=40, blank=True)
+    note = models.CharField(max_length=300, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    payment = models.OneToOneField(
+        Payment, on_delete=models.PROTECT, null=True, blank=True, related_name="intent"
+    )
+
+    class Meta(TenantModel.Meta):
+        ordering = ["-created_at"]
+        constraints = [
+            models.CheckConstraint(condition=Q(amount_minor__gt=0), name="intent_positive")
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.reference} ({self.status})"

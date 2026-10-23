@@ -21,17 +21,20 @@ import {
   plainInstructions,
   RESULT_FLAG_TEXT,
 } from "@/lib/plain-language";
+import { checkPaymentAmount } from "@/lib/portal";
 import { createQueryClient } from "@/lib/query";
 import { resetAuthMocks } from "@/mocks/auth";
 import { portal, resetPortalMocks, SLOT_ONE } from "@/mocks/portal";
 
 vi.setConfig({ testTimeout: 90_000 });
 
-const nav = vi.hoisted(() => ({ path: "/portal" }));
+const nav = vi.hoisted(() => ({ path: "/portal", search: "", replace: vi.fn() }));
+const redirect = vi.hoisted(() => vi.fn());
+vi.mock("@/lib/redirect", () => ({ redirectTo: redirect }));
 vi.mock("next/navigation", () => ({
   usePathname: () => nav.path,
-  useRouter: () => ({ push: vi.fn(), replace: vi.fn() }),
-  useSearchParams: () => new URLSearchParams(),
+  useRouter: () => ({ push: vi.fn(), replace: nav.replace }),
+  useSearchParams: () => new URLSearchParams(nav.search),
 }));
 
 function renderAs(page: ReactElement, who = "chioma.patient") {
@@ -50,6 +53,9 @@ function renderAs(page: ReactElement, who = "chioma.patient") {
 beforeEach(() => {
   resetPortalMocks();
   nav.path = "/portal";
+  nav.search = "";
+  nav.replace.mockReset();
+  redirect.mockReset();
 });
 
 describe("plain language", () => {
@@ -224,7 +230,7 @@ describe("prescriptions", () => {
   });
 });
 
-describe("invoices", () => {
+describe("invoices and paying online", () => {
   it("shows what each bill was for, what is paid and what is owed", async () => {
     renderAs(<InvoicesPage />);
     const owed = await screen.findByRole("region", { name: "Bill INV-1A5E2F8C" });
@@ -236,19 +242,133 @@ describe("invoices", () => {
     expect(screen.getByRole("region", { name: "Bill INV-3A5E2F8C" })).toHaveTextContent("Paid");
   });
 
-  it("says how to pay at the hospital and offers no button that could only pretend", async () => {
+  it("offers to pay only a bill that still has something owing, and names the other ways", async () => {
     renderAs(<InvoicesPage />);
-    const how = await screen.findByRole("region", { name: "How to pay" });
-    expect(how).toHaveTextContent("Pay at the cashier");
-    expect(how).toHaveTextContent("Paying online is not available yet");
-    expect(screen.queryByRole("button", { name: /pay/i })).toBeNull();
+    const owed = await screen.findByRole("region", { name: "Bill INV-1A5E2F8C" });
+    expect(within(owed).getByRole("button", { name: "Pay bill INV-1A5E2F8C" })).toBeInTheDocument();
+    expect(owed).toHaveTextContent("You can also pay at the cashier or by bank transfer");
+    const paid = screen.getByRole("region", { name: "Bill INV-3A5E2F8C" });
+    expect(within(paid).queryByRole("button", { name: /Pay bill/ })).toBeNull();
   });
 
-  it("does not show the how-to-pay note when nothing is owed", async () => {
-    portal.invoices = portal.invoices.filter((i) => i.due_minor === 0);
+  it("sends the patient to the Paystack page for the amount they chose, part or all", async () => {
     renderAs(<InvoicesPage />);
-    await screen.findByRole("region", { name: "Bill INV-3A5E2F8C" });
-    expect(screen.queryByRole("region", { name: "How to pay" })).toBeNull();
+    await userEvent.click(await screen.findByRole("button", { name: "Pay bill INV-1A5E2F8C" }));
+    const dialog = await screen.findByRole("dialog", { name: "Pay your bill" });
+    const amount = within(dialog).getByLabelText(/^Amount/);
+    expect(amount).toHaveValue("10000.00");
+    await userEvent.clear(amount);
+    await userEvent.type(amount, "4000");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Continue to payment" }));
+    await waitFor(() => expect(redirect).toHaveBeenCalledTimes(1));
+    expect(portal.calls.at(-1)).toMatchObject({ path: "pay", body: { amount_minor: 400_000 } });
+    expect(redirect.mock.calls[0][0]).toMatch(/^https:\/\/checkout\.paystack\.test\/emr_mock_/);
+    // Starting a payment changes nothing on the bill.
+    expect(portal.invoices[0].due_minor).toBe(1_000_000);
+  });
+
+  it("refuses more than is owed, or nothing, before anything is sent", async () => {
+    renderAs(<InvoicesPage />);
+    await userEvent.click(await screen.findByRole("button", { name: "Pay bill INV-1A5E2F8C" }));
+    const dialog = await screen.findByRole("dialog", { name: "Pay your bill" });
+    const amount = within(dialog).getByLabelText(/^Amount/);
+    await userEvent.clear(amount);
+    await userEvent.type(amount, "10000.01");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Continue to payment" }));
+    expect(await within(dialog).findByText("You owe ₦10,000.00 on this bill.")).toBeInTheDocument();
+    await userEvent.clear(amount);
+    await userEvent.type(amount, "abc");
+    await userEvent.click(within(dialog).getByRole("button", { name: "Continue to payment" }));
+    expect(await within(dialog).findByText("Enter an amount such as 1500.00.")).toBeInTheDocument();
+    expect(portal.calls).toHaveLength(0);
+    expect(redirect).not.toHaveBeenCalled();
+  });
+
+  it("shows the server's refusal in the dialog and does not leave the page", async () => {
+    renderAs(<InvoicesPage />);
+    await userEvent.click(await screen.findByRole("button", { name: "Pay bill INV-1A5E2F8C" }));
+    const dialog = await screen.findByRole("dialog", { name: "Pay your bill" });
+    portal.invoices[0].due_minor = 0; // paid another way while the dialog was open
+    await userEvent.click(within(dialog).getByRole("button", { name: "Continue to payment" }));
+    expect(
+      await within(dialog).findByText("You owe that much or less on this bill."),
+    ).toBeInTheDocument();
+    expect(redirect).not.toHaveBeenCalled();
+  });
+});
+
+describe("coming back from Paystack", () => {
+  async function start(amount = 400_000) {
+    resetAuthMocks("chioma.patient");
+    const response = await fetch("http://localhost/api/portal/invoices/pi-1/pay/", {
+      method: "POST",
+      body: JSON.stringify({ amount_minor: amount }),
+    });
+    portal.calls.length = 0;
+    return (await response.json()).reference as string;
+  }
+
+  it("asks the server and shows the bill updated when the payment went through", async () => {
+    const reference = await start();
+    portal.intents[reference].outcome = "paid";
+    nav.path = "/portal/invoices";
+    nav.search = `reference=${reference}&trxref=${reference}`;
+    renderAs(<InvoicesPage />);
+    expect(await screen.findByText("Payment received. Thank you.")).toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByLabelText("Still to pay on INV-1A5E2F8C")).toHaveTextContent("₦6,000.00"),
+    );
+    expect(portal.calls.filter((c) => c.path === "verify")).toHaveLength(1);
+    expect(nav.replace).toHaveBeenCalledWith("/portal/invoices", { scroll: false });
+  });
+
+  it("does not claim a payment that Paystack has not confirmed", async () => {
+    const reference = await start();
+    nav.search = `reference=${reference}`;
+    renderAs(<InvoicesPage />);
+    expect(
+      await screen.findByText(/We have not been told about your payment yet/),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Still to pay on INV-1A5E2F8C")).toHaveTextContent("₦10,000.00");
+  });
+
+  it("tells the patient when the billing office is checking the payment", async () => {
+    const reference = await start();
+    portal.intents[reference].outcome = "flagged";
+    nav.search = `reference=${reference}`;
+    renderAs(<InvoicesPage />);
+    expect(
+      await screen.findByText(/We received your payment and are checking it/),
+    ).toBeInTheDocument();
+  });
+
+  it("shows nothing about payments when the patient simply opens the page", async () => {
+    renderAs(<InvoicesPage />);
+    await screen.findByRole("region", { name: "Bill INV-1A5E2F8C" });
+    expect(screen.queryByText(/Payment received/)).toBeNull();
+    expect(portal.calls.filter((c) => c.path === "verify")).toHaveLength(0);
+  });
+});
+
+describe("payment amount rules", () => {
+  it("accepts any amount up to what is owed, to the kobo", () => {
+    expect(checkPaymentAmount("4000", 1_000_000, "NGN")).toEqual({ minor: 400_000 });
+    expect(checkPaymentAmount("10,000.00", 1_000_000, "NGN")).toEqual({ minor: 1_000_000 });
+    expect(checkPaymentAmount("0.01", 1_000_000, "NGN")).toEqual({ minor: 1 });
+  });
+
+  it("refuses nothing, text, too many decimals and more than is owed", () => {
+    expect(checkPaymentAmount("0", 1_000_000, "NGN")).toEqual({
+      error: "The amount must be more than zero.",
+    });
+    for (const text of ["", "abc", "-5", "1.005"]) {
+      expect(checkPaymentAmount(text, 1_000_000, "NGN")).toEqual({
+        error: "Enter an amount such as 1500.00.",
+      });
+    }
+    expect(checkPaymentAmount("10000.01", 1_000_000, "NGN")).toEqual({
+      error: "You owe ₦10,000.00 on this bill.",
+    });
   });
 });
 
