@@ -301,3 +301,54 @@ class PaymentIntent(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.reference} ({self.status})"
+
+
+class ClaimStatus(models.TextChoices):
+    DRAFT = "draft", "Draft"
+    SUBMITTED = "submitted", "Submitted"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
+    PAID = "paid", "Paid"
+
+
+class Claim(TenantModel):
+    """A request to an insurer or HMO to pay its share of one invoice.
+
+    The amount claimed is the insurer share of the invoice when the claim is made. The insurer
+    may approve less. Money received is recorded as insurer payments on the invoice, so the
+    ledger and the invoice stay the single record of what was paid.
+    """
+
+    invoice = models.ForeignKey(Invoice, on_delete=models.PROTECT, related_name="claims")
+    insurer = models.ForeignKey(Insurer, on_delete=models.PROTECT, related_name="claims")
+    reference = models.CharField(max_length=32)
+    # The insurer's own number for the claim, once they give one.
+    insurer_reference = models.CharField(max_length=64, blank=True)
+    status = models.CharField(max_length=10, choices=ClaimStatus.choices, default=ClaimStatus.DRAFT)
+    currency = models.CharField(max_length=3)
+    claimed_minor = models.BigIntegerField()
+    approved_minor = models.BigIntegerField(null=True, blank=True)
+    received_minor = models.BigIntegerField(default=0)
+    attempt = models.PositiveSmallIntegerField(default=0)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    decided_at = models.DateTimeField(null=True, blank=True)
+    settled_at = models.DateTimeField(null=True, blank=True)
+    decision_note = models.CharField(max_length=500, blank=True)
+
+    class Meta(TenantModel.Meta):
+        ordering = ["-created_at"]
+        constraints = [
+            models.UniqueConstraint(fields=["tenant", "reference"], name="claim_reference"),
+            # One live claim per invoice; a rejected one is resubmitted instead of replaced.
+            models.UniqueConstraint(
+                fields=["invoice"],
+                condition=Q(status__in=["draft", "submitted", "approved", "rejected"]),
+                name="one_live_claim_per_invoice",
+            ),
+            models.CheckConstraint(condition=Q(claimed_minor__gt=0), name="claim_amount_positive"),
+        ]
+
+    @property
+    def outstanding_minor(self) -> int:
+        """What the insurer still owes: the approved amount less what has been received."""
+        return max((self.approved_minor or 0) - self.received_minor, 0)

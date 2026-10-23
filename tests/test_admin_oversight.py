@@ -17,6 +17,7 @@ pytestmark = pytest.mark.django_db
 OVERSIGHT = {
     "accounts.breakglassgrant",
     "audit.auditentry",
+    "billing.claim",
     "billing.invoice",
     "billing.journalentry",
     "billing.ledger",
