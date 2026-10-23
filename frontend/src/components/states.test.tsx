@@ -9,6 +9,7 @@ import AuditPage from "@/app/(app)/audit/page";
 import BillingPage from "@/app/(app)/billing/page";
 import PatientsPage from "@/app/(app)/patients/page";
 import StockPage from "@/app/(app)/pharmacy/stock/page";
+import RequestsPage from "@/app/(app)/requests/page";
 import StaffPage from "@/app/(app)/staff/page";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -71,6 +72,13 @@ const CASES: Case[] = [
     who: "bisi.finance",
     url: "*/api/audit/entries/",
     caption: "Entries",
+  },
+  {
+    name: "data requests",
+    Page: RequestsPage,
+    who: "bisi.finance",
+    url: "*/api/portal/data-requests/",
+    caption: "Requests",
   },
   {
     name: "stock inventory",

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { type FormEvent, useState } from "react";
 
 import { Banner } from "@/components/ui/banner";
@@ -8,23 +9,16 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/components/ui/toast";
 import { cx } from "@/lib/cx";
 import { formatDay } from "@/lib/format";
-import {
-  CONSENTS,
-  type ConsentKey,
-  type PortalProfile,
-  refusalMessage,
-  useProfile,
-  useSaveProfile,
-} from "@/lib/portal";
+import { type PortalProfile, refusalMessage, useProfile, useSaveProfile } from "@/lib/portal";
 
 import { PortalButton, PortalCard, PortalHeading, QueryState } from "./shared";
 
-/** Profile and consent: contact details the patient can correct, and what we may do with them. */
+/** Profile: contact details the patient can correct, and whether we send reminders. */
 export function PortalProfileScreen() {
   const profile = useProfile();
   return (
     <>
-      <PortalHeading title="Profile" lead="Your details and what you agree to." />
+      <PortalHeading title="Profile" lead="Your details and how we contact you." />
       <QueryState
         query={profile}
         what="profile"
@@ -34,7 +28,31 @@ export function PortalProfileScreen() {
         {(data) => (
           <div className="flex flex-col gap-4">
             <Details profile={data} />
-            <Consents profile={data} />
+            <Reminders profile={data} />
+            <PortalCard title="Your information">
+              <p className="text-body text-ink-900">
+                You can see how we use your information, ask for a copy, or ask us to correct or
+                delete it.
+              </p>
+              <ul className="flex flex-col gap-1">
+                {[
+                  ["/portal/privacy", "How we use your information"],
+                  ["/portal/rights", "Your rights and requests"],
+                ].map(([href, label]) => (
+                  <li key={href}>
+                    <Link
+                      href={href}
+                      className={cx(
+                        "rounded-control inline-flex min-h-11 items-center font-semibold text-blue-600 underline",
+                        FOCUS_RING,
+                      )}
+                    >
+                      {label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </PortalCard>
           </div>
         )}
       </QueryState>
@@ -101,50 +119,44 @@ function Details({ profile }: { profile: PortalProfile }) {
   );
 }
 
-function Consents({ profile }: { profile: PortalProfile }) {
+function Reminders({ profile }: { profile: PortalProfile }) {
   const toast = useToast();
   const save = useSaveProfile();
   const [problem, setProblem] = useState<string | null>(null);
 
-  async function change(key: ConsentKey, value: boolean) {
+  async function change(value: boolean) {
     setProblem(null);
     try {
-      await save.mutateAsync({ consents: { ...profile.consents, [key]: value } });
+      await save.mutateAsync({ email_reminders: value });
     } catch (failure) {
       return setProblem(refusalMessage(failure));
     }
-    toast({ title: "Choice saved", tone: "success" });
+    toast({ title: value ? "Reminders on" : "Reminders off", tone: "success" });
   }
 
   return (
-    <PortalCard title="Your choices">
+    <PortalCard title="Reminders">
       {problem && <Banner tone="danger" live title={problem} />}
-      <ul className="flex flex-col gap-4">
-        {CONSENTS.map((c) => {
-          const id = `consent-${c.key}`;
-          return (
-            <li key={c.key} className="flex items-start gap-3">
-              <input
-                id={id}
-                type="checkbox"
-                checked={profile.consents[c.key]}
-                disabled={save.isPending}
-                onChange={(e) => void change(c.key, e.target.checked)}
-                aria-describedby={`${id}-why`}
-                className={cx("mt-1 size-6 shrink-0 accent-blue-600", FOCUS_RING)}
-              />
-              <div className="flex flex-col gap-1">
-                <label htmlFor={id} className="text-body text-ink-900 min-h-6 font-semibold">
-                  {c.label}
-                </label>
-                <p id={`${id}-why`} className="text-small text-ink-600">
-                  {c.explain}
-                </p>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      <div className="flex items-start gap-3">
+        <input
+          id="email-reminders"
+          type="checkbox"
+          checked={profile.email_reminders}
+          disabled={save.isPending}
+          onChange={(e) => void change(e.target.checked)}
+          aria-describedby="email-reminders-why"
+          className={cx("mt-1 size-6 shrink-0 accent-blue-600", FOCUS_RING)}
+        />
+        <div className="flex flex-col gap-1">
+          <label htmlFor="email-reminders" className="text-body text-ink-900 min-h-6 font-semibold">
+            Email me reminders about my appointments and bills
+          </label>
+          <p id="email-reminders-why" className="text-small text-ink-600">
+            We always email you when you book or change a visit. This choice is only for reminders.
+            Turn it off and we will not send them.
+          </p>
+        </div>
+      </div>
     </PortalCard>
   );
 }

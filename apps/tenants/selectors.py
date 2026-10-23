@@ -77,3 +77,8 @@ def resolve_tenant_id(user, host: str) -> uuid.UUID | None:
 def active_tenant_ids() -> list[uuid.UUID]:
     """For system jobs that run once per tenant (licence watcher, reminders, ward charges)."""
     return list(Tenant.objects.filter(is_active=True).values_list("id", flat=True))
+
+
+def tenant_name(tenant_id) -> str:
+    """The organisation's name, for notices addressed to its patients."""
+    return Tenant.objects.filter(pk=tenant_id).values_list("name", flat=True).first() or ""

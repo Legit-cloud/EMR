@@ -17,6 +17,7 @@ export const PORTAL_NAV = [
   { label: "Prescriptions", href: "/portal/prescriptions" },
   { label: "Invoices", href: "/portal/invoices" },
   { label: "Profile", href: "/portal/profile" },
+  { label: "Your rights", href: "/portal/rights" },
 ] as const;
 
 /** The nav item for a path: Home only matches exactly, the rest by prefix. */
@@ -95,9 +96,20 @@ export function PortalShell({
       <main id="main" className="mx-auto w-full max-w-3xl flex-1 px-4 py-6">
         {children}
       </main>
-      <footer className="text-small text-ink-500 mx-auto w-full max-w-3xl px-4 pb-6">
-        In an emergency, go to the nearest hospital or call your local emergency number. Do not wait
-        for a message from this portal.
+      <footer className="text-small text-ink-500 mx-auto flex w-full max-w-3xl flex-col gap-2 px-4 pb-6">
+        <p>
+          In an emergency, go to the nearest hospital or call your local emergency number. Do not
+          wait for a message from this portal.
+        </p>
+        <Link
+          href="/portal/privacy"
+          className={cx(
+            "rounded-control inline-flex min-h-11 items-center font-semibold text-blue-600 underline",
+            FOCUS_RING,
+          )}
+        >
+          How we use your information
+        </Link>
       </footer>
     </div>
   );

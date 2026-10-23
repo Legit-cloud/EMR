@@ -61,6 +61,9 @@ class Patient(SoftStateModel):
     national_id = models.CharField(max_length=32, blank=True)
     phone = models.CharField(max_length=16, blank=True, validators=[validate_e164])
     email = models.EmailField(blank=True)
+    # Appointment and bill reminders by email. On unless the patient asks us to stop; booking
+    # confirmations are not reminders and are always sent.
+    email_reminders = models.BooleanField(default=True)
     address_line = models.CharField(max_length=200, blank=True)
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=100, blank=True)

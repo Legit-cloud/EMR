@@ -36,6 +36,9 @@ NOT_POLICY_CHECKED = {
     "portal-invoice-pay": PORTAL,
     "portal-payment-verify": PORTAL,
     "portal-profile": PORTAL,
+    "portal-requests": PORTAL,
+    "portal-privacy": PORTAL,
+    "portal-my-information": PORTAL,
 }
 
 

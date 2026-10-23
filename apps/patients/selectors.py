@@ -28,7 +28,7 @@ def contact_details(patient_id) -> dict | None:
     return (
         Patient.objects.active_chart()
         .filter(pk=patient_id)
-        .values("first_name", "last_name", "phone", "email")
+        .values("first_name", "last_name", "phone", "email", "email_reminders")
         .first()
     )
 
@@ -69,6 +69,8 @@ def portal_profile(patient_id) -> dict | None:
     """What a patient may see and correct about themselves in the portal."""
     return (
         Patient.objects.filter(pk=patient_id)
-        .values("first_name", "last_name", "mrn", "date_of_birth", "phone", "email")
+        .values(
+            "first_name", "last_name", "mrn", "date_of_birth", "phone", "email", "email_reminders"
+        )
         .first()
     )

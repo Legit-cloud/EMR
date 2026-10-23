@@ -24,16 +24,17 @@ from rest_framework.views import APIView
 from apps.audit import services as audit
 from apps.billing import selectors as billing
 from apps.billing import services as billing_services
-from apps.core.api.mixins import TenantModelViewSet, TenantScopedAPIMixin
+from apps.core.api.mixins import TenantModelViewSet, TenantReadOnlyViewSet, TenantScopedAPIMixin
 from apps.core.api.permissions import require_verified_tenant_user
 from apps.core.policy import Action
 from apps.patients import selectors as patients
 from apps.pharmacy import selectors as pharmacy
 from apps.scheduling import selectors as scheduling_selectors
 from apps.scheduling import services as scheduling
+from apps.tenants.selectors import tenant_name
 
 from .. import selectors, services
-from ..models import PortalAccount
+from ..models import DataSubjectRequest, PortalAccount
 from ..services import PortalAccountError
 from . import serializers as s
 
@@ -258,9 +259,7 @@ class InvoicesView(PortalView):
 
 
 def _profile(account: PortalAccount) -> dict:
-    row = dict(patients.portal_profile(account.patient_id))
-    row["consents"] = {key: getattr(account, key) for key in PortalAccount.CONSENT_FIELDS}
-    return row
+    return dict(patients.portal_profile(account.patient_id))
 
 
 class ProfileView(PortalView):
@@ -276,16 +275,26 @@ class ProfileView(PortalView):
         data = s.ProfileUpdateSerializer(data=request.data)
         data.is_valid(raise_exception=True)
         body = data.validated_data
-        changed = {}
-        if "phone" in body or "email" in body:
-            services.update_contact(self.account, phone=body.get("phone"), email=body.get("email"))
-            changed["contact"] = [k for k in ("phone", "email") if k in body]
-        if "consents" in body:
-            consents = services.set_consents(self.account, body["consents"])
-            if consents:
-                changed["consents"] = consents
-        if changed:
-            self.record(audit.AuditAction.UPDATE, changed)
+        fields = [k for k in ("phone", "email", "email_reminders") if k in body]
+        if fields:
+            services.update_contact(
+                self.account,
+                phone=body.get("phone"),
+                email=body.get("email"),
+                email_reminders=body.get("email_reminders"),
+            )
+            # What changed, and the reminders choice itself, since that is a choice of the patient.
+            self.record(
+                audit.AuditAction.UPDATE,
+                {
+                    "changed": fields,
+                    **(
+                        {"email_reminders": body["email_reminders"]}
+                        if "email_reminders" in body
+                        else {}
+                    ),
+                },
+            )
         return Response(s.PortalProfileSerializer(_profile(self.account)).data)
 
 
@@ -352,3 +361,116 @@ class PaymentVerifyView(PortalView):
                 }
             ).data
         )
+
+
+# -- the patient's rights (NDPA 2023, ADR 0024) ------------------------------------------------
+
+
+class RequestsView(PortalView):
+    """The patient's own data-protection requests: list them, make a new one."""
+
+    audit_name = "request"
+
+    @extend_schema(responses=s.PortalRequestSerializer(many=True))
+    def get(self, request):
+        self.read()
+        rows = DataSubjectRequest.objects.filter(patient_id=self.patient_id).order_by("-created_at")
+        return Response(s.PortalRequestSerializer(rows, many=True).data)
+
+    @extend_schema(request=s.RequestCreateSerializer, responses={201: s.PortalRequestSerializer})
+    def post(self, request):
+        data = s.RequestCreateSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        made = services.submit_request(
+            self.patient_id,
+            kind=data.validated_data["kind"],
+            details=data.validated_data["details"],
+        )
+        self.record(audit.AuditAction.CREATE, {"request": str(made.pk), "kind": made.kind})
+        return Response(s.PortalRequestSerializer(made).data, status=201)
+
+
+class PrivacyNoticeView(PortalView):
+    """Who is responsible for the patient's information, how to reach them, and for how long it is
+    kept. The wording of the notice itself is in the web app and is versioned with this."""
+
+    audit_name = "privacy"
+
+    @extend_schema(responses=s.PrivacyNoticeSerializer)
+    def get(self, request):
+        return Response(
+            s.PrivacyNoticeSerializer(
+                {
+                    "version": settings.PRIVACY_NOTICE_VERSION,
+                    "controller_name": settings.PRIVACY_CONTROLLER_NAME
+                    or tenant_name(self.account.tenant_id),
+                    "contact_email": settings.PRIVACY_CONTACT_EMAIL,
+                    "retention_years": settings.RECORD_RETENTION_YEARS,
+                    "response_days": settings.DSR_RESPONSE_DAYS,
+                }
+            ).data
+        )
+
+
+class MyInformationView(PortalView):
+    """Everything the portal holds about the patient, as one file they can keep. This is not a
+    copy of the medical record: for that the patient makes an "access" request, which staff
+    answer."""
+
+    audit_name = "export"
+
+    @extend_schema(responses=s.MyInformationSerializer)
+    def get(self, request):
+        self.read({"export": True})
+        data = s.MyInformationSerializer(
+            {
+                "generated_at": timezone.now(),
+                "notice_version": settings.PRIVACY_NOTICE_VERSION,
+                "profile": _profile(self.account),
+                "appointments": scheduling_selectors.patient_appointments(self.patient_id),
+                "prescriptions": pharmacy.patient_prescriptions(self.patient_id),
+                "invoices": billing.patient_invoices(self.patient_id),
+                "requests": DataSubjectRequest.objects.filter(patient_id=self.patient_id),
+            }
+        ).data
+        response = Response(data)
+        response["Content-Disposition"] = 'attachment; filename="my-information.json"'
+        return response
+
+
+class RequestViewSet(TenantReadOnlyViewSet):
+    """Compliance answers patients' data-protection requests. The most overdue come first."""
+
+    model = DataSubjectRequest
+    policy_resource = "portal.request"
+    policy_actions = {"respond": Action.UPDATE}
+    serializer_class = s.StaffRequestSerializer
+
+    def get_base_queryset(self):
+        queryset = super().get_base_queryset()
+        params = self.request.query_params
+        if params.get("status"):
+            queryset = queryset.filter(status=params["status"])
+        if params.get("overdue") == "true":
+            queryset = queryset.filter(status="open", due_on__lt=services.today())
+        return queryset
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        # Names come from the patients module once for the page, not once per row.
+        queryset = self.filter_queryset(self.get_queryset())
+        context["people"] = patients.summaries({r.patient_id for r in queryset[:200]})
+        return context
+
+    @extend_schema(request=s.RespondSerializer, responses=s.StaffRequestSerializer)
+    @action(detail=True, methods=["post"])
+    def respond(self, request, pk=None):
+        data = s.RespondSerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        answered = services.respond_to_request(
+            self.get_object(),
+            status=data.validated_data["status"],
+            note=data.validated_data["note"],
+        )
+        self.audit_write(Action.UPDATE, answered, ["status", "response_note"])
+        return Response(self.get_serializer(answered).data)

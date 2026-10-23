@@ -276,3 +276,22 @@ describe("the rules in the library", () => {
     expect(dischargeNoteError("transferred", "UCH Ibadan")).toBeNull();
   });
 });
+
+describe("a patient who died", () => {
+  it("can be closed as Died, which needs no note here and explains the chart comes first", async () => {
+    renderBoard("nurse", BED_OCCUPIED);
+    const panel = await drawer(/Medical ward, Bed 1/);
+    await userEvent.click(within(panel).getByRole("tab", { name: "Discharge" }));
+    await userEvent.click(within(panel).getByRole("combobox", { name: "Discharge status" }));
+    await userEvent.click(await screen.findByRole("option", { name: "Died" }));
+    expect(
+      within(panel).getByText(/A doctor records the death on the chart first/),
+    ).toBeInTheDocument();
+    await userEvent.click(within(panel).getByRole("button", { name: "Discharge patient" }));
+    await waitFor(() => expect(inpatient.calls.at(-1)?.body).toMatchObject({ status: "died" }));
+  });
+
+  it("needs no note, unlike LAMA and a transfer", () => {
+    expect(dischargeNoteError("died", "")).toBeNull();
+  });
+});

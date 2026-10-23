@@ -27,6 +27,7 @@ describe("visibleNav", () => {
       "Dashboard",
       "Break-glass review",
       "Audit log",
+      "Data requests",
     ]);
   });
 
@@ -46,6 +47,7 @@ describe("visibleNav", () => {
       "Users and roles",
       "Break-glass review",
       "Audit log",
+      "Data requests",
     ]);
   });
 

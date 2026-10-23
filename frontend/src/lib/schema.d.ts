@@ -2317,6 +2317,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/data-requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
+        get: operations["portal_data_requests_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/data-requests/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
+        get: operations["portal_data_requests_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/portal/data-requests/{id}/respond/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
+        post: operations["portal_data_requests_respond_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/home/": {
         parameters: {
             query?: never;
@@ -2368,6 +2419,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/my-information/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Everything the portal holds about the patient, as one file they can keep. This is not a
+         *     copy of the medical record: for that the patient makes an "access" request, which staff
+         *     answer.
+         */
+        get: operations["portal_my_information_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/payments/{reference}/verify/": {
         parameters: {
             query?: never;
@@ -2405,6 +2477,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portal/privacy/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Who is responsible for the patient's information, how to reach them, and for how long it is
+         *     kept. The wording of the notice itself is in the web app and is versioned with this.
+         */
+        get: operations["portal_privacy_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portal/profile/": {
         parameters: {
             query?: never;
@@ -2421,6 +2513,24 @@ export interface paths {
         head?: never;
         /** @description Base for the patient's own endpoints. */
         patch: operations["portal_profile_partial_update"];
+        trace?: never;
+    };
+    "/api/portal/requests/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The patient's own data-protection requests: list them, make a new one. */
+        get: operations["portal_requests_list"];
+        put?: never;
+        /** @description The patient's own data-protection requests: list them, make a new one. */
+        post: operations["portal_requests_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/portal/results/": {
@@ -3448,16 +3558,6 @@ export interface components {
          * @enum {string}
          */
         CodeSystemEnum: "icd10" | "snomed";
-        Consents: {
-            email_reminders: boolean;
-            share_in_facility: boolean;
-            research: boolean;
-        };
-        ConsentsRequest: {
-            email_reminders: boolean;
-            share_in_facility: boolean;
-            research: boolean;
-        };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -3519,6 +3619,23 @@ export interface components {
             stock: components["schemas"]["Stock"] | null;
             my_day: components["schemas"]["MyDay"] | null;
         };
+        /**
+         * @description * `access` - A copy of my records
+         *     * `correction` - Correct something wrong
+         *     * `erasure` - Delete my information
+         *     * `restriction` - Limit how my information is used
+         *     * `objection` - I object to how my information is used
+         *     * `portability` - Move my information elsewhere
+         * @enum {string}
+         */
+        DataRequestKindEnum: "access" | "correction" | "erasure" | "restriction" | "objection" | "portability";
+        /**
+         * @description * `open` - Open
+         *     * `completed` - Completed
+         *     * `refused` - Refused, with a reason
+         * @enum {string}
+         */
+        DataRequestStatusEnum: "open" | "completed" | "refused";
         /**
          * @description * `created_new` - created_new
          *     * `duplicate` - duplicate
@@ -3613,9 +3730,10 @@ export interface components {
          * @description * `discharged` - Discharged
          *     * `lama` - Left against medical advice
          *     * `transferred` - Transferred
+         *     * `died` - Died
          * @enum {string}
          */
-        DischargeStatusEnum: "discharged" | "lama" | "transferred";
+        DischargeStatusEnum: "discharged" | "lama" | "transferred" | "died";
         DispenseRequest: {
             items: {
                 [key: string]: number;
@@ -4143,6 +4261,16 @@ export interface components {
              * @description Set only when the licence expires within 60 days.
              */
             licence_expires_on: string | null;
+        };
+        MyInformation: {
+            /** Format: date-time */
+            generated_at: string;
+            notice_version: string;
+            profile: components["schemas"]["PortalProfile"];
+            appointments: components["schemas"]["PortalAppointment"][];
+            prescriptions: components["schemas"]["PortalPrescription"][];
+            invoices: components["schemas"]["PortalInvoice"][];
+            requests: components["schemas"]["PortalRequest"][];
         };
         /**
          * @description * `open` - Open
@@ -4690,6 +4818,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["StaffProfile"][];
         };
+        PaginatedStaffRequestList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["StaffRequest"][];
+        };
         PaginatedStockBatchList: {
             /** @example 123 */
             count: number;
@@ -4910,6 +5053,7 @@ export interface components {
             national_id?: string;
             phone?: string;
             email?: string;
+            email_reminders?: boolean;
             address_line?: string;
             city?: string;
             state?: string;
@@ -4924,7 +5068,7 @@ export interface components {
         PatchedProfileUpdateRequest: {
             phone?: string;
             email?: string;
-            consents?: components["schemas"]["ConsentsRequest"];
+            email_reminders?: boolean;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -5009,6 +5153,7 @@ export interface components {
             national_id?: string;
             phone?: string;
             email?: string;
+            email_reminders?: boolean;
             address_line?: string;
             city?: string;
             state?: string;
@@ -5043,6 +5188,7 @@ export interface components {
             phone?: string;
             /** Format: email */
             readonly email: string;
+            readonly email_reminders: boolean;
             readonly address_line: string;
             readonly city: string;
             readonly state: string;
@@ -5082,6 +5228,7 @@ export interface components {
             national_id?: string;
             phone?: string;
             email?: string;
+            email_reminders?: boolean;
             address_line?: string;
             city?: string;
             state?: string;
@@ -5109,6 +5256,7 @@ export interface components {
             national_id?: string;
             phone?: string;
             email?: string;
+            email_reminders?: boolean;
             address_line?: string;
             city?: string;
             state?: string;
@@ -5340,7 +5488,21 @@ export interface components {
             date_of_birth: string;
             phone: string;
             email: string;
-            consents: components["schemas"]["Consents"];
+            email_reminders: boolean;
+        };
+        /** @description A request, as the patient who made it sees it. */
+        PortalRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly kind: components["schemas"]["DataRequestKindEnum"];
+            readonly kind_label: string;
+            readonly details: string;
+            readonly status: components["schemas"]["DataRequestStatusEnum"];
+            /** Format: date */
+            readonly due_on: string;
+            readonly response_note: string;
+            /** Format: date-time */
+            readonly created_at: string;
         };
         PortalResult: {
             /** Format: uuid */
@@ -5464,6 +5626,13 @@ export interface components {
          * @enum {string}
          */
         PrescriptionStatusEnum: "draft" | "authorised" | "partially_dispensed" | "dispensed" | "cancelled";
+        PrivacyNotice: {
+            version: string;
+            controller_name: string;
+            contact_email: string;
+            retention_years: number;
+            response_days: number;
+        };
         /**
          * @description * `pending` - Pending
          *     * `partially_received` - Partially received
@@ -5550,6 +5719,11 @@ export interface components {
             /** Format: date-time */
             last_reminder_at: string;
         };
+        RequestCreateRequest: {
+            kind: components["schemas"]["DataRequestKindEnum"];
+            /** @default  */
+            details: string;
+        };
         RescheduleRequest: {
             /** Format: date-time */
             start_at: string;
@@ -5565,6 +5739,16 @@ export interface components {
             /** @default  */
             note: string;
         };
+        RespondRequest: {
+            status: components["schemas"]["RespondStatusEnum"];
+            note: string;
+        };
+        /**
+         * @description * `completed` - completed
+         *     * `refused` - refused
+         * @enum {string}
+         */
+        RespondStatusEnum: "completed" | "refused";
         /**
          * @description * `pharmacy` - Pharmacy
          *     * `consultation` - Consultations
@@ -5707,6 +5891,28 @@ export interface components {
             /** Format: int64 */
             consultation_fee_minor?: number;
             consultation_fee_currency?: string;
+        };
+        /** @description The same request for the compliance team, with who asked and whether it is late. */
+        StaffRequest: {
+            /** Format: uuid */
+            readonly id: string;
+            readonly kind: components["schemas"]["DataRequestKindEnum"];
+            readonly kind_label: string;
+            readonly details: string;
+            /** @default open */
+            readonly status: components["schemas"]["DataRequestStatusEnum"];
+            /** Format: date */
+            readonly due_on: string;
+            readonly response_note: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: uuid */
+            readonly patient: string;
+            readonly patient_name: string;
+            readonly patient_mrn: string;
+            readonly overdue: boolean;
+            /** Format: date-time */
+            readonly handled_at: string | null;
         };
         StaffSummary: {
             doctors: number;
@@ -9338,6 +9544,76 @@ export interface operations {
             };
         };
     };
+    portal_data_requests_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedStaffRequestList"];
+                };
+            };
+        };
+    };
+    portal_data_requests_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRequest"];
+                };
+            };
+        };
+    };
+    portal_data_requests_respond_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RespondRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RespondRequest"];
+                "multipart/form-data": components["schemas"]["RespondRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StaffRequest"];
+                };
+            };
+        };
+    };
     portal_home_retrieve: {
         parameters: {
             query?: never;
@@ -9403,6 +9679,25 @@ export interface operations {
             };
         };
     };
+    portal_my_information_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MyInformation"];
+                };
+            };
+        };
+    };
     portal_payments_verify_create: {
         parameters: {
             query?: never;
@@ -9439,6 +9734,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalPrescription"][];
+                };
+            };
+        };
+    };
+    portal_privacy_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PrivacyNotice"];
                 };
             };
         };
@@ -9483,6 +9797,50 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["PortalProfile"];
+                };
+            };
+        };
+    };
+    portal_requests_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalRequest"][];
+                };
+            };
+        };
+    };
+    portal_requests_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestCreateRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RequestCreateRequest"];
+                "multipart/form-data": components["schemas"]["RequestCreateRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PortalRequest"];
                 };
             };
         };

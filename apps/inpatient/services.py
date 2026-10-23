@@ -102,7 +102,13 @@ def discharge(admission: Admission, *, status: str, note: str = "") -> Admission
     if status not in DischargeStatus.values:
         raise AdmissionRefused("Choose how the patient left.")
     note = note.strip()
-    if status != DischargeStatus.DISCHARGED and len(note) < 5:
+    if status == DischargeStatus.DIED:
+        patient_id = Admission.objects.values_list("patient_id", flat=True).get(pk=admission.pk)
+        if not patients.is_deceased(patient_id):
+            raise AdmissionRefused(
+                "Record the death on the patient's chart first, then close the stay as Died."
+            )
+    elif status != DischargeStatus.DISCHARGED and len(note) < 5:
         raise AdmissionRefused(
             "Note what the patient was told about leaving."
             if status == DischargeStatus.LAMA
@@ -206,9 +212,20 @@ def charge_open_admissions(day: date | None = None) -> int:
 
 
 def finalise_charges(admission: Admission) -> int:
-    """The stay is over: every pending bed-day on the bill becomes final revenue."""
+    """The stay is over: its pending bed-days become final revenue, except the day the patient left.
+
+    The admission day counts and the day of leaving does not (a patient is charged for each night
+    in a bed), unless they came and went on the same day, which is one day. Safe to run twice.
+    """
+    zone = ZoneInfo(settings.INPATIENT_TIME_ZONE)
+    left = admission.discharged_at.astimezone(zone).date() if admission.discharged_at else None
+    arrived = admission.admitted_at.astimezone(zone).date()
     done = 0
-    for charge in WardCharge.objects.filter(admission=admission):
-        line = billing.finalise_line(charge.idempotency_key)
-        done += line is not None
+    for charge in WardCharge.objects.filter(admission=admission, voided=False):
+        if left is not None and charge.charge_date == left and left != arrived:
+            billing.void_line(charge.idempotency_key)
+            charge.voided = True
+            charge.save(update_fields=["voided", "updated_at", "updated_by"])
+            continue
+        done += billing.finalise_line(charge.idempotency_key) is not None
     return done

@@ -5,6 +5,7 @@ from . import views
 
 router = SimpleRouter()
 router.register("accounts", views.AccountViewSet, basename="portal-account")
+router.register("data-requests", views.RequestViewSet, basename="portal-data-request")
 
 urlpatterns = [
     path("home/", views.HomeView.as_view(), name="portal-home"),
@@ -26,5 +27,8 @@ urlpatterns = [
         name="portal-payment-verify",
     ),
     path("profile/", views.ProfileView.as_view(), name="portal-profile"),
+    path("requests/", views.RequestsView.as_view(), name="portal-requests"),
+    path("privacy/", views.PrivacyNoticeView.as_view(), name="portal-privacy"),
+    path("my-information/", views.MyInformationView.as_view(), name="portal-my-information"),
     *router.urls,
 ]

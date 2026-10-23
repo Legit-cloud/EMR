@@ -4424,6 +4424,90 @@ paths:
               schema:
                 $ref: '#/components/schemas/PortalAppointment'
           description: ''
+  /api/portal/data-requests/:
+    get:
+      operationId: portal_data_requests_list
+      description: Compliance answers patients' data-protection requests. The most
+        overdue come first.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedStaffRequestList'
+          description: ''
+  /api/portal/data-requests/{id}/:
+    get:
+      operationId: portal_data_requests_retrieve
+      description: Compliance answers patients' data-protection requests. The most
+        overdue come first.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffRequest'
+          description: ''
+  /api/portal/data-requests/{id}/respond/:
+    post:
+      operationId: portal_data_requests_respond_create
+      description: Compliance answers patients' data-protection requests. The most
+        overdue come first.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RespondRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RespondRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RespondRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StaffRequest'
+          description: ''
   /api/portal/home/:
     get:
       operationId: portal_home_retrieve
@@ -4494,6 +4578,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/PayStart'
           description: ''
+  /api/portal/my-information/:
+    get:
+      operationId: portal_my_information_retrieve
+      description: |-
+        Everything the portal holds about the patient, as one file they can keep. This is not a
+        copy of the medical record: for that the patient makes an "access" request, which staff
+        answer.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyInformation'
+          description: ''
   /api/portal/payments/{reference}/verify/:
     post:
       operationId: portal_payments_verify_create
@@ -4536,6 +4639,24 @@ paths:
                 items:
                   $ref: '#/components/schemas/PortalPrescription'
           description: ''
+  /api/portal/privacy/:
+    get:
+      operationId: portal_privacy_retrieve
+      description: |-
+        Who is responsible for the patient's information, how to reach them, and for how long it is
+        kept. The wording of the notice itself is in the web app and is versioned with this.
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PrivacyNotice'
+          description: ''
   /api/portal/profile/:
     get:
       operationId: portal_profile_retrieve
@@ -4577,6 +4698,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PortalProfile'
+          description: ''
+  /api/portal/requests/:
+    get:
+      operationId: portal_requests_list
+      description: 'The patient''s own data-protection requests: list them, make a
+        new one.'
+      tags:
+      - portal
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PortalRequest'
+          description: ''
+    post:
+      operationId: portal_requests_create
+      description: 'The patient''s own data-protection requests: list them, make a
+        new one.'
+      tags:
+      - portal
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestCreateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RequestCreateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RequestCreateRequest'
+        required: true
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PortalRequest'
           description: ''
   /api/portal/results/:
     get:
@@ -6735,32 +6903,6 @@ components:
       description: |-
         * `icd10` - ICD-10
         * `snomed` - SNOMED CT
-    Consents:
-      type: object
-      properties:
-        email_reminders:
-          type: boolean
-        share_in_facility:
-          type: boolean
-        research:
-          type: boolean
-      required:
-      - email_reminders
-      - research
-      - share_in_facility
-    ConsentsRequest:
-      type: object
-      properties:
-        email_reminders:
-          type: boolean
-        share_in_facility:
-          type: boolean
-        research:
-          type: boolean
-      required:
-      - email_reminders
-      - research
-      - share_in_facility
     ConsultationNote:
       type: object
       description: |-
@@ -6901,6 +7043,32 @@ components:
       - popular_services
       - range
       - stock
+    DataRequestKindEnum:
+      enum:
+      - access
+      - correction
+      - erasure
+      - restriction
+      - objection
+      - portability
+      type: string
+      description: |-
+        * `access` - A copy of my records
+        * `correction` - Correct something wrong
+        * `erasure` - Delete my information
+        * `restriction` - Limit how my information is used
+        * `objection` - I object to how my information is used
+        * `portability` - Move my information elsewhere
+    DataRequestStatusEnum:
+      enum:
+      - open
+      - completed
+      - refused
+      type: string
+      description: |-
+        * `open` - Open
+        * `completed` - Completed
+        * `refused` - Refused, with a reason
     DecisionEnum:
       enum:
       - created_new
@@ -7081,11 +7249,13 @@ components:
       - discharged
       - lama
       - transferred
+      - died
       type: string
       description: |-
         * `discharged` - Discharged
         * `lama` - Left against medical advice
         * `transferred` - Transferred
+        * `died` - Died
     DispenseRequest:
       type: object
       properties:
@@ -8314,6 +8484,40 @@ components:
       - draft_prescriptions
       - licence_expires_on
       - open_notes
+    MyInformation:
+      type: object
+      properties:
+        generated_at:
+          type: string
+          format: date-time
+        notice_version:
+          type: string
+        profile:
+          $ref: '#/components/schemas/PortalProfile'
+        appointments:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalAppointment'
+        prescriptions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalPrescription'
+        invoices:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalInvoice'
+        requests:
+          type: array
+          items:
+            $ref: '#/components/schemas/PortalRequest'
+      required:
+      - appointments
+      - generated_at
+      - invoices
+      - notice_version
+      - prescriptions
+      - profile
+      - requests
     NoteStatusEnum:
       enum:
       - open
@@ -9281,6 +9485,29 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StaffProfile'
+    PaginatedStaffRequestList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/StaffRequest'
     PaginatedStockBatchList:
       type: object
       required:
@@ -9678,6 +9905,8 @@ components:
             maxLength: 254
           - type: string
             maxLength: 0
+        email_reminders:
+          type: boolean
         address_line:
           type: string
           maxLength: 200
@@ -9716,8 +9945,8 @@ components:
             format: email
           - type: string
             maxLength: 0
-        consents:
-          $ref: '#/components/schemas/ConsentsRequest'
+        email_reminders:
+          type: boolean
     PatchedStaffProfileRequest:
       type: object
       description: |-
@@ -9891,6 +10120,8 @@ components:
             maxLength: 254
           - type: string
             maxLength: 0
+        email_reminders:
+          type: boolean
         address_line:
           type: string
           maxLength: 200
@@ -9990,6 +10221,9 @@ components:
           type: string
           format: email
           readOnly: true
+        email_reminders:
+          type: boolean
+          readOnly: true
         address_line:
           type: string
           readOnly: true
@@ -10038,6 +10272,7 @@ components:
       - date_of_birth
       - deceased_at
       - email
+      - email_reminders
       - first_name
       - id
       - last_name
@@ -10103,6 +10338,8 @@ components:
             maxLength: 254
           - type: string
             maxLength: 0
+        email_reminders:
+          type: boolean
         address_line:
           type: string
           maxLength: 200
@@ -10179,6 +10416,8 @@ components:
             maxLength: 254
           - type: string
             maxLength: 0
+        email_reminders:
+          type: boolean
         address_line:
           type: string
           maxLength: 200
@@ -10721,16 +10960,58 @@ components:
           type: string
         email:
           type: string
-        consents:
-          $ref: '#/components/schemas/Consents'
+        email_reminders:
+          type: boolean
       required:
-      - consents
       - date_of_birth
       - email
+      - email_reminders
       - first_name
       - last_name
       - mrn
       - phone
+    PortalRequest:
+      type: object
+      description: A request, as the patient who made it sees it.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/DataRequestKindEnum'
+          readOnly: true
+        kind_label:
+          type: string
+          readOnly: true
+        details:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DataRequestStatusEnum'
+          readOnly: true
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+        response_note:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - details
+      - due_on
+      - id
+      - kind
+      - kind_label
+      - response_note
+      - status
     PortalResult:
       type: object
       properties:
@@ -11048,6 +11329,25 @@ components:
         * `partially_dispensed` - Partially dispensed
         * `dispensed` - Dispensed
         * `cancelled` - Cancelled
+    PrivacyNotice:
+      type: object
+      properties:
+        version:
+          type: string
+        controller_name:
+          type: string
+        contact_email:
+          type: string
+        retention_years:
+          type: integer
+        response_days:
+          type: integer
+      required:
+      - contact_email
+      - controller_name
+      - response_days
+      - retention_years
+      - version
     PurchaseOrderStatusEnum:
       enum:
       - pending
@@ -11268,6 +11568,17 @@ components:
       required:
       - channels
       - last_reminder_at
+    RequestCreateRequest:
+      type: object
+      properties:
+        kind:
+          $ref: '#/components/schemas/DataRequestKindEnum'
+        details:
+          type: string
+          default: ''
+          maxLength: 1000
+      required:
+      - kind
     RescheduleRequest:
       type: object
       properties:
@@ -11297,6 +11608,26 @@ components:
           maxLength: 2000
       required:
       - decision
+    RespondRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/RespondStatusEnum'
+        note:
+          type: string
+          minLength: 1
+          maxLength: 1000
+      required:
+      - note
+      - status
+    RespondStatusEnum:
+      enum:
+      - completed
+      - refused
+      type: string
+      description: |-
+        * `completed` - completed
+        * `refused` - refused
     RevenueCategoryEnum:
       enum:
       - pharmacy
@@ -11604,6 +11935,73 @@ components:
       required:
       - staff_type
       - user
+    StaffRequest:
+      type: object
+      description: The same request for the compliance team, with who asked and whether
+        it is late.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        kind:
+          allOf:
+          - $ref: '#/components/schemas/DataRequestKindEnum'
+          readOnly: true
+        kind_label:
+          type: string
+          readOnly: true
+        details:
+          type: string
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/DataRequestStatusEnum'
+          readOnly: true
+          default: open
+        due_on:
+          type: string
+          format: date
+          readOnly: true
+        response_note:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        patient:
+          type: string
+          format: uuid
+          readOnly: true
+        patient_name:
+          type: string
+          readOnly: true
+        patient_mrn:
+          type: string
+          readOnly: true
+        overdue:
+          type: boolean
+          readOnly: true
+        handled_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - created_at
+      - details
+      - due_on
+      - handled_at
+      - id
+      - kind
+      - kind_label
+      - overdue
+      - patient
+      - patient_mrn
+      - patient_name
+      - response_note
+      - status
     StaffSummary:
       type: object
       properties:

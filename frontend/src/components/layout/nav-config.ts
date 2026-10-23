@@ -9,6 +9,7 @@
 import {
   Bed,
   BookOpen,
+  FileLock,
   CalendarBlank,
   ClipboardText,
   type Icon,
@@ -156,6 +157,12 @@ export const NAV: NavGroup[] = [
         label: "Audit log",
         href: "/audit",
         icon: ClipboardText,
+        roles: ["compliance_officer", "tenant_admin"],
+      },
+      {
+        label: "Data requests",
+        href: "/requests",
+        icon: FileLock,
         roles: ["compliance_officer", "tenant_admin"],
       },
     ],

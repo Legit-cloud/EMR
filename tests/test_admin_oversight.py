@@ -38,6 +38,7 @@ ADMINISTRATION = {
     "inpatient.bed",
     "inpatient.ward",
     "portal.account",
+    "portal.request",
     "scheduling.availabilitywindow",
     "staff.shift",
     "staff.staffprofile",

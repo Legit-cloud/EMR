@@ -12,7 +12,7 @@ class PortalConfig(AppConfig):
         from apps.patients.events import PATIENT_DECEASED
 
         from . import tasks
-        from .models import PortalAccount
+        from .models import DataSubjectRequest, PortalAccount
 
         events.subscribe(PATIENT_DECEASED, tasks.revoke_portal_access_for_deceased_patient)
 
@@ -24,5 +24,15 @@ class PortalConfig(AppConfig):
             grants=[
                 policy.grant({Role.FRONT_DESK, Role.TENANT_ADMIN}, {Action.VIEW}),
                 policy.grant({Role.FRONT_DESK, Role.TENANT_ADMIN}, {Action.CREATE, Action.UPDATE}),
+            ],
+        )
+        # Patients' data-protection requests are answered by compliance, with the admin as backup.
+        policy.register(
+            "portal.request",
+            model=DataSubjectRequest,
+            grants=[
+                policy.grant(
+                    {Role.COMPLIANCE_OFFICER, Role.TENANT_ADMIN}, {Action.VIEW, Action.UPDATE}
+                )
             ],
         )

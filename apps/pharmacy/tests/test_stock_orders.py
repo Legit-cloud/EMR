@@ -135,6 +135,8 @@ def test_placing_an_order_emails_the_vendor_and_lists_it(
     (message,) = [m for m in mail.outbox if order["reference"] in m.subject]
     assert message.to == ["orders@medsupply.example.test"]
     assert "Paracetamol" in message.body
+    assert "Dear MedSupply Ltd" in message.body
+    assert f"Quote {order['reference']}" in message.body  # the order number goes on the invoice
 
     listed = pharmacist.get(ORDERS).json()
     assert listed["count"] == 1
