@@ -37,6 +37,7 @@ STAFF = [
     ("demo-billing", Role.BILLING_OFFICER),
     ("demo-finance", Role.FINANCE),
     ("demo-compliance", Role.COMPLIANCE_OFFICER),
+    ("demo-lab", Role.LAB_TECHNICIAN),
 ]
 
 
@@ -46,12 +47,20 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("--password", required=True, help="Password for every demo user.")
         parser.add_argument("--patients", type=int, default=200)
+        parser.add_argument(
+            "--add-hospital",
+            action="store_true",
+            help="Top up an existing demo tenant with the lab user, a ward, tests and a claim, "
+            "and set the demo users' password.",
+        )
 
-    def handle(self, *args, password, patients, **options):
+    def handle(self, *args, password, patients, add_hospital, **options):
         if not settings.DEBUG:
             raise CommandError("Demo data is only for development (DEBUG must be on).")
         if Tenant.objects.filter(slug="demo-clinic").exists():
-            raise CommandError("The demo tenant already exists.")
+            if not add_hospital:
+                raise CommandError("The demo tenant already exists (use --add-hospital).")
+            return self._top_up(password)
         rng = random.Random(42)
         with transaction.atomic():
             tenant = Tenant.objects.create(name="Demo Clinic", slug="demo-clinic")
@@ -66,6 +75,7 @@ class Command(BaseCommand):
                 self._physician(users["demo-doctor"], facility, dept)
                 self._patients(rng, patients)
                 self._pharmacy()
+                self._hospital(users)
         tokens = {
             name: ApiToken.issue(users[name], ttl=timedelta(days=1), mfa_verified=True)[1]
             for name in ("demo-doctor", "demo-desk")
@@ -142,3 +152,112 @@ class Command(BaseCommand):
                 expiry_date=date(2030, 1, 1),
                 quantity_on_hand=10_000,
             )
+
+    def _hospital(self, users):
+        """A ward with an admitted patient, tests and scans at each stage, and an insurer claim."""
+        from apps.billing import claims
+        from apps.billing import services as billing
+        from apps.billing.models import Insurer
+        from apps.core.money import Money
+        from apps.diagnostics import services as diagnostics
+        from apps.diagnostics.models import Investigation
+        from apps.inpatient import services as inpatient
+        from apps.inpatient.models import Bed, Ward
+
+        facility = Facility.objects.get()
+        ward = Ward.objects.create(
+            facility=facility, name="Medical ward", daily_charge_minor=800_000
+        )
+        beds = [Bed.objects.create(ward=ward, label=f"Bed {n}") for n in range(1, 5)]
+        people = list(Patient.objects.order_by("created_at")[:4])
+        # A patient with no earlier bill, so the insurer can still be set on the invoice.
+        insured = Patient.objects.create(
+            first_name="Ibrahim", last_name="Claimant", date_of_birth=date(1975, 5, 5), sex="male"
+        )
+        doctor, lab = users["demo-doctor"], users["demo-lab"]
+        tenant_id = doctor.tenant_id
+
+        with tenant_context(tenant_id, users["demo-nurse"].pk):
+            inpatient.admit(patient_id=people[0].pk, bed=beds[0], reason="Severe malaria")
+
+        fbc = Investigation.objects.create(
+            kind="lab", name="Full blood count", code="58410-2", unit="g/dL",
+            reference_range="12 - 16", price_minor=450_000,
+        )  # fmt: skip
+        malaria = Investigation.objects.create(
+            kind="lab", name="Malaria parasite test", price_minor=150_000
+        )
+        xray = Investigation.objects.create(kind="imaging", name="Chest X-ray", price_minor=900_000)
+
+        def place(patient, test):
+            with tenant_context(tenant_id, doctor.pk):
+                order = diagnostics.place_order(
+                    patient_id=patient.pk, investigation=test, reason="Fever", priority="routine"
+                )
+                # Put the charge on the bill now rather than waiting for the worker.
+                billing.add_line(
+                    patient_id=patient.pk,
+                    source="diagnostics.order",
+                    source_id=order.pk,
+                    description=test.name,
+                    quantity=1,
+                    unit_price=order.unit_price,
+                    idempotency_key=diagnostics.billing_key(order.pk),
+                    revenue_category="laboratory" if test.kind == "lab" else "imaging",
+                )
+            return order
+
+        place(people[1], fbc)  # waiting
+        done = place(people[2], malaria)  # resulted, waiting for a doctor to review
+        scan = place(people[3], xray)  # resulted and reviewed, so the patient can see it
+        with tenant_context(tenant_id, lab.pk):
+            diagnostics.record_result(done, value="Parasites seen", flag="abnormal")
+            diagnostics.record_result(scan, report="Clear lung fields. No effusion.", flag="normal")
+            billing.finalise_line(diagnostics.billing_key(done.pk))
+            billing.finalise_line(diagnostics.billing_key(scan.pk))
+        with tenant_context(tenant_id, doctor.pk):
+            diagnostics.review_result(scan)
+
+        hmo = Insurer.objects.create(name="Demo HMO", code="demo-hmo")
+        with tenant_context(tenant_id, users["demo-billing"].pk):
+            line = billing.add_line(
+                patient_id=insured.pk,
+                source="demo",
+                source_id="claim",
+                description="Surgical consultation",
+                quantity=1,
+                unit_price=Money(5_000_000, "NGN"),
+                idempotency_key="demo-claim-line",
+            )
+            billing.set_coverage(line.invoice, insurer=hmo, coverage_bp=8000)
+            billing.finalise_line("demo-claim-line")
+            claim = claims.create_claim(line.invoice)
+            claims.submit(claim, insurer_reference="HMO-DEMO-1")
+
+    def _top_up(self, password):
+        from apps.inpatient.models import Ward
+
+        tenant = Tenant.objects.get(slug="demo-clinic")
+        User = get_user_model()
+        with transaction.atomic():
+            users = {u.username: u for u in User.objects.filter(tenant=tenant)}
+            if "demo-lab" not in users:
+                users["demo-lab"] = User.objects.create_user(
+                    username="demo-lab",
+                    password=password,
+                    tenant=tenant,
+                    email="demo-lab@example.test",
+                    first_name="Lab",
+                    last_name="Demo",
+                )
+                with tenant_context(tenant.id, users["demo-admin"].pk):
+                    RoleAssignment.objects.create(user=users["demo-lab"], role=Role.LAB_TECHNICIAN)
+            for user in users.values():
+                user.set_password(password)
+                user.save(update_fields=["password"])
+            with tenant_context(tenant.id, users["demo-admin"].pk):
+                if Ward.objects.exists():
+                    self.stdout.write("The ward and tests are already there.")
+                else:
+                    self._hospital(users)
+        self.stdout.write(f"Topped up {tenant.slug}. Users: " + ", ".join(sorted(users)))
