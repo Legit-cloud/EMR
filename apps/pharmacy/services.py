@@ -16,6 +16,7 @@ from apps.core.errors import DomainError
 from apps.core.tenancy import get_current_user_id
 from apps.notifications import services as notifications
 from apps.patients import selectors as patients
+from apps.tenants.selectors import tenant_name
 
 from . import signing
 from .events import PRESCRIPTION_AUTHORISED, PRESCRIPTION_CANCELLED, PRESCRIPTION_DISPENSED
@@ -341,8 +342,14 @@ def place_order(*, vendor: Vendor, lines: list[dict], note: str = "") -> Purchas
             to=vendor.email,
             subject=f"Purchase order {order_reference(order)}",
             body=(
-                f"Please supply the following under order {order_reference(order)}:\n\n{rows}\n"
+                f"Dear {vendor.name},\n\n"
+                f"Please supply the following to {tenant_name(order.tenant_id) or 'us'} under "
+                f"purchase order {order_reference(order)}:\n\n{rows}\n"
                 + (f"\nNote: {note}\n" if note else "")
+                + "\nPlease reply to confirm that you can supply this and when it will arrive. "
+                f"Quote {order_reference(order)} on your delivery note and your invoice, and "
+                "deliver only what is listed. Deliveries that do not match this order may be "
+                "refused.\n\nThank you.\n"
             ),
             purpose="purchase_order",
             related_object=f"pharmacy.purchaseorder:{order.pk}",

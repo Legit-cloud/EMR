@@ -48,6 +48,7 @@ class PatientSerializer(serializers.ModelSerializer):
             "national_id",
             "phone",
             "email",
+            "email_reminders",
             "address_line",
             "city",
             "state",

@@ -15,28 +15,6 @@ export type PortalPrescription = Schemas["PortalPrescription"];
 export type PortalInvoice = Schemas["PortalInvoice"];
 export type PortalProfile = Schemas["PortalProfile"];
 export type PortalHome = Schemas["PortalHome"];
-export type ConsentKey = keyof Schemas["Consents"];
-
-export const CONSENTS: { key: ConsentKey; label: string; explain: string }[] = [
-  {
-    key: "email_reminders",
-    label: "Email reminders",
-    explain: "We email you the same reminders, with your appointment calendar file.",
-  },
-  {
-    key: "share_in_facility",
-    label: "Share my record with the clinicians treating me",
-    explain:
-      "Doctors and nurses involved in your care here can see your record. Turning this off may slow your care.",
-  },
-  {
-    key: "research",
-    label: "Use my details, with my name removed, to improve care",
-    explain:
-      "Your information is never used with your name attached. This is optional and does not change your care.",
-  },
-];
-
 // -- queries -----------------------------------------------------------------------------------
 
 export const useHome = () =>
@@ -197,3 +175,96 @@ export const PAYMENT_OUTCOME: Record<
       "We received your payment and are checking it. The billing office will contact you if anything is needed.",
   },
 };
+
+// -- data protection: the patient's rights and the privacy notice (docs/adr/0024) --------------
+
+export type PortalRequest = Schemas["PortalRequest"];
+export type RequestKind = Schemas["DataRequestKindEnum"];
+export type PrivacyNotice = Schemas["PrivacyNotice"];
+
+/** What a patient can ask for, in the words they would use. */
+export const REQUEST_KINDS: {
+  value: RequestKind;
+  label: string;
+  needsDetails: boolean;
+  help: string;
+}[] = [
+  {
+    value: "access",
+    label: "A copy of my records",
+    needsDetails: false,
+    help: "We will give you a copy of the information we hold about you.",
+  },
+  {
+    value: "correction",
+    label: "Correct something that is wrong",
+    needsDetails: true,
+    help: "Tell us what is wrong and what it should say.",
+  },
+  {
+    value: "erasure",
+    label: "Delete my information",
+    needsDetails: false,
+    help: "We keep medical records for the time the law requires, so we may not be able to delete everything. We will tell you what we can do and why.",
+  },
+  {
+    value: "restriction",
+    label: "Limit how my information is used",
+    needsDetails: true,
+    help: "Tell us what you would like us to stop doing.",
+  },
+  {
+    value: "objection",
+    label: "I object to how my information is used",
+    needsDetails: true,
+    help: "Tell us what you object to and why.",
+  },
+  {
+    value: "portability",
+    label: "Move my information to another provider",
+    needsDetails: false,
+    help: "We will give you your information in a form you can pass on.",
+  },
+];
+
+export const useRequests = () =>
+  useQuery({
+    queryKey: ["portal", "requests"],
+    queryFn: () => unwrap(api.GET("/api/portal/requests/")),
+    retry: false,
+  });
+
+export const usePrivacyNotice = () =>
+  useQuery({
+    queryKey: ["portal", "privacy"],
+    queryFn: () => unwrap(api.GET("/api/portal/privacy/")),
+    retry: false,
+    staleTime: 10 * 60_000,
+  });
+
+export function useSubmitRequest() {
+  const refresh = useRefresh();
+  return useMutation({
+    mutationFn: (body: Schemas["RequestCreateRequest"]) =>
+      unwrap(api.POST("/api/portal/requests/", { body })),
+    onSettled: () => refresh(),
+    meta: { quietErrors: true },
+  });
+}
+
+/** Save everything the portal holds about the patient as a file on their device. */
+export async function downloadMyInformation(): Promise<void> {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? "";
+  const response = await globalThis.fetch(`${base}/api/portal/my-information/`, {
+    credentials: "same-origin",
+  });
+  if (!response.ok) throw new Error("Your information could not be downloaded.");
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "my-information.json";
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}

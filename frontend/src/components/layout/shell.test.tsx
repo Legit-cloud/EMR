@@ -59,7 +59,7 @@ describe("AppShell", () => {
     const links = within(mainNav())
       .getAllByRole("link")
       .map((link) => link.textContent);
-    expect(links).toEqual(["Dashboard", "Break-glass review", "Audit log"]);
+    expect(links).toEqual(["Dashboard", "Break-glass review", "Audit log", "Data requests"]);
   });
 
   it("collapses to an icon rail and remembers it", async () => {

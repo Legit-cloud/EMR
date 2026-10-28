@@ -228,3 +228,14 @@ def test_a_reminder_asks_only_for_the_patients_share_not_the_insurers(
 
 def test_the_default_gap_between_reminders_is_three_days(settings):
     assert settings.BILLING_REMINDER_INTERVAL_HOURS == 72
+
+
+def test_a_reminder_is_refused_when_the_patient_has_asked_to_stop_reminders(
+    billing, owed, ctx, reachable
+):
+    with ctx():
+        type(reachable).all_tenants.filter(pk=reachable.pk).update(email_reminders=False)
+    response = billing.post(f"{INVOICES}{owed.pk}/remind/")
+    assert response.status_code == 409
+    assert "asked not to receive reminders" in response.json()["error"]["message"]
+    assert mail.outbox == []

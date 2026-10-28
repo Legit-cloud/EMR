@@ -2,7 +2,8 @@ from rest_framework import serializers
 
 from apps.core.api.serializers import CleanModelSerializer
 
-from ..models import PortalAccount
+from ..models import DataSubjectRequest, PortalAccount, RequestKind
+from ..services import is_overdue
 
 STATUSES = [
     "booked",
@@ -111,12 +112,6 @@ class PortalInvoiceSerializer(serializers.Serializer):
     lines = PortalInvoiceLineSerializer(many=True)
 
 
-class ConsentsSerializer(serializers.Serializer):
-    email_reminders = serializers.BooleanField()
-    share_in_facility = serializers.BooleanField()
-    research = serializers.BooleanField()
-
-
 class PortalProfileSerializer(serializers.Serializer):
     first_name = serializers.CharField()
     last_name = serializers.CharField()
@@ -124,13 +119,14 @@ class PortalProfileSerializer(serializers.Serializer):
     date_of_birth = serializers.DateField()
     phone = serializers.CharField(allow_blank=True)
     email = serializers.CharField(allow_blank=True)
-    consents = ConsentsSerializer()
+    # Appointment and bill reminders by email. Booking confirmations are always sent.
+    email_reminders = serializers.BooleanField()
 
 
 class ProfileUpdateSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=16, required=False, allow_blank=True)
     email = serializers.EmailField(required=False, allow_blank=True)
-    consents = ConsentsSerializer(required=False)
+    email_reminders = serializers.BooleanField(required=False)
 
 
 class PortalHomeSerializer(serializers.Serializer):
@@ -156,3 +152,82 @@ class PaymentResultSerializer(serializers.Serializer):
     reference = serializers.CharField()
     status = serializers.ChoiceField(choices=["pending", "succeeded", "failed", "review"])
     amount_minor = serializers.IntegerField()
+
+
+# -- data-protection requests and the privacy notice ----------------------------------------
+
+
+class PortalRequestSerializer(serializers.ModelSerializer):
+    """A request, as the patient who made it sees it."""
+
+    kind_label = serializers.CharField(source="get_kind_display", read_only=True)
+
+    class Meta:
+        model = DataSubjectRequest
+        fields = [
+            "id",
+            "kind",
+            "kind_label",
+            "details",
+            "status",
+            "due_on",
+            "response_note",
+            "created_at",
+        ]
+        read_only_fields = fields
+
+
+class RequestCreateSerializer(serializers.Serializer):
+    kind = serializers.ChoiceField(choices=RequestKind.choices)
+    details = serializers.CharField(max_length=1000, required=False, allow_blank=True, default="")
+
+
+class StaffRequestSerializer(PortalRequestSerializer):
+    """The same request for the compliance team, with who asked and whether it is late."""
+
+    patient_name = serializers.SerializerMethodField()
+    patient_mrn = serializers.SerializerMethodField()
+    overdue = serializers.SerializerMethodField()
+
+    class Meta(PortalRequestSerializer.Meta):
+        fields = [
+            *PortalRequestSerializer.Meta.fields,
+            "patient",
+            "patient_name",
+            "patient_mrn",
+            "overdue",
+            "handled_at",
+        ]
+        read_only_fields = fields
+
+    def get_patient_name(self, request) -> str:
+        return self.context.get("people", {}).get(request.patient_id, {}).get("name", "")
+
+    def get_patient_mrn(self, request) -> str:
+        return self.context.get("people", {}).get(request.patient_id, {}).get("mrn", "")
+
+    def get_overdue(self, request) -> bool:
+        return is_overdue(request)
+
+
+class RespondSerializer(serializers.Serializer):
+    status = serializers.ChoiceField(choices=["completed", "refused"])
+    note = serializers.CharField(max_length=1000)
+
+
+class PrivacyNoticeSerializer(serializers.Serializer):
+    version = serializers.CharField()
+    controller_name = serializers.CharField()
+    contact_email = serializers.CharField(allow_blank=True)
+    retention_years = serializers.IntegerField()
+    response_days = serializers.IntegerField()
+
+
+class MyInformationSerializer(serializers.Serializer):
+    generated_at = serializers.DateTimeField()
+    notice_version = serializers.CharField()
+    profile = PortalProfileSerializer()
+    appointments = PortalAppointmentSerializer(many=True)
+    prescriptions = PortalPrescriptionSerializer(many=True)
+    invoices = PortalInvoiceSerializer(many=True)
+    requests = PortalRequestSerializer(many=True)

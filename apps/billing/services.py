@@ -347,6 +347,8 @@ def send_payment_reminder(invoice: Invoice) -> list[str]:
     contact = patients.contact_details(invoice.patient_id)
     if not contact or not contact["email"]:
         raise ReminderRefused("The patient has no email address on file.")
+    if not contact["email_reminders"]:
+        raise ReminderRefused("The patient has asked not to receive reminders.")
     if invoice.reminder_count >= settings.BILLING_REMINDER_MAX:
         raise ReminderRefused(
             f"{invoice.reminder_count} reminders have already been sent. "

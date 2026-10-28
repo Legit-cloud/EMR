@@ -1,12 +1,12 @@
 import { http, HttpResponse } from "msw";
 
 import type {
-  ConsentKey,
   PortalAppointment,
   PortalHome,
   PortalInvoice,
   PortalPrescription,
   PortalProfile,
+  PortalRequest,
   PortalResult,
   PortalSlot,
 } from "@/lib/portal";
@@ -30,6 +30,7 @@ type State = {
   invoices: PortalInvoice[];
   profile: PortalProfile;
   /** Payments started at the gateway. A test sets `outcome` to say what the gateway will report. */
+  requests: PortalRequest[];
   intents: Record<
     string,
     { invoice: string; amount: number; outcome: "pending" | "paid" | "done" | "flagged" }
@@ -49,11 +50,6 @@ export const INVOICE_PAID = "pi-2";
 export const SLOT_ONE = "slot-1";
 
 function seeded(): State {
-  const consents: Record<ConsentKey, boolean> = {
-    email_reminders: false,
-    share_in_facility: true,
-    research: false,
-  };
   return {
     appointments: [
       {
@@ -218,8 +214,9 @@ function seeded(): State {
       date_of_birth: "1991-04-12",
       phone: "+2348035550123",
       email: "chioma@example.test",
-      consents,
+      email_reminders: true,
     },
+    requests: [],
     intents: {},
     calls: [],
     next: 10,
@@ -385,6 +382,68 @@ export const portalHandlers = [
     });
   }),
 
+  http.get("*/api/portal/requests/", () => refusal() ?? HttpResponse.json(portal.requests)),
+
+  http.post("*/api/portal/requests/", async ({ request }) => {
+    const refused = refusal();
+    if (refused) return refused;
+    const body = (await request.json()) as { kind: PortalRequest["kind"]; details?: string };
+    portal.calls.push({ path: "request", body });
+    if (
+      ["correction", "restriction", "objection"].includes(body.kind) &&
+      (body.details ?? "").trim().length < 5
+    ) {
+      return failure(409, "portal_account_refused", "Tell us what you would like changed or why.");
+    }
+    if (portal.requests.some((r) => r.kind === body.kind && r.status === "open")) {
+      return failure(
+        409,
+        "portal_account_refused",
+        "You already have an open request of this kind.",
+      );
+    }
+    const made: PortalRequest = {
+      id: `req-${portal.next++}`,
+      kind: body.kind,
+      kind_label: REQUEST_LABEL[body.kind],
+      details: body.details ?? "",
+      status: "open",
+      due_on: new Date(Date.now() + 30 * 86_400_000).toISOString().slice(0, 10),
+      response_note: "",
+      created_at: new Date().toISOString(),
+    };
+    portal.requests.unshift(made);
+    return HttpResponse.json(made, { status: 201 });
+  }),
+
+  http.get("*/api/portal/privacy/", () => {
+    const refused = refusal();
+    return (
+      refused ??
+      HttpResponse.json({
+        version: "2026-10-23",
+        controller_name: "Example Hospital",
+        contact_email: "privacy@example.test",
+        retention_years: 10,
+        response_days: 30,
+      })
+    );
+  }),
+
+  http.get("*/api/portal/my-information/", () => {
+    const refused = refusal();
+    if (refused) return refused;
+    portal.calls.push({ path: "export", body: null });
+    return HttpResponse.json(
+      {
+        generated_at: new Date().toISOString(),
+        profile: portal.profile,
+        requests: portal.requests,
+      },
+      { headers: { "Content-Disposition": 'attachment; filename="my-information.json"' } },
+    );
+  }),
+
   http.get("*/api/portal/profile/", () => refusal() ?? HttpResponse.json(portal.profile)),
 
   http.patch("*/api/portal/profile/", async ({ request }) => {
@@ -402,8 +461,17 @@ export const portalHandlers = [
     Object.assign(portal.profile, {
       ...(body.phone !== undefined && { phone: body.phone }),
       ...(body.email !== undefined && { email: body.email }),
-      ...(body.consents && { consents: { ...portal.profile.consents, ...body.consents } }),
+      ...(body.email_reminders !== undefined && { email_reminders: body.email_reminders }),
     });
     return HttpResponse.json(portal.profile);
   }),
 ];
+
+const REQUEST_LABEL: Record<PortalRequest["kind"], string> = {
+  access: "A copy of my records",
+  correction: "Correct something wrong",
+  erasure: "Delete my information",
+  restriction: "Limit how my information is used",
+  objection: "I object to how my information is used",
+  portability: "Move my information elsewhere",
+};

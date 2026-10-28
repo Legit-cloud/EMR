@@ -412,7 +412,8 @@ def send_due_reminders(now=None) -> int:
 
 def _send_reminder(appointment: Appointment) -> None:
     contact, doctor, when = _message_parts(appointment)
-    if contact is None:
+    # A patient who has asked us to stop reminders still gets booking and change notices.
+    if contact is None or not contact["email_reminders"]:
         return
     related = f"scheduling.appointment:{appointment.pk}"
     text = f"Reminder: appointment with {doctor} on {when}."

@@ -20,6 +20,10 @@ export const DISCHARGE_STATUS: Record<DischargeStatus, { label: string; hint: st
   discharged: { label: "Discharged", hint: "Medically fit to go home." },
   lama: { label: "Left against medical advice", hint: "The patient chose to leave." },
   transferred: { label: "Transferred", hint: "Moved to another facility." },
+  died: {
+    label: "Died",
+    hint: "The patient died in hospital. A doctor records the death on the chart first.",
+  },
 };
 
 export type AdmitBody = Schemas["AdmitRequest"];
@@ -57,7 +61,7 @@ export function transferTargets(wards: readonly Ward[], from: string) {
 
 /** A discharge that is not a plain one needs a sentence saying why or where to. */
 export function dischargeNoteError(status: DischargeStatus, note: string): string | null {
-  if (status === "discharged") return null;
+  if (status === "discharged" || status === "died") return null;
   if (note.trim().length >= 5) return null;
   return status === "lama"
     ? "Note what the patient was told about leaving."

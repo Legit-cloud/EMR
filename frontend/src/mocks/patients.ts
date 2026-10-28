@@ -39,6 +39,7 @@ function makeRow(i: number): Row {
     national_id: "",
     phone: i % 3 === 0 ? "" : `+23480355501${String(i).padStart(2, "0")}`,
     email: "",
+    email_reminders: true,
     address_line: "",
     city: "",
     state: "",

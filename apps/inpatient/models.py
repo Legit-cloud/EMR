@@ -16,6 +16,9 @@ class DischargeStatus(models.TextChoices):
     DISCHARGED = "discharged", "Discharged"
     LAMA = "lama", "Left against medical advice"
     TRANSFERRED = "transferred", "Transferred"
+    # The patient died in hospital. The death is recorded on the chart first (a doctor sets the
+    # patient to Deceased), then the stay is closed with this status.
+    DIED = "died", "Died"
 
 
 class Ward(TenantModel):
@@ -116,6 +119,8 @@ class WardCharge(TenantModel):
     admission = models.ForeignKey(Admission, on_delete=models.CASCADE, related_name="charges")
     charge_date = models.DateField()
     idempotency_key = models.CharField(max_length=100)
+    # Taken off the bill again: the day the patient left is not charged (ADR 0021 amendment).
+    voided = models.BooleanField(default=False)
 
     class Meta(TenantModel.Meta):
         ordering = ["charge_date"]

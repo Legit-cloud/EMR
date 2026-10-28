@@ -1,14 +1,23 @@
-"""Portal accounts: inviting a patient, switching access off, and what a patient may change."""
+"""Portal accounts: inviting a patient, switching access off, what a patient may change, and the
+patient's data-protection requests."""
 
+from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
+
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
+from apps.accounts import selectors as accounts_selectors
 from apps.accounts import services as accounts
 from apps.core.errors import DomainError
+from apps.core.roles import Role
+from apps.core.tenancy import get_current_user_id
+from apps.notifications import services as notifications
 from apps.patients import selectors as patients
 from apps.patients import services as patient_services
 
-from .models import PortalAccount
+from .models import DataSubjectRequest, PortalAccount, RequestKind, RequestStatus
 
 
 class PortalAccountError(DomainError):
@@ -71,21 +80,112 @@ def revoke_for_deceased_patient(patient_id) -> int:
     return 1
 
 
+def update_contact(account: PortalAccount, *, phone=None, email=None, email_reminders=None) -> None:
+    patient_services.update_contact(
+        account.patient_id, phone=phone, email=email, email_reminders=email_reminders
+    )
+
+
+# -- data-protection requests (NDPA 2023, DG-03) ------------------------------------------
+
+
+def today() -> date:
+    return datetime.now(ZoneInfo(settings.MRN_TIME_ZONE)).date()
+
+
 @transaction.atomic
-def set_consents(account: PortalAccount, changes: dict) -> dict:
-    """Record the patient's choices. Returns what actually changed, for the audit entry."""
-    changed = {}
-    for key, value in changes.items():
-        if key not in PortalAccount.CONSENT_FIELDS:
-            raise PortalAccountError(f"Unknown choice: {key}.")
-        if getattr(account, key) != bool(value):
-            setattr(account, key, bool(value))
-            changed[key] = bool(value)
-    if changed:
-        account.consents_updated_at = timezone.now()
-        account.save(update_fields=[*changed, "consents_updated_at", "updated_at", "updated_by"])
-    return changed
+def submit_request(patient_id, *, kind: str, details: str = "") -> DataSubjectRequest:
+    """The patient asks to exercise a right. Compliance is told; the patient gets an
+    acknowledgement with the date by which they will have an answer."""
+    if kind not in RequestKind.values:
+        raise PortalAccountError("Choose what you are asking for.")
+    if kind in (RequestKind.CORRECTION, RequestKind.RESTRICTION, RequestKind.OBJECTION) and (
+        len(details.strip()) < 5
+    ):
+        raise PortalAccountError("Tell us what you would like changed or why.")
+    if DataSubjectRequest.objects.filter(
+        patient_id=patient_id, kind=kind, status=RequestStatus.OPEN
+    ).exists():
+        raise PortalAccountError("You already have an open request of this kind.")
+    request = DataSubjectRequest.objects.create(
+        patient_id=patient_id,
+        kind=kind,
+        details=details.strip()[:1000],
+        due_on=today() + timedelta(days=settings.DSR_RESPONSE_DAYS),
+    )
+    contact = patients.contact_details(patient_id)
+    if contact and contact["email"]:
+        notifications.queue_email(
+            to=contact["email"],
+            subject="We have received your request",
+            body=(
+                f"Dear {contact['first_name']},\n\nWe have received your request "
+                f"({request.get_kind_display().lower()}). We will answer by "
+                f"{request.due_on:%d %B %Y}. You can follow it under Your rights in the patient "
+                "portal.\n"
+            ),
+            purpose="data_request_received",
+            related_object=f"portal.datasubjectrequest:{request.pk}",
+        )
+    for to in accounts_selectors.emails_of_role_holders(
+        [Role.COMPLIANCE_OFFICER, Role.TENANT_ADMIN]
+    ):
+        notifications.queue_email(
+            to=to,
+            subject="A patient has made a data-protection request",
+            body=(
+                f"A {request.get_kind_display().lower()} request was made and is due by "
+                f"{request.due_on:%d %B %Y}. Open the Data requests screen to answer it."
+            ),
+            purpose="data_request_staff",
+            related_object=f"portal.datasubjectrequest:{request.pk}",
+        )
+    return request
 
 
-def update_contact(account: PortalAccount, *, phone=None, email=None) -> None:
-    patient_services.update_contact(account.patient_id, phone=phone, email=email)
+@transaction.atomic
+def respond_to_request(
+    request: DataSubjectRequest, *, status: str, note: str
+) -> DataSubjectRequest:
+    """Answer a request: completed, or refused with the reason. The patient is told to read the
+    answer in the portal; the answer itself is not emailed because it may mention their records."""
+    request = DataSubjectRequest.objects.select_for_update().get(pk=request.pk)
+    if request.status != RequestStatus.OPEN:
+        raise PortalAccountError("This request has already been answered.")
+    if status not in (RequestStatus.COMPLETED, RequestStatus.REFUSED):
+        raise PortalAccountError("Answer it as completed or refused.")
+    note = note.strip()
+    if len(note) < 10:
+        raise PortalAccountError("Say what was done, or why it was refused.")
+    request.status = status
+    request.response_note = note[:1000]
+    request.handled_by_id = get_current_user_id()
+    request.handled_at = timezone.now()
+    request.save(
+        update_fields=[
+            "status",
+            "response_note",
+            "handled_by",
+            "handled_at",
+            "updated_at",
+            "updated_by",
+        ]
+    )
+    contact = patients.contact_details(request.patient_id)
+    if contact and contact["email"]:
+        notifications.queue_email(
+            to=contact["email"],
+            subject="Your request has been answered",
+            body=(
+                f"Dear {contact['first_name']},\n\n"
+                f"Your request ({request.get_kind_display().lower()}) has been answered. "
+                "Please sign in to the patient portal and open Your rights to read the answer.\n"
+            ),
+            purpose="data_request_answered",
+            related_object=f"portal.datasubjectrequest:{request.pk}",
+        )
+    return request
+
+
+def is_overdue(request: DataSubjectRequest) -> bool:
+    return request.status == RequestStatus.OPEN and request.due_on < today()

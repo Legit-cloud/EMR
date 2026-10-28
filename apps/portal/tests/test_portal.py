@@ -144,11 +144,13 @@ def test_sec_02_every_patient_endpoint_uses_the_portal_permission():
         for pattern in patterns:
             if hasattr(pattern, "url_patterns"):
                 walk(pattern.url_patterns, prefix + str(pattern.pattern))
-            elif (pattern.name or "").startswith("portal-") and "account" not in pattern.name:
+            elif (pattern.name or "").startswith("portal-") and not any(
+                staff in pattern.name for staff in ("account", "data-request")
+            ):
                 seen.append((prefix + str(pattern.pattern), pattern.callback.cls))
 
     walk(get_resolver().url_patterns)
-    assert len(seen) == 11
+    assert len(seen) == 14
     for route, view in seen:
         assert view.permission_classes == [PortalPermission], route
 
@@ -403,23 +405,22 @@ def test_the_patient_corrects_their_phone_and_email_but_not_their_name(as_patien
     assert ignored.json()["first_name"] == "Ada"
 
 
-def test_dg_02_consent_choices_are_saved_and_each_change_is_audited(as_patient, ada, tenant_a):
-    client, account = as_patient(ada)
-    choices = {
-        "email_reminders": True,
-        "share_in_facility": True,
-        "research": False,
-    }
-    response = client.patch(f"{PORTAL}profile/", {"consents": choices}, format="json")
-    assert response.json()["consents"] == choices
+def test_dg_02_the_reminders_choice_is_saved_on_the_patient_record_and_audited(
+    as_patient, ada, tenant_a
+):
+    client, _ = as_patient(ada)
+    assert client.get(f"{PORTAL}profile/").json()["email_reminders"] is True  # on unless asked
+    response = client.patch(f"{PORTAL}profile/", {"email_reminders": False}, format="json")
+    assert response.status_code == 200
+    assert response.json()["email_reminders"] is False
+    assert "consents" not in response.json()  # no switches that change nothing
     with tenant_context(tenant_a.id):
-        saved = PortalAccount.objects.get(pk=account.pk)
-        assert saved.email_reminders is True
-        assert saved.consents_updated_at is not None
+        assert Patient.objects.get(pk=ada.pk).email_reminders is False
         entry = AuditEntry.objects.filter(resource="portal.profile", action="update").latest(
             "sequence"
         )
-    assert entry.details["consents"] == {"email_reminders": True}
+    assert entry.details["email_reminders"] is False
+    assert entry.details["changed"] == ["email_reminders"]
     assert str(entry.object_id) == str(ada.pk)
 
 
@@ -475,3 +476,27 @@ def test_a_deceased_patient_with_an_active_account_is_refused_even_before_revoca
     with tenant_context(tenant_a.id):
         Patient.objects.filter(pk=ada.pk).update(status="deceased", deceased_at=date(2026, 10, 20))
     assert client.get(f"{PORTAL}profile/").status_code == 403
+
+
+def test_dg_02_a_patient_who_stops_reminders_still_gets_booking_confirmations(
+    as_patient, ada, physician, tenant_a, django_capture_on_commit_callbacks
+):
+    from django.core import mail as outbox
+
+    from apps.scheduling import services as scheduling
+
+    client, _ = as_patient(ada)
+    client.patch(f"{PORTAL}profile/", {"email_reminders": False}, format="json")
+    slot = client.get(f"{PORTAL}appointment-slots/").json()[0]["id"]
+    outbox.outbox.clear()
+    with django_capture_on_commit_callbacks(execute=True):
+        booked = client.post(
+            f"{PORTAL}appointments/", {"slot": slot, "reason": "Checkup"}, format="json"
+        )
+    assert booked.status_code == 201
+    assert any("confirmed" in m.subject.lower() for m in outbox.outbox)  # still told of the booking
+    outbox.outbox.clear()
+    with tenant_context(tenant_a.id), django_capture_on_commit_callbacks(execute=True):
+        appointment = Appointment.objects.get(patient=ada)
+        scheduling.send_due_reminders(now=appointment.start_at - timedelta(hours=1))
+    assert outbox.outbox == []  # but no reminder

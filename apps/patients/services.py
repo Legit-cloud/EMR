@@ -139,16 +139,24 @@ def mark_entered_in_error(record, reason: str):
 
 
 @transaction.atomic
-def update_contact(patient_id, *, phone: str | None = None, email: str | None = None) -> Patient:
-    """Change the phone number or email on file. Used by the patient from the portal.
+def update_contact(
+    patient_id,
+    *,
+    phone: str | None = None,
+    email: str | None = None,
+    email_reminders: bool | None = None,
+) -> Patient:
+    """Change the phone number, email, or the reminders preference (the patient, from the portal).
 
-    Only these two fields: a name, date of birth or ID is corrected by staff at the desk.
+    Only these fields: a name, date of birth or ID is corrected by staff at the desk.
     """
     patient = Patient.objects.select_for_update().get(pk=patient_id)
     if phone is not None:
         patient.phone = phone.strip()
     if email is not None:
         patient.email = email.strip()
+    if email_reminders is not None:
+        patient.email_reminders = email_reminders
     patient.full_clean(exclude=["mrn", "first_name_key", "last_name_key", "tenant"])
-    patient.save(update_fields=["phone", "email", "updated_at", "updated_by"])
+    patient.save(update_fields=["phone", "email", "email_reminders", "updated_at", "updated_by"])
     return patient

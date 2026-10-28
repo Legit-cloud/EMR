@@ -8,8 +8,10 @@ import AppointmentsPage from "@/app/portal/appointments/page";
 import InvoicesPage from "@/app/portal/invoices/page";
 import HomePage from "@/app/portal/page";
 import PrescriptionsPage from "@/app/portal/prescriptions/page";
+import PrivacyPage from "@/app/portal/privacy/page";
 import ProfilePage from "@/app/portal/profile/page";
 import ResultsPage from "@/app/portal/results/page";
+import RightsPage from "@/app/portal/rights/page";
 import { PortalShell, PORTAL_NAV } from "@/components/portal/portal-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -372,21 +374,48 @@ describe("payment amount rules", () => {
   });
 });
 
-describe("profile and consent", () => {
-  it("shows the patient's details and each choice with its reason", async () => {
+describe("profile and reminders", () => {
+  it("shows the patient's details and the reminders choice with its reason", async () => {
     renderAs(<ProfilePage />);
     expect(await screen.findByText("Chioma Nwosu")).toBeInTheDocument();
     expect(screen.getByText("2026-000207")).toBeInTheDocument();
-    const email = screen.getByRole("checkbox", { name: "Email reminders" });
-    expect(email).not.toBeChecked();
-    expect(email).toHaveAccessibleDescription(/We email you the same reminders/);
+    const email = screen.getByRole("checkbox", {
+      name: "Email me reminders about my appointments and bills",
+    });
+    expect(email).toBeChecked(); // on unless the patient asks us to stop
+    expect(email).toHaveAccessibleDescription(
+      /We always email you when you book or change a visit/,
+    );
   });
 
-  it("saves a consent choice straight away", async () => {
+  it("offers no consent switches that would change nothing", async () => {
     renderAs(<ProfilePage />);
-    await userEvent.click(await screen.findByRole("checkbox", { name: "Email reminders" }));
-    await waitFor(() => expect(portal.profile.consents.email_reminders).toBe(true));
-    expect(portal.profile.consents.share_in_facility).toBe(true);
+    await screen.findByText("Chioma Nwosu");
+    expect(screen.getAllByRole("checkbox")).toHaveLength(1);
+    expect(screen.queryByText(/Share my record/)).toBeNull();
+    expect(screen.queryByText(/improve care/)).toBeNull();
+  });
+
+  it("saves the reminders choice straight away", async () => {
+    renderAs(<ProfilePage />);
+    await userEvent.click(
+      await screen.findByRole("checkbox", {
+        name: "Email me reminders about my appointments and bills",
+      }),
+    );
+    await waitFor(() => expect(portal.profile.email_reminders).toBe(false));
+    expect(await screen.findByText("Reminders off")).toBeInTheDocument();
+  });
+
+  it("links to how the hospital uses information and to the patient's rights", async () => {
+    renderAs(<ProfilePage />);
+    expect(
+      await screen.findByRole("link", { name: "How we use your information" }),
+    ).toHaveAttribute("href", "/portal/privacy");
+    expect(screen.getByRole("link", { name: "Your rights and requests" })).toHaveAttribute(
+      "href",
+      "/portal/rights",
+    );
   });
 
   it("saves corrected contact details and refuses a phone number without a country code", async () => {
@@ -400,6 +429,100 @@ describe("profile and consent", () => {
     await userEvent.type(phone, "+2348031234567");
     await userEvent.click(screen.getByRole("button", { name: "Save my details" }));
     await waitFor(() => expect(portal.profile.phone).toBe("+2348031234567"));
+  });
+});
+
+describe("the privacy notice", () => {
+  it("says who is responsible, how to reach them, what is held and for how long", async () => {
+    renderAs(<PrivacyPage />);
+    expect(
+      await screen.findByText(/Example Hospital looks after your information/),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "privacy@example.test" })).toHaveAttribute(
+      "href",
+      "mailto:privacy@example.test",
+    );
+    expect(screen.getByText(/at least 10 years after your last visit/)).toBeInTheDocument();
+    expect(screen.getByText(/We will answer within 30 days/)).toBeInTheDocument();
+    expect(screen.getByText(/We do not sell your information/)).toBeInTheDocument();
+    expect(screen.getByText(/Nigeria Data Protection Commission/)).toBeInTheDocument();
+    expect(screen.getByText("Notice version 2026-10-23.")).toBeInTheDocument();
+  });
+
+  it("explains that care does not depend on a consent form, and names the companies that help", async () => {
+    renderAs(<PrivacyPage />);
+    expect(await screen.findByText(/does not depend on a consent form/)).toBeInTheDocument();
+    expect(screen.getByText(/Paystack takes card and bank payments for us/)).toBeInTheDocument();
+  });
+});
+
+describe("your rights", () => {
+  it("sends a request and then lists it with its due date", async () => {
+    renderAs(<RightsPage />);
+    await screen.findByRole("heading", { name: "Make a request" });
+    await userEvent.click(screen.getByRole("button", { name: "Send request" }));
+    expect(await screen.findByText("Request sent")).toBeInTheDocument();
+    expect(portal.calls.at(-1)).toMatchObject({ path: "request", body: { kind: "access" } });
+    const list = await screen.findByRole("region", { name: "Your requests" });
+    expect(list).toHaveTextContent("A copy of my records");
+    expect(list).toHaveTextContent("We are working on it");
+    expect(list).toHaveTextContent(/we will answer by \d{2} \w{3} \d{4}/);
+  });
+
+  it("asks what is wrong before sending a correction", async () => {
+    renderAs(<RightsPage />);
+    await screen.findByRole("heading", { name: "Make a request" });
+    await userEvent.click(screen.getByRole("combobox", { name: "What would you like?" }));
+    await userEvent.click(
+      await screen.findByRole("option", { name: "Correct something that is wrong" }),
+    );
+    await userEvent.click(screen.getByRole("button", { name: "Send request" }));
+    expect(
+      await screen.findByText("Tell us what you would like changed, and why."),
+    ).toBeInTheDocument();
+    expect(portal.calls).toHaveLength(0);
+    await userEvent.type(screen.getByLabelText("Tell us more"), "My date of birth is wrong");
+    await userEvent.click(screen.getByRole("button", { name: "Send request" }));
+    await waitFor(() => expect(portal.calls.at(-1)?.path).toBe("request"));
+  });
+
+  it("warns that medical records have to be kept before a deletion request", async () => {
+    renderAs(<RightsPage />);
+    await screen.findByRole("heading", { name: "Make a request" });
+    await userEvent.click(screen.getByRole("combobox", { name: "What would you like?" }));
+    await userEvent.click(await screen.findByRole("option", { name: "Delete my information" }));
+    expect(screen.getByText(/we may not be able to delete everything/)).toBeInTheDocument();
+  });
+
+  it("shows the answer once staff have given it", async () => {
+    portal.requests = [
+      {
+        id: "req-x",
+        kind: "access",
+        kind_label: "A copy of my records",
+        details: "",
+        status: "completed",
+        due_on: "2026-11-20",
+        response_note: "A copy was given at the records office.",
+        created_at: "2026-10-22T09:00:00Z",
+      },
+    ];
+    renderAs(<RightsPage />);
+    const list = await screen.findByRole("region", { name: "Your requests" });
+    expect(list).toHaveTextContent("Answered");
+    expect(list).toHaveTextContent("Our answer: A copy was given at the records office.");
+  });
+
+  it("downloads what the portal holds as a file", async () => {
+    const create = vi.fn(() => "blob:mine");
+    Object.assign(URL, { createObjectURL: create, revokeObjectURL: vi.fn() });
+    const click = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    renderAs(<RightsPage />);
+    await userEvent.click(await screen.findByRole("button", { name: "Download my information" }));
+    await waitFor(() => expect(click).toHaveBeenCalled());
+    expect(portal.calls.some((c) => c.path === "export")).toBe(true);
+    expect(await screen.findByText("Saved to your device")).toBeInTheDocument();
+    click.mockRestore();
   });
 });
 

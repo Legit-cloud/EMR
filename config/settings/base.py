@@ -175,6 +175,8 @@ SPECTACULAR_SETTINGS = {
         "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
         "PurchaseOrderStatusEnum": "apps.pharmacy.models.OrderStatus",
         "BedStatusEnum": "apps.inpatient.models.BedStatus",
+        "DataRequestStatusEnum": "apps.portal.models.RequestStatus",
+        "DataRequestKindEnum": "apps.portal.models.RequestKind",
         "DischargeStatusEnum": "apps.inpatient.models.DischargeStatus",
         "InvoiceLineStatusEnum": "apps.billing.models.LineStatus",
         "PaymentStatusEnum": "apps.billing.models.PaymentStatus",
@@ -344,3 +346,11 @@ PAYSTACK_BASE_URL = env("PAYSTACK_BASE_URL", default="https://api.paystack.co")
 PAYSTACK_TIMEOUT_SECONDS = env.int("PAYSTACK_TIMEOUT_SECONDS", default=15)
 # A started payment that nobody finishes stops blocking a new one after this long.
 PAYMENT_INTENT_MINUTES = env.int("PAYMENT_INTENT_MINUTES", default=30)
+
+# Data protection (NDPA 2023, ADR 0024). The notice names who to contact; the retention period is
+# the period the hospital keeps clinical records and must be confirmed with counsel.
+DSR_RESPONSE_DAYS = env.int("DSR_RESPONSE_DAYS", default=30)
+PRIVACY_NOTICE_VERSION = env("PRIVACY_NOTICE_VERSION", default="2026-10-23")
+PRIVACY_CONTACT_EMAIL = env("PRIVACY_CONTACT_EMAIL", default="")
+PRIVACY_CONTROLLER_NAME = env("PRIVACY_CONTROLLER_NAME", default="")
+RECORD_RETENTION_YEARS = env.int("RECORD_RETENTION_YEARS", default=10)

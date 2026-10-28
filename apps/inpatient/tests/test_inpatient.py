@@ -473,3 +473,66 @@ def test_sec_03_admitting_moving_and_discharging_are_audited(nurse, patients, be
         ]
     assert actions.count("create") == 1
     assert actions.count("update") == 2
+
+
+# -- a patient who died, and the day of leaving ---------------------------------------------
+
+
+def test_a_stay_is_closed_as_died_only_after_the_death_is_recorded_on_the_chart(
+    nurse, patients, beds, tenant_a
+):
+    stay = admission_id(admit(nurse, patients[0], beds[0]))
+    url = f"{ADMISSIONS}{stay}/discharge/"
+    refused = nurse.post(url, {"status": "died", "note": ""}, format="json")
+    assert refused.status_code == 409
+    assert "Record the death on the patient" in refused.json()["error"]["message"]
+    assert status_of(beds[0], tenant_a) == BedStatus.OCCUPIED
+    with tenant_context(tenant_a.id):
+        Patient.objects.filter(pk=patients[0].pk).update(
+            status="deceased", deceased_at=date(2026, 10, 20)
+        )
+    done = nurse.post(url, {"status": "died", "note": ""}, format="json")
+    assert done.status_code == 200 and done.json() == {"status": "died"}
+    assert status_of(beds[0], tenant_a) == BedStatus.CLEANING
+
+
+def test_a_stay_is_billed_for_the_nights_not_the_day_of_leaving(
+    nurse, patients, beds, tenant_a, django_capture_on_commit_callbacks
+):
+    stay = admission_id(admit(nurse, patients[0], beds[0]))
+    today = services.today()
+    with tenant_context(tenant_a.id):
+        # Admitted two days ago: the admission day and two midnights have each been billed.
+        Admission.objects.filter(pk=stay).update(admitted_at=datetime.now(UTC) - timedelta(days=2))
+        admission = Admission.objects.get(pk=stay)
+        for back in (2, 1, 0):
+            services.charge_day(admission, today - timedelta(days=back))
+    assert len(lines(tenant_a, patients[0])) == 3
+    with django_capture_on_commit_callbacks(execute=True):
+        nurse.post(f"{ADMISSIONS}{stay}/discharge/", {"status": "discharged"}, format="json")
+    kept = [line for line in lines(tenant_a, patients[0]) if line.status == LineStatus.FINAL]
+    gone = [line for line in lines(tenant_a, patients[0]) if line.status == LineStatus.VOID]
+    assert len(kept) == 2  # the admission day and the next night
+    assert len(gone) == 1  # the day of leaving came off the bill
+    assert str(today) not in " ".join(line.description for line in kept)
+
+
+def test_a_stay_that_starts_and_ends_on_the_same_day_is_one_day(
+    nurse, patients, beds, tenant_a, django_capture_on_commit_callbacks
+):
+    with django_capture_on_commit_callbacks(execute=True):
+        stay = admission_id(admit(nurse, patients[0], beds[0]))
+    with django_capture_on_commit_callbacks(execute=True):
+        nurse.post(f"{ADMISSIONS}{stay}/discharge/", {"status": "discharged"}, format="json")
+    (only,) = lines(tenant_a, patients[0])
+    assert only.status == LineStatus.FINAL
+
+
+def test_finalising_a_stay_twice_changes_nothing(nurse, patients, beds, tenant_a):
+    stay = admission_id(admit(nurse, patients[0], beds[0]))
+    nurse.post(f"{ADMISSIONS}{stay}/discharge/", {"status": "discharged"}, format="json")
+    with tenant_context(tenant_a.id):
+        admission = Admission.objects.get(pk=stay)
+        first = services.finalise_charges(admission)
+        second = services.finalise_charges(admission)
+    assert second <= first
