@@ -239,6 +239,31 @@ def create_patient_user(*, username: str, email: str, first_name: str, last_name
     return user
 
 
+def create_tenant_admin(
+    *,
+    tenant_id,
+    username: str,
+    email: str,
+    password: str,
+    first_name: str = "",
+    last_name: str = "",
+) -> User:
+    """A sign-in with a password and the Tenant admin role, for bootstrapping a hospital."""
+    validate_password(password)
+    with transaction.atomic():
+        user = User.objects.create_user(
+            username=username,
+            email=email.strip(),
+            password=password,
+            first_name=first_name,
+            last_name=last_name,
+            tenant_id=tenant_id,
+        )
+        with tenant_context(tenant_id, user.pk):
+            RoleAssignment.objects.create(user=user, role=Role.TENANT_ADMIN)
+    return user
+
+
 def deactivate_user(user: User) -> None:
     with transaction.atomic():
         user.is_active = False
