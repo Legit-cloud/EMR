@@ -5,8 +5,10 @@ import { auditHandlers } from "./audit";
 import { authHandlers } from "./auth";
 import { billingHandlers } from "./billing";
 import { chartHandlers } from "./chart";
+import { claimHandlers } from "./claims";
 import { dashboardHandlers } from "./dashboard";
 import { dataRequestHandlers } from "./data-requests";
+import { diagnosticsHandlers } from "./diagnostics";
 import { inpatientHandlers } from "./inpatient";
 import { patientHandlers } from "./patients";
 import { pharmacyHandlers } from "./pharmacy";
@@ -26,9 +28,11 @@ export const handlers: HttpHandler[] = [
   ...auditHandlers,
   ...authHandlers,
   ...billingHandlers,
+  ...claimHandlers,
   ...chartHandlers,
   ...dashboardHandlers,
   ...dataRequestHandlers,
+  ...diagnosticsHandlers,
   ...inpatientHandlers,
   ...patientHandlers,
   ...portalHandlers,

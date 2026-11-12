@@ -8,8 +8,11 @@
  */
 import {
   Bed,
+  Buildings,
   BookOpen,
   FileLock,
+  Files,
+  Flask,
   CalendarBlank,
   ClipboardText,
   type Icon,
@@ -109,6 +112,23 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    caption: "Diagnostics",
+    items: [
+      {
+        label: "Tests and scans",
+        href: "/diagnostics",
+        icon: Flask,
+        roles: ["doctor", "nurse", "lab_technician", "tenant_admin"],
+      },
+      {
+        label: "Test catalogue",
+        href: "/diagnostics/catalogue",
+        icon: BookOpen,
+        roles: ["lab_technician", "tenant_admin"],
+      },
+    ],
+  },
+  {
     caption: "Finance",
     items: [
       {
@@ -116,6 +136,12 @@ export const NAV: NavGroup[] = [
         href: "/billing",
         icon: Receipt,
         roles: ["billing_officer", "finance", "front_desk", "tenant_admin"],
+      },
+      {
+        label: "Insurer claims",
+        href: "/claims",
+        icon: Files,
+        roles: ["billing_officer", "finance", "tenant_admin"],
       },
       {
         label: "Insurers",
@@ -147,6 +173,12 @@ export const NAV: NavGroup[] = [
     caption: "Admin",
     items: [
       { label: "Users and roles", href: "/manage", icon: UserGear, roles: ["tenant_admin", "hr"] },
+      {
+        label: "Facilities and departments",
+        href: "/departments",
+        icon: Buildings,
+        roles: ["tenant_admin"],
+      },
       {
         label: "Break-glass review",
         href: "/compliance",

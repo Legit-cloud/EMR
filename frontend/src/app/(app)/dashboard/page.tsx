@@ -11,7 +11,14 @@ import {
   type DashboardRange,
   RevenueMixCard,
 } from "@/components/dashboard/finance";
-import { PatientsCard, PopularServicesCard, StockCard } from "@/components/dashboard/operations";
+import {
+  ClaimsCard,
+  DiagnosticsCard,
+  PatientsCard,
+  PopularServicesCard,
+  StockCard,
+  WardsCard,
+} from "@/components/dashboard/operations";
 import { visibleNav } from "@/components/layout/nav-config";
 import { PageGreeting } from "@/components/layout/page-container";
 import { Button } from "@/components/ui/button";
@@ -93,11 +100,22 @@ export default function DashboardPage() {
             </div>
           )}
 
+          {(data.wards || data.diagnostics || data.claims) && (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+              {data.wards && <WardsCard wards={data.wards} />}
+              {data.diagnostics && <DiagnosticsCard figures={data.diagnostics} />}
+              {data.claims && <ClaimsCard claims={data.claims} />}
+            </div>
+          )}
+
           {!data.finance &&
             !data.patients &&
             !data.popular_services &&
             !data.stock &&
-            !data.my_day && <Shortcuts roles={me.roles} />}
+            !data.my_day &&
+            !data.wards &&
+            !data.diagnostics &&
+            !data.claims && <Shortcuts roles={me.roles} />}
         </>
       )}
     </>

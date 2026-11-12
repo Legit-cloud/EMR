@@ -18,6 +18,7 @@ import {
   PrescriptionsTab,
 } from "@/components/chart/record-tabs";
 import { RecordVitalsModal } from "@/components/chart/record-vitals-modal";
+import { TestsTab } from "@/components/chart/tests-tab";
 import { VitalsTab } from "@/components/chart/vitals-tab";
 import {
   PrescriptionWizard,
@@ -38,6 +39,7 @@ const TABS = [
   "diagnoses",
   "notes",
   "prescriptions",
+  "tests",
   "billing",
   "documents",
   "audit",
@@ -188,6 +190,15 @@ export function PatientChart({ id }: { id: string }) {
               />
             ),
           },
+          ...(permissions.hasRole("doctor", "nurse", "lab_technician", "tenant_admin")
+            ? [
+                {
+                  value: "tests",
+                  label: "Tests and scans",
+                  content: <TestsTab patientId={id} />,
+                },
+              ]
+            : []),
           { value: "billing", label: "Billing", content: <BillingTab patientId={id} /> },
           { value: "documents", label: "Documents", content: <DocumentsTab patientId={id} /> },
           ...(canAudit

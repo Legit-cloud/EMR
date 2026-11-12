@@ -1,46 +1,27 @@
-# Commands run through `uv run` on a host with uv installed.
-# Inside the dev container RUN is empty because the virtualenv is already on PATH.
-RUN ?= uv run
+# Root commands. Backend commands live in backend/Makefile; these forward to it.
 PNPM ?= pnpm
 COMPOSE ?= docker compose
 
 .PHONY: install run worker beat lint format test frontend-check check seed shell up down
 
 install:
-	uv sync
+	$(MAKE) -C backend install
 	git config core.hooksPath .githooks
 
-run:
-	$(RUN) uvicorn config.asgi:application --reload --host 0.0.0.0 --port 8000
-
-worker:
-	$(RUN) celery -A config worker -l info
-
-beat:
-	$(RUN) celery -A config beat -l info
+run worker beat format seed shell:
+	$(MAKE) -C backend $@
 
 lint:
-	$(RUN) ruff check .
-	$(RUN) ruff format --check .
-
-format:
-	$(RUN) ruff check --fix .
-	$(RUN) ruff format .
+	$(MAKE) -C backend lint
 
 test:
-	$(RUN) pytest
+	$(MAKE) -C backend test
 
 # Backend: ruff, then pytest. Frontend: ESLint and Prettier, then Vitest.
 frontend-check:
 	$(PNPM) --dir frontend check
 
 check: lint test frontend-check
-
-seed:
-	$(RUN) python manage.py seed_demo_data
-
-shell:
-	$(RUN) python manage.py shell
 
 up:
 	$(COMPOSE) up --build
@@ -51,7 +32,7 @@ down:
 # Frontend (Node runs in containers; nothing to install on the host).
 .PHONY: openapi e2e frontend-tools
 openapi:
-	$(COMPOSE) run --rm web python manage.py spectacular --validate --fail-on-warn --file frontend/openapi.yaml
+	$(COMPOSE) run --rm web python manage.py spectacular --validate --fail-on-warn --file /frontend/openapi.yaml
 	$(COMPOSE) --profile tools run --rm frontend-tools pnpm api:gen
 
 # The frontend checks in a container, for hosts without Node.

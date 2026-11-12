@@ -23,6 +23,7 @@ import {
   useInvoice,
   useSendReminder,
 } from "@/lib/billing";
+import { refusalMessage as claimRefusal, useCreateClaim } from "@/lib/claims";
 import { cx } from "@/lib/cx";
 import { formatDateTime, formatDay } from "@/lib/format";
 import { formatMoney, sumMinor } from "@/lib/money";
@@ -326,6 +327,7 @@ function PaymentsSection({ invoice }: { invoice: Invoice }) {
 function DrawerFooter({ invoice, canCollect }: { invoice: Invoice; canCollect: boolean }) {
   const toast = useToast();
   const remind = useSendReminder();
+  const makeClaim = useCreateClaim();
   const [dialog, setDialog] = useState<"pay" | "coverage" | "charge" | null>(null);
   const [problem, setProblem] = useState<string | null>(null);
 
@@ -347,6 +349,22 @@ function DrawerFooter({ invoice, canCollect }: { invoice: Invoice; canCollect: b
     }
   }
 
+  async function startClaim() {
+    setProblem(null);
+    try {
+      const claim = await makeClaim.mutateAsync(invoice.id);
+      toast({
+        title: "Claim started",
+        description: `${claim.reference}. Send it from Insurer claims.`,
+        tone: "success",
+      });
+    } catch (failure) {
+      setProblem(claimRefusal(failure));
+    }
+  }
+  const insurerOwes =
+    invoice.insurer !== null && invoice.insurer_due_minor > invoice.insurer_paid_minor;
+
   if (!canCollect) {
     return (
       <p className="text-small text-ink-600">Your role can view this invoice but not change it.</p>
@@ -367,6 +385,11 @@ function DrawerFooter({ invoice, canCollect }: { invoice: Invoice; canCollect: b
         >
           Send Reminder
         </Button>
+        {insurerOwes && (
+          <Button variant="outline" loading={makeClaim.isPending} onClick={startClaim}>
+            Claim from insurer
+          </Button>
+        )}
         {unsettled && (
           <>
             <Button variant="ghost" onClick={() => setDialog("coverage")}>

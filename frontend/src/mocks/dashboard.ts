@@ -125,7 +125,33 @@ export const dashboardHandlers = [
         : null,
       my_day:
         roles.has("doctor") || roles.has("nurse")
-          ? { open_notes: 2, draft_prescriptions: 1, licence_expires_on: null }
+          ? {
+              open_notes: 2,
+              draft_prescriptions: 1,
+              licence_expires_on: null,
+              results_to_review: roles.has("doctor") ? 3 : null,
+            }
+          : null,
+      wards:
+        figures || roles.has("doctor") || roles.has("nurse")
+          ? { beds: 24, occupied: 17, vacant: 4, cleaning: 2, out_of_service: 1, admitted: 17 }
+          : null,
+      diagnostics:
+        roles.has("tenant_admin") || roles.has("doctor") || roles.has("nurse")
+          ? { open_orders: 6, results_to_review: 3 }
+          : null,
+      claims:
+        roles.has("tenant_admin") || roles.has("finance") || roles.has("billing_officer")
+          ? {
+              claims: 5,
+              outstanding_minor: 4_200_000,
+              bands: [
+                { band: "0-30", claims: 3, outstanding_minor: 2_500_000 },
+                { band: "31-60", claims: 1, outstanding_minor: 1_200_000 },
+                { band: "61-90", claims: 1, outstanding_minor: 500_000 },
+                { band: "over 90", claims: 0, outstanding_minor: 0 },
+              ],
+            }
           : null,
     };
     return HttpResponse.json(body);
