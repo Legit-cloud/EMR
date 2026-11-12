@@ -48,5 +48,6 @@ There is no CI service. The hook runs the checks before every push.
 
 ## Deploy
 
-Railway builds the `Dockerfile` (web, worker and beat run the same image).
+Railway builds `backend/Dockerfile` with the service Root Directory set to `/backend` (web, worker
+and beat run the same image).
 See `docs/runbooks/deploy.md`.

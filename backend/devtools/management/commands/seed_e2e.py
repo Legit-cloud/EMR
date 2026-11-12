@@ -34,7 +34,7 @@ from apps.scheduling.models import Appointment, AvailabilityWindow
 from apps.staff.models import StaffProfile
 from apps.tenants.models import Department, Facility, Tenant
 
-DEFAULT_OUTPUT = Path(settings.BASE_DIR) / "frontend" / "e2e" / ".seed.json"
+DEFAULT_OUTPUT = Path(settings.BASE_DIR).parent / "frontend" / "e2e" / ".seed.json"
 ROLES = {
     "doctor": Role.DOCTOR,
     "desk": Role.FRONT_DESK,

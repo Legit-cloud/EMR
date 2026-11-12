@@ -4,8 +4,9 @@
 
 1. Create a Railway project with two environments: `staging` and `production`.
 2. In each environment add PostgreSQL and Redis.
-3. Add three services from this GitHub repository:
-   - **web**: uses `railway.toml` at the repo root (start command, pre-deploy
+3. Add three services from this GitHub repository. For each, set *Root Directory* to `/backend`
+   (everything the server needs is in that folder; the config file paths below are relative to it):
+   - **web**: uses `backend/railway.toml` (start command, pre-deploy
      `migrate`, health check `/healthz`).
    - **worker**: set *Config file path* to `deploy/railway/worker.toml`.
    - **beat**: set *Config file path* to `deploy/railway/beat.toml`. Exactly one replica.

@@ -1,6 +1,6 @@
 x-app: &app
   build:
-    context: .
+    context: ./backend
     target: dev
   image: emr-dev
   env_file:
@@ -19,7 +19,12 @@ x-app: &app
     # test run can sign in every role in one minute; normal use keeps the default of 10/min.
     AUTH_THROTTLE_RATE: ${AUTH_THROTTLE_RATE:-10/min}
   volumes:
-    - .:/app
+    - ./backend:/app
+    - ./frontend:/frontend
+    # Read-only copies of the repo files the tests inspect (they sit above backend/).
+    - ./Makefile:/Makefile:ro
+    - ./.githooks:/.githooks:ro
+    - ./.github:/.github:ro
   depends_on:
     db:
       condition: service_healthy
