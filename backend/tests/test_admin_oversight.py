@@ -41,6 +41,7 @@ ADMINISTRATION = {
     "inpatient.bed",
     "inpatient.ward",
     "inventory.item",
+    "onboarding.profile",
     "messaging.thread",
     "portal.account",
     "portal.request",
