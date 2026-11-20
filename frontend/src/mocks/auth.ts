@@ -103,6 +103,19 @@ export const MOCK_USERS: Record<string, Schemas["Me"]> = {
     on_duty: false,
     can_break_glass: false,
   },
+  "hana.hr": {
+    id: "8a5e2f8c-0000-4000-8000-000000000018",
+    username: "hana.hr",
+    email: "hana.hr@example.test",
+    first_name: "Hana",
+    last_name: "Tester",
+    tenant: TENANT,
+    roles: ["hr"],
+    mfa_enabled: true,
+    assignments: [{ role: "hr", facility: null, department: null }],
+    on_duty: false,
+    can_break_glass: false,
+  },
   "chioma.patient": {
     id: "8a5e2f8c-0000-4000-8000-000000000016",
     username: "chioma.patient",
@@ -179,7 +192,9 @@ export const authHandlers = [
   http.post("*/api/accounts/auth/password-reset/", async ({ request }) => {
     const { email } = (await request.json()) as { email: string };
     if (!/^[^@\s]+@[^@\s]+$/.test(email)) {
-      return error(400, "validation_error", "Invalid input.", { email: ["Enter a valid email."] });
+      return error(400, "validation_error", "Invalid input.", {
+        email: ["Enter a valid email."],
+      });
     }
     // The same answer whether or not the address has an account.
     return new HttpResponse(null, { status: 202 });

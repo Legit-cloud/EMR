@@ -1,5 +1,6 @@
 import type { HttpHandler } from "msw";
 
+import { accountingHandlers } from "./accounting";
 import { appointmentHandlers } from "./appointments";
 import { auditHandlers } from "./audit";
 import { authHandlers } from "./auth";
@@ -10,6 +11,9 @@ import { dashboardHandlers } from "./dashboard";
 import { dataRequestHandlers } from "./data-requests";
 import { diagnosticsHandlers } from "./diagnostics";
 import { inpatientHandlers } from "./inpatient";
+import { inventoryHandlers } from "./inventory";
+import { leaveHandlers } from "./leave";
+import { messageHandlers } from "./messages";
 import { patientHandlers } from "./patients";
 import { pharmacyHandlers } from "./pharmacy";
 import { portalHandlers } from "./portal";
@@ -24,6 +28,7 @@ import { stockHandlers } from "./stock";
  * that states the contract; their pages say so when the API answers 404 (docs/adr/0020).
  */
 export const handlers: HttpHandler[] = [
+  ...accountingHandlers,
   ...appointmentHandlers,
   ...auditHandlers,
   ...authHandlers,
@@ -34,6 +39,9 @@ export const handlers: HttpHandler[] = [
   ...dataRequestHandlers,
   ...diagnosticsHandlers,
   ...inpatientHandlers,
+  ...inventoryHandlers,
+  ...leaveHandlers,
+  ...messageHandlers,
   ...patientHandlers,
   ...portalHandlers,
   ...pharmacyHandlers,

@@ -269,7 +269,18 @@ class AccountViewSet(TenantReadOnlyViewSet):
         debits, credits = ledger.trial_balance(request.query_params.get("currency", "NGN"))
         return Response({"debits_minor": debits, "credits_minor": credits})
 
-    @extend_schema(responses=s.IncomeStatementSerializer)
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "start", str, OpenApiParameter.QUERY, description="First date, YYYY-MM-DD."
+            ),
+            OpenApiParameter(
+                "end", str, OpenApiParameter.QUERY, description="Last date, YYYY-MM-DD."
+            ),
+            OpenApiParameter("currency", str, OpenApiParameter.QUERY),
+        ],
+        responses=s.IncomeStatementSerializer,
+    )
     @action(detail=False, methods=["get"], url_path="income-statement")
     def income_statement(self, request):
         """Revenue and expenses from ``start`` to ``end`` (dates; default this calendar month)."""
@@ -280,7 +291,13 @@ class AccountViewSet(TenantReadOnlyViewSet):
             ledger.income_statement(start, end, request.query_params.get("currency", "NGN"))
         )
 
-    @extend_schema(responses=s.BalanceSheetSerializer)
+    @extend_schema(
+        parameters=[
+            OpenApiParameter("as_of", str, OpenApiParameter.QUERY, description="Date, YYYY-MM-DD."),
+            OpenApiParameter("currency", str, OpenApiParameter.QUERY),
+        ],
+        responses=s.BalanceSheetSerializer,
+    )
     @action(detail=False, methods=["get"], url_path="balance-sheet")
     def balance_sheet(self, request):
         as_of = _date_param(request, "as_of", timezone.localdate())

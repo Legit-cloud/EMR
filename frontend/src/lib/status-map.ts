@@ -296,3 +296,18 @@ export const AUDIT_OUTCOME: Record<Schemas["AuditEntryOutcomeEnum"], StatusSpec>
   not_found: { label: "Not found", tone: "grey", icon: Minus },
   failed: { label: "Failed", tone: "amber", icon: WarningCircle },
 };
+
+/** How much of a general supply is left (apps/inventory). */
+export const SUPPLY_LEVEL = {
+  ok: { label: "In stock", tone: "green", icon: CheckCircle },
+  low: { label: "Low", tone: "amber", icon: WarningCircle },
+  out: { label: "Out of stock", tone: "pink", icon: XCircle },
+} as const satisfies Record<string, StatusSpec>;
+
+/** A leave request (apps/staff). */
+export const LEAVE_STATUS: Record<Schemas["LeaveStatusEnum"], StatusSpec> = {
+  pending: { label: "Pending", tone: "amber", icon: Hourglass },
+  approved: { label: "Approved", tone: "green", icon: CheckCircle },
+  rejected: { label: "Rejected", tone: "pink", icon: XCircle },
+  cancelled: { label: "Cancelled", tone: "grey", icon: Minus },
+};

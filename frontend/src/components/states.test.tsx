@@ -5,8 +5,11 @@ import { http, HttpResponse } from "msw";
 import type { ComponentType } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import AccountingPage from "@/app/(app)/accounting/page";
 import AuditPage from "@/app/(app)/audit/page";
 import BillingPage from "@/app/(app)/billing/page";
+import InventoryPage from "@/app/(app)/inventory/page";
+import LeavePage from "@/app/(app)/leave/page";
 import PatientsPage from "@/app/(app)/patients/page";
 import StockPage from "@/app/(app)/pharmacy/stock/page";
 import RequestsPage from "@/app/(app)/requests/page";
@@ -86,6 +89,27 @@ const CASES: Case[] = [
     who: "pita.pharmacist",
     url: "*/api/pharmacy/stock/inventory/",
     caption: "Inventory",
+  },
+  {
+    name: "supplies",
+    Page: InventoryPage,
+    who: "pita.pharmacist",
+    url: "*/api/inventory/items/",
+    caption: "Supplies",
+  },
+  {
+    name: "leave",
+    Page: LeavePage,
+    who: "ada.doctor",
+    url: "*/api/staff/leave/",
+    caption: "Leave requests",
+  },
+  {
+    name: "ledger entries",
+    Page: AccountingPage,
+    who: "femi.finance",
+    url: "*/api/billing/ledger/entries/",
+    caption: "Ledger entries",
   },
   {
     name: "stock orders",

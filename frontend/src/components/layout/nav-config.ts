@@ -7,9 +7,13 @@
  * reports and support arrive with their screens.
  */
 import {
+  Archive,
   Bed,
   Buildings,
   BookOpen,
+  CalendarPlus,
+  Calculator,
+  ChatCircleText,
   FileLock,
   Files,
   Flask,
@@ -42,6 +46,20 @@ export type NavItem = {
 };
 
 export type NavGroup = { caption: string | null; items: NavItem[] };
+
+/** Every role except the patient: the staff app's own people. */
+const STAFF: Role[] = [
+  "tenant_admin",
+  "doctor",
+  "nurse",
+  "pharmacist",
+  "lab_technician",
+  "front_desk",
+  "billing_officer",
+  "finance",
+  "hr",
+  "compliance_officer",
+];
 
 export const NAV: NavGroup[] = [
   {
@@ -101,6 +119,13 @@ export const NAV: NavGroup[] = [
     ],
   },
   {
+    caption: "Workplace",
+    items: [
+      { label: "Messages", href: "/messages", icon: ChatCircleText, roles: STAFF },
+      { label: "Leave", href: "/leave", icon: CalendarPlus, roles: STAFF },
+    ],
+  },
+  {
     caption: "Inpatient",
     items: [
       {
@@ -144,6 +169,12 @@ export const NAV: NavGroup[] = [
         roles: ["billing_officer", "finance", "tenant_admin"],
       },
       {
+        label: "Accounting",
+        href: "/accounting",
+        icon: Calculator,
+        roles: ["finance", "tenant_admin"],
+      },
+      {
         label: "Insurers",
         href: "/billing/insurers",
         icon: ShieldCheck,
@@ -162,6 +193,12 @@ export const NAV: NavGroup[] = [
         roles: ["pharmacist", "tenant_admin", "finance"],
       },
       {
+        label: "Supplies",
+        href: "/inventory",
+        icon: Archive,
+        roles: ["pharmacist", "nurse", "doctor", "finance", "tenant_admin"],
+      },
+      {
         label: "Formulary",
         href: "/pharmacy/formulary",
         icon: BookOpen,
@@ -172,7 +209,12 @@ export const NAV: NavGroup[] = [
   {
     caption: "Admin",
     items: [
-      { label: "Users and roles", href: "/manage", icon: UserGear, roles: ["tenant_admin", "hr"] },
+      {
+        label: "Users and roles",
+        href: "/manage",
+        icon: UserGear,
+        roles: ["tenant_admin", "hr"],
+      },
       {
         label: "Facilities and departments",
         href: "/departments",

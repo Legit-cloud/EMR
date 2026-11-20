@@ -5,10 +5,10 @@ info:
 paths:
   /api/accounts/auth/csrf/:
     get:
-      operationId: api_accounts_auth_csrf_retrieve
+      operationId: accounts_auth_csrf_retrieve
       description: Sets the CSRF cookie for the web app before a session sign-in.
       tags:
-      - api
+      - accounts
       security:
       - {}
       responses:
@@ -20,14 +20,14 @@ paths:
           description: ''
   /api/accounts/auth/login/:
     post:
-      operationId: api_accounts_auth_login_create
+      operationId: accounts_auth_login_create
       description: |-
         Sign in with the password, then the one-time code emailed to the account.
 
         A request without ``otp_token`` emails a code and answers ``mfa_required``; send the same
         credentials again with the code. Session or bearer token.
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -51,9 +51,9 @@ paths:
           description: ''
   /api/accounts/auth/logout/:
     post:
-      operationId: api_accounts_auth_logout_create
+      operationId: accounts_auth_logout_create
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -62,9 +62,9 @@ paths:
           description: No response body
   /api/accounts/auth/me/:
     get:
-      operationId: api_accounts_auth_me_retrieve
+      operationId: accounts_auth_me_retrieve
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -77,9 +77,9 @@ paths:
           description: ''
   /api/accounts/auth/password-reset/:
     post:
-      operationId: api_accounts_auth_password_reset_create
+      operationId: accounts_auth_password_reset_create
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -99,9 +99,9 @@ paths:
           description: No response body
   /api/accounts/auth/password-reset/confirm/:
     post:
-      operationId: api_accounts_auth_password_reset_confirm_create
+      operationId: accounts_auth_password_reset_confirm_create
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -121,10 +121,10 @@ paths:
           description: No response body
   /api/accounts/break-glass/:
     post:
-      operationId: api_accounts_break_glass_create
+      operationId: accounts_break_glass_create
       description: A clinician opens one record outside their scope by giving a reason.
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -149,7 +149,7 @@ paths:
           description: ''
   /api/accounts/break-glass/grants/:
     get:
-      operationId: api_accounts_break_glass_grants_list
+      operationId: accounts_break_glass_grants_list
       description: Compliance review queue for break-glass access.
       parameters:
       - name: page
@@ -159,7 +159,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -172,7 +172,7 @@ paths:
           description: ''
   /api/accounts/break-glass/grants/{id}/:
     get:
-      operationId: api_accounts_break_glass_grants_retrieve
+      operationId: accounts_break_glass_grants_retrieve
       description: Compliance review queue for break-glass access.
       parameters:
       - in: path
@@ -182,7 +182,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -195,7 +195,7 @@ paths:
           description: ''
   /api/accounts/break-glass/grants/{id}/review/:
     post:
-      operationId: api_accounts_break_glass_grants_review_create
+      operationId: accounts_break_glass_grants_review_create
       description: Compliance review queue for break-glass access.
       parameters:
       - in: path
@@ -205,7 +205,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -230,7 +230,7 @@ paths:
           description: ''
   /api/accounts/break-glass/patients/{patient_id}/:
     get:
-      operationId: api_accounts_break_glass_patients_retrieve
+      operationId: accounts_break_glass_patients_retrieve
       description: |-
         Tells the chart whether some of a patient's records are outside the user's access,
         so it can offer patient-level break-glass, and shows any grant already open.
@@ -242,7 +242,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -255,7 +255,7 @@ paths:
           description: ''
   /api/accounts/role-assignments/:
     get:
-      operationId: api_accounts_role_assignments_list
+      operationId: accounts_role_assignments_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -279,7 +279,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -291,7 +291,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedRoleAssignmentList'
           description: ''
     post:
-      operationId: api_accounts_role_assignments_create
+      operationId: accounts_role_assignments_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -308,7 +308,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -333,7 +333,7 @@ paths:
           description: ''
   /api/accounts/role-assignments/{id}/:
     get:
-      operationId: api_accounts_role_assignments_retrieve
+      operationId: accounts_role_assignments_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -357,7 +357,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -369,7 +369,7 @@ paths:
                 $ref: '#/components/schemas/RoleAssignment'
           description: ''
     delete:
-      operationId: api_accounts_role_assignments_destroy
+      operationId: accounts_role_assignments_destroy
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -393,7 +393,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -402,7 +402,7 @@ paths:
           description: No response body
   /api/accounts/users/:
     get:
-      operationId: api_accounts_users_list
+      operationId: accounts_users_list
       description: Tenant admins manage the users of their organisation. Users are
         deactivated, not deleted.
       parameters:
@@ -413,7 +413,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -425,11 +425,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedUserList'
           description: ''
     post:
-      operationId: api_accounts_users_create
+      operationId: accounts_users_create
       description: Tenant admins manage the users of their organisation. Users are
         deactivated, not deleted.
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -454,7 +454,7 @@ paths:
           description: ''
   /api/accounts/users/{id}/:
     get:
-      operationId: api_accounts_users_retrieve
+      operationId: accounts_users_retrieve
       description: Tenant admins manage the users of their organisation. Users are
         deactivated, not deleted.
       parameters:
@@ -465,7 +465,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -477,7 +477,7 @@ paths:
                 $ref: '#/components/schemas/User'
           description: ''
     patch:
-      operationId: api_accounts_users_partial_update
+      operationId: accounts_users_partial_update
       description: Tenant admins manage the users of their organisation. Users are
         deactivated, not deleted.
       parameters:
@@ -488,7 +488,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       requestBody:
         content:
           application/json:
@@ -512,7 +512,7 @@ paths:
           description: ''
   /api/accounts/users/{id}/deactivate/:
     post:
-      operationId: api_accounts_users_deactivate_create
+      operationId: accounts_users_deactivate_create
       description: Tenant admins manage the users of their organisation. Users are
         deactivated, not deleted.
       parameters:
@@ -523,7 +523,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - accounts
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -536,7 +536,7 @@ paths:
           description: ''
   /api/audit/entries/:
     get:
-      operationId: api_audit_entries_list
+      operationId: audit_entries_list
       description: Read-only audit log of the current tenant for compliance review.
       parameters:
       - in: query
@@ -584,7 +584,7 @@ paths:
         schema:
           type: string
       tags:
-      - api
+      - audit
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -597,7 +597,7 @@ paths:
           description: ''
   /api/audit/entries/{id}/:
     get:
-      operationId: api_audit_entries_retrieve
+      operationId: audit_entries_retrieve
       description: Read-only audit log of the current tenant for compliance review.
       parameters:
       - in: path
@@ -607,7 +607,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - audit
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -620,7 +620,7 @@ paths:
           description: ''
   /api/audit/entries/export/:
     get:
-      operationId: api_audit_entries_export_retrieve
+      operationId: audit_entries_export_retrieve
       description: The filtered log as a CSV, newest first, up to 5000 rows. The export
         is audited.
       parameters:
@@ -658,7 +658,7 @@ paths:
         schema:
           type: string
       tags:
-      - api
+      - audit
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -672,7 +672,7 @@ paths:
           description: ''
   /api/audit/entries/summary/:
     get:
-      operationId: api_audit_entries_summary_retrieve
+      operationId: audit_entries_summary_retrieve
       description: 'Counts for the same filters as the list: all, denied, break-glass,
         and reviews.'
       parameters:
@@ -710,7 +710,7 @@ paths:
         schema:
           type: string
       tags:
-      - api
+      - audit
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -723,7 +723,7 @@ paths:
           description: ''
   /api/billing/claims/:
     get:
-      operationId: api_billing_claims_list
+      operationId: billing_claims_list
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -748,7 +748,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -760,12 +760,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedClaimList'
           description: ''
     post:
-      operationId: api_billing_claims_create
+      operationId: billing_claims_create
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -790,7 +790,7 @@ paths:
           description: ''
   /api/billing/claims/{id}/:
     get:
-      operationId: api_billing_claims_retrieve
+      operationId: billing_claims_retrieve
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -802,7 +802,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -815,7 +815,7 @@ paths:
           description: ''
   /api/billing/claims/{id}/approve/:
     post:
-      operationId: api_billing_claims_approve_create
+      operationId: billing_claims_approve_create
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -827,7 +827,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -852,7 +852,7 @@ paths:
           description: ''
   /api/billing/claims/{id}/reject/:
     post:
-      operationId: api_billing_claims_reject_create
+      operationId: billing_claims_reject_create
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -864,7 +864,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -889,7 +889,7 @@ paths:
           description: ''
   /api/billing/claims/{id}/settle/:
     post:
-      operationId: api_billing_claims_settle_create
+      operationId: billing_claims_settle_create
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -901,7 +901,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -926,7 +926,7 @@ paths:
           description: ''
   /api/billing/claims/{id}/submit/:
     post:
-      operationId: api_billing_claims_submit_create
+      operationId: billing_claims_submit_create
       description: |-
         Claims to insurers. Billing officers make and send them and record the answers; finance
         and the administrator look.
@@ -938,7 +938,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -962,10 +962,10 @@ paths:
           description: ''
   /api/billing/claims/ageing/:
     get:
-      operationId: api_billing_claims_ageing_list
+      operationId: billing_claims_ageing_list
       description: What insurers still owe, by how long ago the claim was sent.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -980,7 +980,7 @@ paths:
           description: ''
   /api/billing/insurers/:
     get:
-      operationId: api_billing_insurers_list
+      operationId: billing_insurers_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1004,7 +1004,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1016,7 +1016,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedInsurerList'
           description: ''
     post:
-      operationId: api_billing_insurers_create
+      operationId: billing_insurers_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1033,7 +1033,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1058,7 +1058,7 @@ paths:
           description: ''
   /api/billing/insurers/{id}/:
     get:
-      operationId: api_billing_insurers_retrieve
+      operationId: billing_insurers_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1082,7 +1082,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1094,7 +1094,7 @@ paths:
                 $ref: '#/components/schemas/Insurer'
           description: ''
     patch:
-      operationId: api_billing_insurers_partial_update
+      operationId: billing_insurers_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1118,7 +1118,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1142,7 +1142,7 @@ paths:
           description: ''
   /api/billing/invoices/:
     get:
-      operationId: api_billing_invoices_list
+      operationId: billing_invoices_list
       description: Invoices are built from charges; billing staff set coverage and
         take payments.
       parameters:
@@ -1181,7 +1181,7 @@ paths:
           type: string
         description: Search text.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1194,7 +1194,7 @@ paths:
           description: ''
   /api/billing/invoices/{id}/:
     get:
-      operationId: api_billing_invoices_retrieve
+      operationId: billing_invoices_retrieve
       description: Invoices are built from charges; billing staff set coverage and
         take payments.
       parameters:
@@ -1205,7 +1205,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1218,7 +1218,7 @@ paths:
           description: ''
   /api/billing/invoices/{id}/charge/:
     post:
-      operationId: api_billing_invoices_charge_create
+      operationId: billing_invoices_charge_create
       description: A manual charge, such as a registration fee.
       parameters:
       - in: path
@@ -1228,7 +1228,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1253,7 +1253,7 @@ paths:
           description: ''
   /api/billing/invoices/{id}/coverage/:
     post:
-      operationId: api_billing_invoices_coverage_create
+      operationId: billing_invoices_coverage_create
       description: Invoices are built from charges; billing staff set coverage and
         take payments.
       parameters:
@@ -1264,7 +1264,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1289,7 +1289,7 @@ paths:
           description: ''
   /api/billing/invoices/{id}/pay/:
     post:
-      operationId: api_billing_invoices_pay_create
+      operationId: billing_invoices_pay_create
       description: Invoices are built from charges; billing staff set coverage and
         take payments.
       parameters:
@@ -1300,7 +1300,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1325,7 +1325,7 @@ paths:
           description: ''
   /api/billing/invoices/{id}/remind/:
     post:
-      operationId: api_billing_invoices_remind_create
+      operationId: billing_invoices_remind_create
       description: Message the patient about the balance still due.
       parameters:
       - in: path
@@ -1335,7 +1335,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1348,7 +1348,7 @@ paths:
           description: ''
   /api/billing/invoices/summary/:
     get:
-      operationId: api_billing_invoices_summary_retrieve
+      operationId: billing_invoices_summary_retrieve
       description: Counts by payment status and the money billed, collected and still
         due.
       parameters:
@@ -1362,7 +1362,7 @@ paths:
           type: string
         description: Search text.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1375,7 +1375,7 @@ paths:
           description: ''
   /api/billing/ledger/accounts/:
     get:
-      operationId: api_billing_ledger_accounts_list
+      operationId: billing_ledger_accounts_list
       description: Chart of accounts with balances, and reconciliation, for finance.
       parameters:
       - name: page
@@ -1385,7 +1385,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1398,7 +1398,7 @@ paths:
           description: ''
   /api/billing/ledger/accounts/{id}/:
     get:
-      operationId: api_billing_ledger_accounts_retrieve
+      operationId: billing_ledger_accounts_retrieve
       description: Chart of accounts with balances, and reconciliation, for finance.
       parameters:
       - in: path
@@ -1408,7 +1408,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1421,10 +1421,20 @@ paths:
           description: ''
   /api/billing/ledger/accounts/balance-sheet/:
     get:
-      operationId: api_billing_ledger_accounts_balance_sheet_retrieve
+      operationId: billing_ledger_accounts_balance_sheet_retrieve
       description: Chart of accounts with balances, and reconciliation, for finance.
+      parameters:
+      - in: query
+        name: as_of
+        schema:
+          type: string
+        description: Date, YYYY-MM-DD.
+      - in: query
+        name: currency
+        schema:
+          type: string
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1437,11 +1447,26 @@ paths:
           description: ''
   /api/billing/ledger/accounts/income-statement/:
     get:
-      operationId: api_billing_ledger_accounts_income_statement_retrieve
+      operationId: billing_ledger_accounts_income_statement_retrieve
       description: Revenue and expenses from ``start`` to ``end`` (dates; default
         this calendar month).
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+      - in: query
+        name: end
+        schema:
+          type: string
+        description: Last date, YYYY-MM-DD.
+      - in: query
+        name: start
+        schema:
+          type: string
+        description: First date, YYYY-MM-DD.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1454,10 +1479,10 @@ paths:
           description: ''
   /api/billing/ledger/accounts/reconcile/:
     get:
-      operationId: api_billing_ledger_accounts_reconcile_retrieve
+      operationId: billing_ledger_accounts_reconcile_retrieve
       description: Chart of accounts with balances, and reconciliation, for finance.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1470,10 +1495,10 @@ paths:
           description: ''
   /api/billing/ledger/accounts/trial-balance/:
     get:
-      operationId: api_billing_ledger_accounts_trial_balance_retrieve
+      operationId: billing_ledger_accounts_trial_balance_retrieve
       description: Chart of accounts with balances, and reconciliation, for finance.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1486,7 +1511,7 @@ paths:
           description: ''
   /api/billing/ledger/entries/:
     get:
-      operationId: api_billing_ledger_entries_list
+      operationId: billing_ledger_entries_list
       description: |-
         The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
         edited or deleted.
@@ -1498,7 +1523,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1510,12 +1535,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedJournalEntryList'
           description: ''
     post:
-      operationId: api_billing_ledger_entries_create
+      operationId: billing_ledger_entries_create
       description: |-
         The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
         edited or deleted.
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1540,7 +1565,7 @@ paths:
           description: ''
   /api/billing/ledger/entries/{id}/:
     get:
-      operationId: api_billing_ledger_entries_retrieve
+      operationId: billing_ledger_entries_retrieve
       description: |-
         The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
         edited or deleted.
@@ -1552,7 +1577,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1565,7 +1590,7 @@ paths:
           description: ''
   /api/billing/ledger/entries/{id}/reverse/:
     post:
-      operationId: api_billing_ledger_entries_reverse_create
+      operationId: billing_ledger_entries_reverse_create
       description: |-
         The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
         edited or deleted.
@@ -1577,7 +1602,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       requestBody:
         content:
           application/json:
@@ -1602,7 +1627,7 @@ paths:
           description: ''
   /api/billing/payment-intents/:
     get:
-      operationId: api_billing_payment_intents_list
+      operationId: billing_payment_intents_list
       description: Online payments started by patients, so finance can see any that
         need review.
       parameters:
@@ -1622,7 +1647,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1635,7 +1660,7 @@ paths:
           description: ''
   /api/billing/payment-intents/{id}/:
     get:
-      operationId: api_billing_payment_intents_retrieve
+      operationId: billing_payment_intents_retrieve
       description: Online payments started by patients, so finance can see any that
         need review.
       parameters:
@@ -1646,7 +1671,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1659,7 +1684,7 @@ paths:
           description: ''
   /api/billing/payments/:
     get:
-      operationId: api_billing_payments_list
+      operationId: billing_payments_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1687,7 +1712,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1700,7 +1725,7 @@ paths:
           description: ''
   /api/billing/payments/{id}/:
     get:
-      operationId: api_billing_payments_retrieve
+      operationId: billing_payments_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -1724,7 +1749,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - billing
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1737,9 +1762,9 @@ paths:
           description: ''
   /api/billing/webhooks/paystack/:
     post:
-      operationId: api_billing_webhooks_paystack_create
+      operationId: billing_webhooks_paystack_create
       tags:
-      - api
+      - billing
       responses:
         '200':
           description: No response body
@@ -1747,7 +1772,7 @@ paths:
           description: No response body
   /api/clinical/codes/icd10/:
     get:
-      operationId: api_clinical_codes_icd10_list
+      operationId: clinical_codes_icd10_list
       description: 'Reference data: ICD-10 code search (``?q=``). No tenant data.'
       parameters:
       - name: page
@@ -1762,7 +1787,7 @@ paths:
           type: string
         description: Search text.
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1775,11 +1800,11 @@ paths:
           description: ''
   /api/clinical/codes/loinc/:
     get:
-      operationId: api_clinical_codes_loinc_list
+      operationId: clinical_codes_loinc_list
       description: 'Reference data: LOINC vital-sign codes with UCUM units. No tenant
         data.'
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1794,7 +1819,7 @@ paths:
           description: ''
   /api/clinical/diagnoses/:
     get:
-      operationId: api_clinical_diagnoses_list
+      operationId: clinical_diagnoses_list
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -1826,7 +1851,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1838,13 +1863,13 @@ paths:
                 $ref: '#/components/schemas/PaginatedDiagnosisList'
           description: ''
     post:
-      operationId: api_clinical_diagnoses_create
+      operationId: clinical_diagnoses_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
         Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -1869,7 +1894,7 @@ paths:
           description: ''
   /api/clinical/diagnoses/{id}/:
     get:
-      operationId: api_clinical_diagnoses_retrieve
+      operationId: clinical_diagnoses_retrieve
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -1882,7 +1907,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -1894,7 +1919,7 @@ paths:
                 $ref: '#/components/schemas/Diagnosis'
           description: ''
     patch:
-      operationId: api_clinical_diagnoses_partial_update
+      operationId: clinical_diagnoses_partial_update
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -1907,7 +1932,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -1931,7 +1956,7 @@ paths:
           description: ''
   /api/clinical/diagnoses/{id}/entered-in-error/:
     post:
-      operationId: api_clinical_diagnoses_entered_in_error_create
+      operationId: clinical_diagnoses_entered_in_error_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -1944,7 +1969,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -1969,7 +1994,7 @@ paths:
           description: ''
   /api/clinical/encounters/:
     get:
-      operationId: api_clinical_encounters_list
+      operationId: clinical_encounters_list
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -1997,7 +2022,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2009,13 +2034,13 @@ paths:
                 $ref: '#/components/schemas/PaginatedEncounterList'
           description: ''
     post:
-      operationId: api_clinical_encounters_create
+      operationId: clinical_encounters_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
         Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2040,7 +2065,7 @@ paths:
           description: ''
   /api/clinical/encounters/{id}/:
     get:
-      operationId: api_clinical_encounters_retrieve
+      operationId: clinical_encounters_retrieve
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2053,7 +2078,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2065,7 +2090,7 @@ paths:
                 $ref: '#/components/schemas/Encounter'
           description: ''
     patch:
-      operationId: api_clinical_encounters_partial_update
+      operationId: clinical_encounters_partial_update
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2078,7 +2103,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2102,7 +2127,7 @@ paths:
           description: ''
   /api/clinical/encounters/{id}/entered-in-error/:
     post:
-      operationId: api_clinical_encounters_entered_in_error_create
+      operationId: clinical_encounters_entered_in_error_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2115,7 +2140,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2140,7 +2165,7 @@ paths:
           description: ''
   /api/clinical/encounters/{id}/rank-diagnoses/:
     post:
-      operationId: api_clinical_encounters_rank_diagnoses_create
+      operationId: clinical_encounters_rank_diagnoses_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2159,7 +2184,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2184,7 +2209,7 @@ paths:
           description: ''
   /api/clinical/encounters/{id}/status/:
     post:
-      operationId: api_clinical_encounters_status_create
+      operationId: clinical_encounters_status_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2197,7 +2222,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2222,7 +2247,7 @@ paths:
           description: ''
   /api/clinical/notes/:
     get:
-      operationId: api_clinical_notes_list
+      operationId: clinical_notes_list
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2250,7 +2275,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2262,13 +2287,13 @@ paths:
                 $ref: '#/components/schemas/PaginatedConsultationNoteList'
           description: ''
     post:
-      operationId: api_clinical_notes_create
+      operationId: clinical_notes_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
         Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2293,7 +2318,7 @@ paths:
           description: ''
   /api/clinical/notes/{id}/:
     get:
-      operationId: api_clinical_notes_retrieve
+      operationId: clinical_notes_retrieve
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2306,7 +2331,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2318,7 +2343,7 @@ paths:
                 $ref: '#/components/schemas/ConsultationNote'
           description: ''
     patch:
-      operationId: api_clinical_notes_partial_update
+      operationId: clinical_notes_partial_update
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2331,7 +2356,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2355,7 +2380,7 @@ paths:
           description: ''
   /api/clinical/notes/{id}/close/:
     post:
-      operationId: api_clinical_notes_close_create
+      operationId: clinical_notes_close_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2368,7 +2393,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2381,7 +2406,7 @@ paths:
           description: ''
   /api/clinical/notes/{id}/entered-in-error/:
     post:
-      operationId: api_clinical_notes_entered_in_error_create
+      operationId: clinical_notes_entered_in_error_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2394,7 +2419,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2419,7 +2444,7 @@ paths:
           description: ''
   /api/clinical/vitals/:
     get:
-      operationId: api_clinical_vitals_list
+      operationId: clinical_vitals_list
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2447,7 +2472,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2459,13 +2484,13 @@ paths:
                 $ref: '#/components/schemas/PaginatedVitalSignsList'
           description: ''
     post:
-      operationId: api_clinical_vitals_create
+      operationId: clinical_vitals_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
         Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2490,7 +2515,7 @@ paths:
           description: ''
   /api/clinical/vitals/{id}/:
     get:
-      operationId: api_clinical_vitals_retrieve
+      operationId: clinical_vitals_retrieve
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2503,7 +2528,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2516,7 +2541,7 @@ paths:
           description: ''
   /api/clinical/vitals/{id}/entered-in-error/:
     post:
-      operationId: api_clinical_vitals_entered_in_error_create
+      operationId: clinical_vitals_entered_in_error_create
       description: |-
         Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
 
@@ -2529,7 +2554,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - clinical
       requestBody:
         content:
           application/json:
@@ -2554,7 +2579,7 @@ paths:
           description: ''
   /api/diagnostics/investigations/:
     get:
-      operationId: api_diagnostics_investigations_list
+      operationId: diagnostics_investigations_list
       description: The catalogue of tests and scans. The administrator sets it up
         with POST and PATCH.
       parameters:
@@ -2569,7 +2594,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2581,11 +2606,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedInvestigationList'
           description: ''
     post:
-      operationId: api_diagnostics_investigations_create
+      operationId: diagnostics_investigations_create
       description: The catalogue of tests and scans. The administrator sets it up
         with POST and PATCH.
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2610,7 +2635,7 @@ paths:
           description: ''
   /api/diagnostics/investigations/{id}/:
     get:
-      operationId: api_diagnostics_investigations_retrieve
+      operationId: diagnostics_investigations_retrieve
       description: The catalogue of tests and scans. The administrator sets it up
         with POST and PATCH.
       parameters:
@@ -2621,7 +2646,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2633,7 +2658,7 @@ paths:
                 $ref: '#/components/schemas/Investigation'
           description: ''
     patch:
-      operationId: api_diagnostics_investigations_partial_update
+      operationId: diagnostics_investigations_partial_update
       description: The catalogue of tests and scans. The administrator sets it up
         with POST and PATCH.
       parameters:
@@ -2644,7 +2669,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2668,7 +2693,7 @@ paths:
           description: ''
   /api/diagnostics/orders/:
     get:
-      operationId: api_diagnostics_orders_list
+      operationId: diagnostics_orders_list
       description: Orders for tests and scans. Ordering, collecting and cancelling
         are actions.
       parameters:
@@ -2693,7 +2718,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2705,11 +2730,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedDiagnosticOrderList'
           description: ''
     post:
-      operationId: api_diagnostics_orders_create
+      operationId: diagnostics_orders_create
       description: Orders for tests and scans. Ordering, collecting and cancelling
         are actions.
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2734,7 +2759,7 @@ paths:
           description: ''
   /api/diagnostics/orders/{id}/:
     get:
-      operationId: api_diagnostics_orders_retrieve
+      operationId: diagnostics_orders_retrieve
       description: Orders for tests and scans. Ordering, collecting and cancelling
         are actions.
       parameters:
@@ -2745,7 +2770,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2758,7 +2783,7 @@ paths:
           description: ''
   /api/diagnostics/orders/{id}/cancel/:
     post:
-      operationId: api_diagnostics_orders_cancel_create
+      operationId: diagnostics_orders_cancel_create
       description: Orders for tests and scans. Ordering, collecting and cancelling
         are actions.
       parameters:
@@ -2769,7 +2794,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2794,7 +2819,7 @@ paths:
           description: ''
   /api/diagnostics/orders/{id}/collect/:
     post:
-      operationId: api_diagnostics_orders_collect_create
+      operationId: diagnostics_orders_collect_create
       description: Orders for tests and scans. Ordering, collecting and cancelling
         are actions.
       parameters:
@@ -2805,7 +2830,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2818,7 +2843,7 @@ paths:
           description: ''
   /api/diagnostics/results/:
     get:
-      operationId: api_diagnostics_results_list
+      operationId: diagnostics_results_list
       description: |-
         Results, newest version first. Recording and correcting are for the technician; a
         doctor reviews.
@@ -2839,7 +2864,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2851,12 +2876,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedResultList'
           description: ''
     post:
-      operationId: api_diagnostics_results_create
+      operationId: diagnostics_results_create
       description: |-
         Results, newest version first. Recording and correcting are for the technician; a
         doctor reviews.
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2881,7 +2906,7 @@ paths:
           description: ''
   /api/diagnostics/results/{id}/:
     get:
-      operationId: api_diagnostics_results_retrieve
+      operationId: diagnostics_results_retrieve
       description: |-
         Results, newest version first. Recording and correcting are for the technician; a
         doctor reviews.
@@ -2893,7 +2918,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2906,7 +2931,7 @@ paths:
           description: ''
   /api/diagnostics/results/{id}/correct/:
     post:
-      operationId: api_diagnostics_results_correct_create
+      operationId: diagnostics_results_correct_create
       description: |-
         Results, newest version first. Recording and correcting are for the technician; a
         doctor reviews.
@@ -2918,7 +2943,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       requestBody:
         content:
           application/json:
@@ -2943,7 +2968,7 @@ paths:
           description: ''
   /api/diagnostics/results/{id}/review/:
     post:
-      operationId: api_diagnostics_results_review_create
+      operationId: diagnostics_results_review_create
       description: |-
         Results, newest version first. Recording and correcting are for the technician; a
         doctor reviews.
@@ -2955,7 +2980,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - diagnostics
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -2968,7 +2993,7 @@ paths:
           description: ''
   /api/inpatient/admissions/:
     get:
-      operationId: api_inpatient_admissions_list
+      operationId: inpatient_admissions_list
       description: Stays. Admit, transfer and discharge are actions; nothing edits
         a stay.
       parameters:
@@ -2988,7 +3013,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3000,10 +3025,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedAdmissionList'
           description: ''
     post:
-      operationId: api_inpatient_admissions_create
+      operationId: inpatient_admissions_create
       description: Admit a patient to a vacant bed.
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3028,7 +3053,7 @@ paths:
           description: ''
   /api/inpatient/admissions/{id}/:
     get:
-      operationId: api_inpatient_admissions_retrieve
+      operationId: inpatient_admissions_retrieve
       description: Stays. Admit, transfer and discharge are actions; nothing edits
         a stay.
       parameters:
@@ -3039,7 +3064,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3052,7 +3077,7 @@ paths:
           description: ''
   /api/inpatient/admissions/{id}/discharge/:
     post:
-      operationId: api_inpatient_admissions_discharge_create
+      operationId: inpatient_admissions_discharge_create
       description: Stays. Admit, transfer and discharge are actions; nothing edits
         a stay.
       parameters:
@@ -3063,7 +3088,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3088,7 +3113,7 @@ paths:
           description: ''
   /api/inpatient/admissions/{id}/transfer/:
     post:
-      operationId: api_inpatient_admissions_transfer_create
+      operationId: inpatient_admissions_transfer_create
       description: Stays. Admit, transfer and discharge are actions; nothing edits
         a stay.
       parameters:
@@ -3099,7 +3124,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3124,7 +3149,7 @@ paths:
           description: ''
   /api/inpatient/beds/:
     get:
-      operationId: api_inpatient_beds_list
+      operationId: inpatient_beds_list
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3136,7 +3161,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3148,12 +3173,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedBedList'
           description: ''
     post:
-      operationId: api_inpatient_beds_create
+      operationId: inpatient_beds_create
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3178,7 +3203,7 @@ paths:
           description: ''
   /api/inpatient/beds/{id}/:
     get:
-      operationId: api_inpatient_beds_retrieve
+      operationId: inpatient_beds_retrieve
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3190,7 +3215,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3202,7 +3227,7 @@ paths:
                 $ref: '#/components/schemas/Bed'
           description: ''
     patch:
-      operationId: api_inpatient_beds_partial_update
+      operationId: inpatient_beds_partial_update
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3214,7 +3239,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3238,7 +3263,7 @@ paths:
           description: ''
   /api/inpatient/beds/{id}/in-service/:
     post:
-      operationId: api_inpatient_beds_in_service_create
+      operationId: inpatient_beds_in_service_create
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3250,7 +3275,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3263,7 +3288,7 @@ paths:
           description: ''
   /api/inpatient/beds/{id}/out-of-service/:
     post:
-      operationId: api_inpatient_beds_out_of_service_create
+      operationId: inpatient_beds_out_of_service_create
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3275,7 +3300,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3288,7 +3313,7 @@ paths:
           description: ''
   /api/inpatient/beds/{id}/ready/:
     post:
-      operationId: api_inpatient_beds_ready_create
+      operationId: inpatient_beds_ready_create
       description: |-
         Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
         bed out of service.
@@ -3300,7 +3325,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3313,12 +3338,12 @@ paths:
           description: ''
   /api/inpatient/wards/:
     get:
-      operationId: api_inpatient_wards_list
+      operationId: inpatient_wards_list
       description: |-
         ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
         sets wards up with POST and PATCH.
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3332,12 +3357,12 @@ paths:
                   $ref: '#/components/schemas/BoardWard'
           description: ''
     post:
-      operationId: api_inpatient_wards_create
+      operationId: inpatient_wards_create
       description: |-
         ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
         sets wards up with POST and PATCH.
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3362,7 +3387,7 @@ paths:
           description: ''
   /api/inpatient/wards/{id}/:
     get:
-      operationId: api_inpatient_wards_retrieve
+      operationId: inpatient_wards_retrieve
       description: |-
         ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
         sets wards up with POST and PATCH.
@@ -3374,7 +3399,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3386,7 +3411,7 @@ paths:
                 $ref: '#/components/schemas/Ward'
           description: ''
     patch:
-      operationId: api_inpatient_wards_partial_update
+      operationId: inpatient_wards_partial_update
       description: |-
         ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
         sets wards up with POST and PATCH.
@@ -3398,7 +3423,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inpatient
       requestBody:
         content:
           application/json:
@@ -3422,7 +3447,7 @@ paths:
           description: ''
   /api/inventory/items/:
     get:
-      operationId: api_inventory_items_list
+      operationId: inventory_items_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -3455,7 +3480,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - inventory
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3467,7 +3492,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedItemList'
           description: ''
     post:
-      operationId: api_inventory_items_create
+      operationId: inventory_items_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -3484,7 +3509,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - inventory
       requestBody:
         content:
           application/json:
@@ -3509,7 +3534,7 @@ paths:
           description: ''
   /api/inventory/items/{id}/:
     get:
-      operationId: api_inventory_items_retrieve
+      operationId: inventory_items_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -3533,7 +3558,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inventory
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3545,7 +3570,7 @@ paths:
                 $ref: '#/components/schemas/Item'
           description: ''
     patch:
-      operationId: api_inventory_items_partial_update
+      operationId: inventory_items_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -3569,7 +3594,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inventory
       requestBody:
         content:
           application/json:
@@ -3593,7 +3618,7 @@ paths:
           description: ''
   /api/inventory/items/summary/:
     get:
-      operationId: api_inventory_items_summary_retrieve
+      operationId: inventory_items_summary_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -3610,7 +3635,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - inventory
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3623,7 +3648,7 @@ paths:
           description: ''
   /api/inventory/movements/:
     get:
-      operationId: api_inventory_movements_list
+      operationId: inventory_movements_list
       description: History of every receipt, issue and count correction. Movements
         are only added.
       parameters:
@@ -3638,7 +3663,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - inventory
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3650,11 +3675,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedMovementList'
           description: ''
     post:
-      operationId: api_inventory_movements_create
+      operationId: inventory_movements_create
       description: History of every receipt, issue and count correction. Movements
         are only added.
       tags:
-      - api
+      - inventory
       requestBody:
         content:
           application/json:
@@ -3679,7 +3704,7 @@ paths:
           description: ''
   /api/inventory/movements/{id}/:
     get:
-      operationId: api_inventory_movements_retrieve
+      operationId: inventory_movements_retrieve
       description: History of every receipt, issue and count correction. Movements
         are only added.
       parameters:
@@ -3690,7 +3715,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - inventory
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3703,7 +3728,7 @@ paths:
           description: ''
   /api/messaging/threads/:
     get:
-      operationId: api_messaging_threads_list
+      operationId: messaging_threads_list
       description: |-
         The signed-in person's own conversations. Membership, not role, decides who can read a
         thread, so a thread of other people is a 404 for everyone, the tenant admin included.
@@ -3715,7 +3740,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - messaging
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3727,12 +3752,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedThreadList'
           description: ''
     post:
-      operationId: api_messaging_threads_create
+      operationId: messaging_threads_create
       description: |-
         The signed-in person's own conversations. Membership, not role, decides who can read a
         thread, so a thread of other people is a 404 for everyone, the tenant admin included.
       tags:
-      - api
+      - messaging
       requestBody:
         content:
           application/json:
@@ -3757,7 +3782,7 @@ paths:
           description: ''
   /api/messaging/threads/{id}/:
     get:
-      operationId: api_messaging_threads_retrieve
+      operationId: messaging_threads_retrieve
       description: |-
         The signed-in person's own conversations. Membership, not role, decides who can read a
         thread, so a thread of other people is a 404 for everyone, the tenant admin included.
@@ -3769,7 +3794,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - messaging
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3782,7 +3807,7 @@ paths:
           description: ''
   /api/messaging/threads/{id}/reply/:
     post:
-      operationId: api_messaging_threads_reply_create
+      operationId: messaging_threads_reply_create
       description: |-
         The signed-in person's own conversations. Membership, not role, decides who can read a
         thread, so a thread of other people is a 404 for everyone, the tenant admin included.
@@ -3794,7 +3819,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - messaging
       requestBody:
         content:
           application/json:
@@ -3819,7 +3844,7 @@ paths:
           description: ''
   /api/patients/allergies/:
     get:
-      operationId: api_patients_allergies_list
+      operationId: patients_allergies_list
       description: Entered-in-Error rows are hidden from lists unless ``?history=true``;
         never deleted.
       parameters:
@@ -3840,7 +3865,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3852,11 +3877,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedAllergyList'
           description: ''
     post:
-      operationId: api_patients_allergies_create
+      operationId: patients_allergies_create
       description: Entered-in-Error rows are hidden from lists unless ``?history=true``;
         never deleted.
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -3881,7 +3906,7 @@ paths:
           description: ''
   /api/patients/allergies/{id}/:
     get:
-      operationId: api_patients_allergies_retrieve
+      operationId: patients_allergies_retrieve
       description: Entered-in-Error rows are hidden from lists unless ``?history=true``;
         never deleted.
       parameters:
@@ -3892,7 +3917,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -3904,7 +3929,7 @@ paths:
                 $ref: '#/components/schemas/Allergy'
           description: ''
     patch:
-      operationId: api_patients_allergies_partial_update
+      operationId: patients_allergies_partial_update
       description: Entered-in-Error rows are hidden from lists unless ``?history=true``;
         never deleted.
       parameters:
@@ -3915,7 +3940,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -3939,7 +3964,7 @@ paths:
           description: ''
   /api/patients/allergies/{id}/entered-in-error/:
     post:
-      operationId: api_patients_allergies_entered_in_error_create
+      operationId: patients_allergies_entered_in_error_create
       description: Entered-in-Error rows are hidden from lists unless ``?history=true``;
         never deleted.
       parameters:
@@ -3950,7 +3975,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -3975,7 +4000,7 @@ paths:
           description: ''
   /api/patients/attachments/:
     get:
-      operationId: api_patients_attachments_list
+      operationId: patients_attachments_list
       description: Files in private storage. Content is only reachable through a short-lived
         signed URL.
       parameters:
@@ -3996,7 +4021,7 @@ paths:
           type: string
         description: Only rows of this patient (id).
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4008,11 +4033,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedAttachmentList'
           description: ''
     post:
-      operationId: api_patients_attachments_create
+      operationId: patients_attachments_create
       description: Files in private storage. Content is only reachable through a short-lived
         signed URL.
       tags:
-      - api
+      - patients
       requestBody:
         content:
           multipart/form-data:
@@ -4037,7 +4062,7 @@ paths:
           description: ''
   /api/patients/attachments/{id}/:
     get:
-      operationId: api_patients_attachments_retrieve
+      operationId: patients_attachments_retrieve
       description: Files in private storage. Content is only reachable through a short-lived
         signed URL.
       parameters:
@@ -4048,7 +4073,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4061,7 +4086,7 @@ paths:
           description: ''
   /api/patients/attachments/{id}/download/:
     get:
-      operationId: api_patients_attachments_download_retrieve
+      operationId: patients_attachments_download_retrieve
       description: Files in private storage. Content is only reachable through a short-lived
         signed URL.
       parameters:
@@ -4072,7 +4097,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4085,7 +4110,7 @@ paths:
           description: ''
   /api/patients/attachments/{id}/entered-in-error/:
     post:
-      operationId: api_patients_attachments_entered_in_error_create
+      operationId: patients_attachments_entered_in_error_create
       description: Files in private storage. Content is only reachable through a short-lived
         signed URL.
       parameters:
@@ -4096,7 +4121,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           multipart/form-data:
@@ -4121,7 +4146,7 @@ paths:
           description: ''
   /api/patients/duplicate-reviews/:
     get:
-      operationId: api_patients_duplicate_reviews_list
+      operationId: patients_duplicate_reviews_list
       description: Queue of registrations held as possible duplicates.
       parameters:
       - name: page
@@ -4136,7 +4161,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4149,7 +4174,7 @@ paths:
           description: ''
   /api/patients/duplicate-reviews/{id}/:
     get:
-      operationId: api_patients_duplicate_reviews_retrieve
+      operationId: patients_duplicate_reviews_retrieve
       description: Queue of registrations held as possible duplicates.
       parameters:
       - in: path
@@ -4159,7 +4184,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4172,7 +4197,7 @@ paths:
           description: ''
   /api/patients/duplicate-reviews/{id}/resolve/:
     post:
-      operationId: api_patients_duplicate_reviews_resolve_create
+      operationId: patients_duplicate_reviews_resolve_create
       description: Queue of registrations held as possible duplicates.
       parameters:
       - in: path
@@ -4182,7 +4207,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4207,7 +4232,7 @@ paths:
           description: ''
   /api/patients/patients/:
     get:
-      operationId: api_patients_patients_list
+      operationId: patients_patients_list
       description: Patient register. Registration may be held for duplicate review
         (409).
       parameters:
@@ -4248,7 +4273,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4260,11 +4285,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedPatientListList'
           description: ''
     post:
-      operationId: api_patients_patients_create
+      operationId: patients_patients_create
       description: Patient register. Registration may be held for duplicate review
         (409).
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4289,7 +4314,7 @@ paths:
           description: ''
   /api/patients/patients/{id}/:
     get:
-      operationId: api_patients_patients_retrieve
+      operationId: patients_patients_retrieve
       description: Patient register. Registration may be held for duplicate review
         (409).
       parameters:
@@ -4300,7 +4325,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4312,7 +4337,7 @@ paths:
                 $ref: '#/components/schemas/Patient'
           description: ''
     patch:
-      operationId: api_patients_patients_partial_update
+      operationId: patients_patients_partial_update
       description: Patient register. Registration may be held for duplicate review
         (409).
       parameters:
@@ -4323,7 +4348,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4347,7 +4372,7 @@ paths:
           description: ''
   /api/patients/patients/{id}/entered-in-error/:
     post:
-      operationId: api_patients_patients_entered_in_error_create
+      operationId: patients_patients_entered_in_error_create
       description: Patient register. Registration may be held for duplicate review
         (409).
       parameters:
@@ -4358,7 +4383,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4383,7 +4408,7 @@ paths:
           description: ''
   /api/patients/patients/{id}/status/:
     post:
-      operationId: api_patients_patients_status_create
+      operationId: patients_patients_status_create
       description: Patient register. Registration may be held for duplicate review
         (409).
       parameters:
@@ -4394,7 +4419,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4419,12 +4444,12 @@ paths:
           description: ''
   /api/patients/patients/check-duplicates/:
     post:
-      operationId: api_patients_patients_check_duplicates_create
+      operationId: patients_patients_check_duplicates_create
       description: |-
         Possible matches for the person being registered, for the form to show as the
         clerk types. Nothing is saved; matches above the hold threshold say so.
       tags:
-      - api
+      - patients
       requestBody:
         content:
           application/json:
@@ -4451,7 +4476,7 @@ paths:
           description: ''
   /api/pharmacy/drugs/:
     get:
-      operationId: api_pharmacy_drugs_list
+      operationId: pharmacy_drugs_list
       description: The formulary.
       parameters:
       - in: query
@@ -4470,7 +4495,7 @@ paths:
           type: string
         description: Search text.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4482,10 +4507,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedDrugList'
           description: ''
     post:
-      operationId: api_pharmacy_drugs_create
+      operationId: pharmacy_drugs_create
       description: The formulary.
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4510,7 +4535,7 @@ paths:
           description: ''
   /api/pharmacy/drugs/{id}/:
     get:
-      operationId: api_pharmacy_drugs_retrieve
+      operationId: pharmacy_drugs_retrieve
       description: The formulary.
       parameters:
       - in: path
@@ -4520,7 +4545,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4532,7 +4557,7 @@ paths:
                 $ref: '#/components/schemas/Drug'
           description: ''
     patch:
-      operationId: api_pharmacy_drugs_partial_update
+      operationId: pharmacy_drugs_partial_update
       description: The formulary.
       parameters:
       - in: path
@@ -4542,7 +4567,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4566,7 +4591,7 @@ paths:
           description: ''
   /api/pharmacy/orders/:
     get:
-      operationId: api_pharmacy_orders_list
+      operationId: pharmacy_orders_list
       description: Orders to vendors. Placing and receiving are actions; nothing edits
         an order.
       parameters:
@@ -4597,7 +4622,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4610,7 +4635,7 @@ paths:
           description: ''
   /api/pharmacy/orders/{id}/:
     get:
-      operationId: api_pharmacy_orders_retrieve
+      operationId: pharmacy_orders_retrieve
       description: Orders to vendors. Placing and receiving are actions; nothing edits
         an order.
       parameters:
@@ -4621,7 +4646,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4634,7 +4659,7 @@ paths:
           description: ''
   /api/pharmacy/orders/{id}/cancel/:
     post:
-      operationId: api_pharmacy_orders_cancel_create
+      operationId: pharmacy_orders_cancel_create
       description: Orders to vendors. Placing and receiving are actions; nothing edits
         an order.
       parameters:
@@ -4645,7 +4670,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4658,7 +4683,7 @@ paths:
           description: ''
   /api/pharmacy/orders/{id}/receive/:
     post:
-      operationId: api_pharmacy_orders_receive_create
+      operationId: pharmacy_orders_receive_create
       description: Orders to vendors. Placing and receiving are actions; nothing edits
         an order.
       parameters:
@@ -4669,7 +4694,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4694,11 +4719,11 @@ paths:
           description: ''
   /api/pharmacy/orders/place/:
     post:
-      operationId: api_pharmacy_orders_place_create
+      operationId: pharmacy_orders_place_create
       description: Orders to vendors. Placing and receiving are actions; nothing edits
         an order.
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4723,7 +4748,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/:
     get:
-      operationId: api_pharmacy_prescriptions_list
+      operationId: pharmacy_prescriptions_list
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: query
@@ -4748,7 +4773,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4760,10 +4785,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedPrescriptionList'
           description: ''
     post:
-      operationId: api_pharmacy_prescriptions_create
+      operationId: pharmacy_prescriptions_create
       description: Prescribing (draft, safety check, sign) and dispensing.
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4788,7 +4813,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/:
     get:
-      operationId: api_pharmacy_prescriptions_retrieve
+      operationId: pharmacy_prescriptions_retrieve
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4798,7 +4823,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4810,7 +4835,7 @@ paths:
                 $ref: '#/components/schemas/Prescription'
           description: ''
     patch:
-      operationId: api_pharmacy_prescriptions_partial_update
+      operationId: pharmacy_prescriptions_partial_update
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4820,7 +4845,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4844,7 +4869,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/authorise/:
     post:
-      operationId: api_pharmacy_prescriptions_authorise_create
+      operationId: pharmacy_prescriptions_authorise_create
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4854,7 +4879,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4878,7 +4903,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/cancel/:
     post:
-      operationId: api_pharmacy_prescriptions_cancel_create
+      operationId: pharmacy_prescriptions_cancel_create
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4888,7 +4913,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4913,7 +4938,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/check/:
     post:
-      operationId: api_pharmacy_prescriptions_check_create
+      operationId: pharmacy_prescriptions_check_create
       description: Preview the safety alerts of a draft without signing.
       parameters:
       - in: path
@@ -4923,7 +4948,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4938,7 +4963,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/dispense/:
     post:
-      operationId: api_pharmacy_prescriptions_dispense_create
+      operationId: pharmacy_prescriptions_dispense_create
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4948,7 +4973,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -4973,7 +4998,7 @@ paths:
           description: ''
   /api/pharmacy/prescriptions/{id}/verify/:
     get:
-      operationId: api_pharmacy_prescriptions_verify_retrieve
+      operationId: pharmacy_prescriptions_verify_retrieve
       description: Prescribing (draft, safety check, sign) and dispensing.
       parameters:
       - in: path
@@ -4983,7 +5008,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -4996,7 +5021,7 @@ paths:
           description: ''
   /api/pharmacy/stock/:
     get:
-      operationId: api_pharmacy_stock_list
+      operationId: pharmacy_stock_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5024,7 +5049,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5036,7 +5061,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedStockBatchList'
           description: ''
     post:
-      operationId: api_pharmacy_stock_create
+      operationId: pharmacy_stock_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5053,7 +5078,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -5078,7 +5103,7 @@ paths:
           description: ''
   /api/pharmacy/stock/{id}/:
     get:
-      operationId: api_pharmacy_stock_retrieve
+      operationId: pharmacy_stock_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5102,7 +5127,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5114,7 +5139,7 @@ paths:
                 $ref: '#/components/schemas/StockBatch'
           description: ''
     patch:
-      operationId: api_pharmacy_stock_partial_update
+      operationId: pharmacy_stock_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5138,7 +5163,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -5162,7 +5187,7 @@ paths:
           description: ''
   /api/pharmacy/stock/inventory/:
     get:
-      operationId: api_pharmacy_stock_inventory_list
+      operationId: pharmacy_stock_inventory_list
       description: 'One row per formulary drug: units available, on order, and its
         stock status.'
       parameters:
@@ -5188,7 +5213,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5201,11 +5226,11 @@ paths:
           description: ''
   /api/pharmacy/stock/summary/:
     get:
-      operationId: api_pharmacy_stock_summary_retrieve
+      operationId: pharmacy_stock_summary_retrieve
       description: Asset value, product count and how many drugs are in stock, low
         or out.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5218,7 +5243,7 @@ paths:
           description: ''
   /api/pharmacy/vendors/:
     get:
-      operationId: api_pharmacy_vendors_list
+      operationId: pharmacy_vendors_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5235,7 +5260,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5249,7 +5274,7 @@ paths:
                   $ref: '#/components/schemas/Vendor'
           description: ''
     post:
-      operationId: api_pharmacy_vendors_create
+      operationId: pharmacy_vendors_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5266,7 +5291,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -5291,7 +5316,7 @@ paths:
           description: ''
   /api/pharmacy/vendors/{id}/:
     get:
-      operationId: api_pharmacy_vendors_retrieve
+      operationId: pharmacy_vendors_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5315,7 +5340,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5327,7 +5352,7 @@ paths:
                 $ref: '#/components/schemas/Vendor'
           description: ''
     patch:
-      operationId: api_pharmacy_vendors_partial_update
+      operationId: pharmacy_vendors_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -5351,7 +5376,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - pharmacy
       requestBody:
         content:
           application/json:
@@ -5375,7 +5400,7 @@ paths:
           description: ''
   /api/portal/accounts/:
     get:
-      operationId: api_portal_accounts_list
+      operationId: portal_accounts_list
       description: Staff invite a patient to the portal and switch access off.
       parameters:
       - name: page
@@ -5385,7 +5410,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5397,10 +5422,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedPortalAccountList'
           description: ''
     post:
-      operationId: api_portal_accounts_create
+      operationId: portal_accounts_create
       description: Staff invite a patient to the portal and switch access off.
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5425,7 +5450,7 @@ paths:
           description: ''
   /api/portal/accounts/{id}/:
     get:
-      operationId: api_portal_accounts_retrieve
+      operationId: portal_accounts_retrieve
       description: Staff invite a patient to the portal and switch access off.
       parameters:
       - in: path
@@ -5435,7 +5460,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5448,7 +5473,7 @@ paths:
           description: ''
   /api/portal/accounts/{id}/revoke/:
     post:
-      operationId: api_portal_accounts_revoke_create
+      operationId: portal_accounts_revoke_create
       description: Staff invite a patient to the portal and switch access off.
       parameters:
       - in: path
@@ -5458,7 +5483,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5471,10 +5496,10 @@ paths:
           description: ''
   /api/portal/appointment-slots/:
     get:
-      operationId: api_portal_appointment_slots_list
+      operationId: portal_appointment_slots_list
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5489,10 +5514,10 @@ paths:
           description: ''
   /api/portal/appointments/:
     get:
-      operationId: api_portal_appointments_list
+      operationId: portal_appointments_list
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5506,10 +5531,10 @@ paths:
                   $ref: '#/components/schemas/PortalAppointment'
           description: ''
     post:
-      operationId: api_portal_appointments_create
+      operationId: portal_appointments_create
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5534,7 +5559,7 @@ paths:
           description: ''
   /api/portal/appointments/{id}/cancel/:
     post:
-      operationId: api_portal_appointments_cancel_create
+      operationId: portal_appointments_cancel_create
       description: Base for the patient's own endpoints.
       parameters:
       - in: path
@@ -5544,7 +5569,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5569,7 +5594,7 @@ paths:
           description: ''
   /api/portal/data-requests/:
     get:
-      operationId: api_portal_data_requests_list
+      operationId: portal_data_requests_list
       description: Compliance answers patients' data-protection requests. The most
         overdue come first.
       parameters:
@@ -5580,7 +5605,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5593,7 +5618,7 @@ paths:
           description: ''
   /api/portal/data-requests/{id}/:
     get:
-      operationId: api_portal_data_requests_retrieve
+      operationId: portal_data_requests_retrieve
       description: Compliance answers patients' data-protection requests. The most
         overdue come first.
       parameters:
@@ -5604,7 +5629,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5617,7 +5642,7 @@ paths:
           description: ''
   /api/portal/data-requests/{id}/respond/:
     post:
-      operationId: api_portal_data_requests_respond_create
+      operationId: portal_data_requests_respond_create
       description: Compliance answers patients' data-protection requests. The most
         overdue come first.
       parameters:
@@ -5628,7 +5653,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5653,10 +5678,10 @@ paths:
           description: ''
   /api/portal/home/:
     get:
-      operationId: api_portal_home_retrieve
+      operationId: portal_home_retrieve
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5669,10 +5694,10 @@ paths:
           description: ''
   /api/portal/invoices/:
     get:
-      operationId: api_portal_invoices_list
+      operationId: portal_invoices_list
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5687,7 +5712,7 @@ paths:
           description: ''
   /api/portal/invoices/{id}/pay/:
     post:
-      operationId: api_portal_invoices_pay_create
+      operationId: portal_invoices_pay_create
       description: Start paying part or all of one of the patient's own bills at Paystack's
         page.
       parameters:
@@ -5698,7 +5723,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5723,13 +5748,13 @@ paths:
           description: ''
   /api/portal/my-information/:
     get:
-      operationId: api_portal_my_information_retrieve
+      operationId: portal_my_information_retrieve
       description: |-
         Everything the portal holds about the patient, as one file they can keep. This is not a
         copy of the medical record: for that the patient makes an "access" request, which staff
         answer.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5742,7 +5767,7 @@ paths:
           description: ''
   /api/portal/payments/{reference}/verify/:
     post:
-      operationId: api_portal_payments_verify_create
+      operationId: portal_payments_verify_create
       description: |-
         Called when the patient comes back from the payment page: ask Paystack, then say what
         happened. The browser's word is never taken for it.
@@ -5753,7 +5778,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5766,10 +5791,10 @@ paths:
           description: ''
   /api/portal/prescriptions/:
     get:
-      operationId: api_portal_prescriptions_list
+      operationId: portal_prescriptions_list
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5784,12 +5809,12 @@ paths:
           description: ''
   /api/portal/privacy/:
     get:
-      operationId: api_portal_privacy_retrieve
+      operationId: portal_privacy_retrieve
       description: |-
         Who is responsible for the patient's information, how to reach them, and for how long it is
         kept. The wording of the notice itself is in the web app and is versioned with this.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5802,10 +5827,10 @@ paths:
           description: ''
   /api/portal/profile/:
     get:
-      operationId: api_portal_profile_retrieve
+      operationId: portal_profile_retrieve
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5817,10 +5842,10 @@ paths:
                 $ref: '#/components/schemas/PortalProfile'
           description: ''
     patch:
-      operationId: api_portal_profile_partial_update
+      operationId: portal_profile_partial_update
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5844,11 +5869,11 @@ paths:
           description: ''
   /api/portal/requests/:
     get:
-      operationId: api_portal_requests_list
+      operationId: portal_requests_list
       description: 'The patient''s own data-protection requests: list them, make a
         new one.'
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5862,11 +5887,11 @@ paths:
                   $ref: '#/components/schemas/PortalRequest'
           description: ''
     post:
-      operationId: api_portal_requests_create
+      operationId: portal_requests_create
       description: 'The patient''s own data-protection requests: list them, make a
         new one.'
       tags:
-      - api
+      - portal
       requestBody:
         content:
           application/json:
@@ -5891,10 +5916,10 @@ paths:
           description: ''
   /api/portal/results/:
     get:
-      operationId: api_portal_results_list
+      operationId: portal_results_list
       description: Base for the patient's own endpoints.
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5909,7 +5934,7 @@ paths:
           description: ''
   /api/portal/results/{id}/seen/:
     post:
-      operationId: api_portal_results_seen_create
+      operationId: portal_results_seen_create
       description: Base for the patient's own endpoints.
       parameters:
       - in: path
@@ -5919,7 +5944,7 @@ paths:
           format: uuid
         required: true
       tags:
-      - api
+      - portal
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5932,7 +5957,7 @@ paths:
           description: ''
   /api/reports/dashboard/:
     get:
-      operationId: api_reports_dashboard_retrieve
+      operationId: reports_dashboard_retrieve
       description: Totals for the dashboard cards the user may see (see ``reports.services``).
       parameters:
       - in: query
@@ -5948,7 +5973,7 @@ paths:
           * `12m` - Last 12 months
           * `30d` - Last 30 days
       tags:
-      - api
+      - reports
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -5961,7 +5986,7 @@ paths:
           description: ''
   /api/scheduling/appointments/:
     get:
-      operationId: api_scheduling_appointments_list
+      operationId: scheduling_appointments_list
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: query
@@ -6008,7 +6033,7 @@ paths:
           type: string
         description: Only rows starting before this time (ISO 8601).
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6020,10 +6045,10 @@ paths:
                 $ref: '#/components/schemas/PaginatedAppointmentList'
           description: ''
     post:
-      operationId: api_scheduling_appointments_create
+      operationId: scheduling_appointments_create
       description: Booking, the appointment lifecycle and the physician queue.
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6048,7 +6073,7 @@ paths:
           description: ''
   /api/scheduling/appointments/{id}/:
     get:
-      operationId: api_scheduling_appointments_retrieve
+      operationId: scheduling_appointments_retrieve
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: path
@@ -6058,7 +6083,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6070,7 +6095,7 @@ paths:
                 $ref: '#/components/schemas/Appointment'
           description: ''
     patch:
-      operationId: api_scheduling_appointments_partial_update
+      operationId: scheduling_appointments_partial_update
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: path
@@ -6080,7 +6105,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6104,7 +6129,7 @@ paths:
           description: ''
   /api/scheduling/appointments/{id}/reschedule/:
     post:
-      operationId: api_scheduling_appointments_reschedule_create
+      operationId: scheduling_appointments_reschedule_create
       description: Move an appointment that has not started to another time or physician.
       parameters:
       - in: path
@@ -6114,7 +6139,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6139,7 +6164,7 @@ paths:
           description: ''
   /api/scheduling/appointments/{id}/status/:
     post:
-      operationId: api_scheduling_appointments_status_create
+      operationId: scheduling_appointments_status_create
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: path
@@ -6149,7 +6174,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6174,7 +6199,7 @@ paths:
           description: ''
   /api/scheduling/appointments/{id}/triage/:
     post:
-      operationId: api_scheduling_appointments_triage_create
+      operationId: scheduling_appointments_triage_create
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: path
@@ -6184,7 +6209,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6209,7 +6234,7 @@ paths:
           description: ''
   /api/scheduling/appointments/free-slots/:
     get:
-      operationId: api_scheduling_appointments_free_slots_list
+      operationId: scheduling_appointments_free_slots_list
       description: Booking, the appointment lifecycle and the physician queue.
       parameters:
       - in: query
@@ -6223,7 +6248,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6238,7 +6263,7 @@ paths:
           description: ''
   /api/scheduling/appointments/queue/:
     get:
-      operationId: api_scheduling_appointments_queue_list
+      operationId: scheduling_appointments_queue_list
       description: The physician's waiting queue (``?physician=``), as the WebSocket
         sends it.
       parameters:
@@ -6248,7 +6273,7 @@ paths:
           type: string
         required: true
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6263,7 +6288,7 @@ paths:
           description: ''
   /api/scheduling/availability/:
     get:
-      operationId: api_scheduling_availability_list
+      operationId: scheduling_availability_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6306,7 +6331,7 @@ paths:
           type: string
         description: Only rows starting before this time (ISO 8601).
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6318,7 +6343,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedAvailabilityWindowList'
           description: ''
     post:
-      operationId: api_scheduling_availability_create
+      operationId: scheduling_availability_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6335,7 +6360,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6360,7 +6385,7 @@ paths:
           description: ''
   /api/scheduling/availability/{id}/:
     get:
-      operationId: api_scheduling_availability_retrieve
+      operationId: scheduling_availability_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6384,7 +6409,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6396,7 +6421,7 @@ paths:
                 $ref: '#/components/schemas/AvailabilityWindow'
           description: ''
     put:
-      operationId: api_scheduling_availability_update
+      operationId: scheduling_availability_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6420,7 +6445,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6444,7 +6469,7 @@ paths:
                 $ref: '#/components/schemas/AvailabilityWindow'
           description: ''
     patch:
-      operationId: api_scheduling_availability_partial_update
+      operationId: scheduling_availability_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6468,7 +6493,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       requestBody:
         content:
           application/json:
@@ -6491,7 +6516,7 @@ paths:
                 $ref: '#/components/schemas/AvailabilityWindow'
           description: ''
     delete:
-      operationId: api_scheduling_availability_destroy
+      operationId: scheduling_availability_destroy
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6515,7 +6540,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - scheduling
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6524,7 +6549,7 @@ paths:
           description: No response body
   /api/staff/leave/:
     get:
-      operationId: api_staff_leave_list
+      operationId: staff_leave_list
       description: |-
         Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
         and HR decides.
@@ -6541,7 +6566,7 @@ paths:
           type: string
         description: Only rows with this status.
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6553,12 +6578,12 @@ paths:
                 $ref: '#/components/schemas/PaginatedLeaveList'
           description: ''
     post:
-      operationId: api_staff_leave_create
+      operationId: staff_leave_create
       description: |-
         Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
         and HR decides.
       tags:
-      - api
+      - staff
       requestBody:
         content:
           application/json:
@@ -6583,7 +6608,7 @@ paths:
           description: ''
   /api/staff/leave/{id}/:
     get:
-      operationId: api_staff_leave_retrieve
+      operationId: staff_leave_retrieve
       description: |-
         Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
         and HR decides.
@@ -6595,7 +6620,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6608,7 +6633,7 @@ paths:
           description: ''
   /api/staff/leave/{id}/cancel/:
     post:
-      operationId: api_staff_leave_cancel_create
+      operationId: staff_leave_cancel_create
       description: |-
         Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
         and HR decides.
@@ -6620,7 +6645,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6633,7 +6658,7 @@ paths:
           description: ''
   /api/staff/leave/{id}/decide/:
     post:
-      operationId: api_staff_leave_decide_create
+      operationId: staff_leave_decide_create
       description: |-
         Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
         and HR decides.
@@ -6645,7 +6670,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       requestBody:
         content:
           application/json:
@@ -6670,7 +6695,7 @@ paths:
           description: ''
   /api/staff/profiles/:
     get:
-      operationId: api_staff_profiles_list
+      operationId: staff_profiles_list
       description: Staff directory and licence records. HR and tenant admins maintain
         them.
       parameters:
@@ -6703,7 +6728,7 @@ paths:
         schema:
           type: string
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6715,11 +6740,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedStaffProfileList'
           description: ''
     post:
-      operationId: api_staff_profiles_create
+      operationId: staff_profiles_create
       description: Staff directory and licence records. HR and tenant admins maintain
         them.
       tags:
-      - api
+      - staff
       requestBody:
         content:
           application/json:
@@ -6744,7 +6769,7 @@ paths:
           description: ''
   /api/staff/profiles/{id}/:
     get:
-      operationId: api_staff_profiles_retrieve
+      operationId: staff_profiles_retrieve
       description: Staff directory and licence records. HR and tenant admins maintain
         them.
       parameters:
@@ -6755,7 +6780,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6767,7 +6792,7 @@ paths:
                 $ref: '#/components/schemas/StaffProfile'
           description: ''
     patch:
-      operationId: api_staff_profiles_partial_update
+      operationId: staff_profiles_partial_update
       description: Staff directory and licence records. HR and tenant admins maintain
         them.
       parameters:
@@ -6778,7 +6803,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       requestBody:
         content:
           application/json:
@@ -6802,7 +6827,7 @@ paths:
           description: ''
   /api/staff/profiles/{id}/verify-licence/:
     post:
-      operationId: api_staff_profiles_verify_licence_create
+      operationId: staff_profiles_verify_licence_create
       description: Staff directory and licence records. HR and tenant admins maintain
         them.
       parameters:
@@ -6813,7 +6838,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       requestBody:
         content:
           application/json:
@@ -6838,10 +6863,10 @@ paths:
           description: ''
   /api/staff/profiles/summary/:
     get:
-      operationId: api_staff_profiles_summary_retrieve
+      operationId: staff_profiles_summary_retrieve
       description: Headcount for the two tabs, and how many licences need attention.
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6854,7 +6879,7 @@ paths:
           description: ''
   /api/staff/shifts/:
     get:
-      operationId: api_staff_shifts_list
+      operationId: staff_shifts_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6878,7 +6903,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6891,7 +6916,7 @@ paths:
           description: ''
   /api/staff/shifts/{id}/:
     get:
-      operationId: api_staff_shifts_retrieve
+      operationId: staff_shifts_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6915,7 +6940,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6928,10 +6953,10 @@ paths:
           description: ''
   /api/staff/shifts/clock-in/:
     post:
-      operationId: api_staff_shifts_clock_in_create
+      operationId: staff_shifts_clock_in_create
       description: The caller starts their own shift (On-Duty).
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6944,10 +6969,10 @@ paths:
           description: ''
   /api/staff/shifts/clock-out/:
     post:
-      operationId: api_staff_shifts_clock_out_create
+      operationId: staff_shifts_clock_out_create
       description: The caller ends their own shift (Off-Duty).
       tags:
-      - api
+      - staff
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -6960,7 +6985,7 @@ paths:
           description: ''
   /api/tenants/departments/:
     get:
-      operationId: api_tenants_departments_list
+      operationId: tenants_departments_list
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -6988,7 +7013,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - tenants
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -7000,7 +7025,7 @@ paths:
                 $ref: '#/components/schemas/PaginatedDepartmentList'
           description: ''
     post:
-      operationId: api_tenants_departments_create
+      operationId: tenants_departments_create
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -7017,7 +7042,7 @@ paths:
 
         Audit: reads of PHI resources, every write and every denied request are recorded.
       tags:
-      - api
+      - tenants
       requestBody:
         content:
           application/json:
@@ -7042,7 +7067,7 @@ paths:
           description: ''
   /api/tenants/departments/{id}/:
     get:
-      operationId: api_tenants_departments_retrieve
+      operationId: tenants_departments_retrieve
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -7066,7 +7091,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - tenants
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -7078,7 +7103,7 @@ paths:
                 $ref: '#/components/schemas/Department'
           description: ''
     patch:
-      operationId: api_tenants_departments_partial_update
+      operationId: tenants_departments_partial_update
       description: |-
         Base for every API view over tenant data: policy checks plus automatic auditing.
 
@@ -7102,7 +7127,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - tenants
       requestBody:
         content:
           application/json:
@@ -7126,7 +7151,7 @@ paths:
           description: ''
   /api/tenants/facilities/:
     get:
-      operationId: api_tenants_facilities_list
+      operationId: tenants_facilities_list
       description: Sites of the organisation. Tenant admins maintain them; all staff
         can list them.
       parameters:
@@ -7137,7 +7162,7 @@ paths:
         schema:
           type: integer
       tags:
-      - api
+      - tenants
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -7149,11 +7174,11 @@ paths:
                 $ref: '#/components/schemas/PaginatedFacilityList'
           description: ''
     post:
-      operationId: api_tenants_facilities_create
+      operationId: tenants_facilities_create
       description: Sites of the organisation. Tenant admins maintain them; all staff
         can list them.
       tags:
-      - api
+      - tenants
       requestBody:
         content:
           application/json:
@@ -7178,7 +7203,7 @@ paths:
           description: ''
   /api/tenants/facilities/{id}/:
     get:
-      operationId: api_tenants_facilities_retrieve
+      operationId: tenants_facilities_retrieve
       description: Sites of the organisation. Tenant admins maintain them; all staff
         can list them.
       parameters:
@@ -7189,7 +7214,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - tenants
       security:
       - bearerAuth: []
       - cookieAuth: []
@@ -7201,7 +7226,7 @@ paths:
                 $ref: '#/components/schemas/Facility'
           description: ''
     patch:
-      operationId: api_tenants_facilities_partial_update
+      operationId: tenants_facilities_partial_update
       description: Sites of the organisation. Tenant admins maintain them; all staff
         can list them.
       parameters:
@@ -7212,7 +7237,7 @@ paths:
           pattern: ^[0-9a-fA-F-]{36}$
         required: true
       tags:
-      - api
+      - tenants
       requestBody:
         content:
           application/json:
@@ -7234,490 +7259,6 @@ paths:
               schema:
                 $ref: '#/components/schemas/Facility'
           description: ''
-  /test-api/folders/:
-    get:
-      operationId: test_api_folders_list
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedFolderList'
-          description: ''
-    post:
-      operationId: test_api_folders_create
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-        required: true
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Folder'
-          description: ''
-  /test-api/folders/{id}/:
-    get:
-      operationId: test_api_folders_retrieve
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Folder'
-          description: ''
-    put:
-      operationId: test_api_folders_update
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/FolderRequest'
-        required: true
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Folder'
-          description: ''
-    patch:
-      operationId: test_api_folders_partial_update
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedFolderRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedFolderRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedFolderRequest'
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Folder'
-          description: ''
-    delete:
-      operationId: test_api_folders_destroy
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '204':
-          description: No response body
-  /test-api/records/:
-    get:
-      operationId: test_api_records_list
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - name: page
-        required: false
-        in: query
-        description: A page number within the paginated result set.
-        schema:
-          type: integer
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/PaginatedRecordList'
-          description: ''
-    post:
-      operationId: test_api_records_create
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-        required: true
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '201':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Record'
-          description: ''
-  /test-api/records/{id}/:
-    get:
-      operationId: test_api_records_retrieve
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Record'
-          description: ''
-    put:
-      operationId: test_api_records_update
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/RecordRequest'
-        required: true
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Record'
-          description: ''
-    patch:
-      operationId: test_api_records_partial_update
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PatchedRecordRequest'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/PatchedRecordRequest'
-          multipart/form-data:
-            schema:
-              $ref: '#/components/schemas/PatchedRecordRequest'
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '200':
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Record'
-          description: ''
-    delete:
-      operationId: test_api_records_destroy
-      description: |-
-        Base for every API view over tenant data: policy checks plus automatic auditing.
-
-        Subclasses set:
-
-        - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-          any tenant is active, so its tenant filter would be wrong.
-        - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-        - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-
-        Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-        filtered to the user's scope; detail views check the object, so a row outside the
-        scope gives 403 and can be opened with break-glass where the resource allows it.
-
-        Audit: reads of PHI resources, every write and every denied request are recorded.
-      parameters:
-      - in: path
-        name: id
-        schema:
-          type: string
-          pattern: ^[0-9a-fA-F-]{36}$
-        required: true
-      tags:
-      - test-api
-      security:
-      - bearerAuth: []
-      - cookieAuth: []
-      responses:
-        '204':
-          description: No response body
 components:
   schemas:
     Account:
@@ -9903,33 +9444,6 @@ components:
       - billed_minor
       - collected_minor
       - start
-    Folder:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        name:
-          type: string
-          maxLength: 100
-        tenant:
-          type: string
-          format: uuid
-          readOnly: true
-      required:
-      - id
-      - name
-      - tenant
-    FolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
-      required:
-      - name
     FreeSlot:
       type: object
       properties:
@@ -11876,29 +11390,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Facility'
-    PaginatedFolderList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Folder'
     PaginatedIcd10CodeList:
       type: object
       required:
@@ -12244,29 +11735,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Prescription'
-    PaginatedRecordList:
-      type: object
-      required:
-      - count
-      - results
-      properties:
-        count:
-          type: integer
-          example: 123
-        next:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=4
-        previous:
-          type: string
-          nullable: true
-          format: uri
-          example: http://api.example.org/accounts/?page=2
-        results:
-          type: array
-          items:
-            $ref: '#/components/schemas/Record'
     PaginatedResultList:
       type: object
       required:
@@ -12751,13 +12219,6 @@ components:
           minLength: 1
           maxLength: 32
           pattern: ^[-a-zA-Z0-9_]+$
-    PatchedFolderRequest:
-      type: object
-      properties:
-        name:
-          type: string
-          minLength: 1
-          maxLength: 100
     PatchedInsurerRequest:
       type: object
       description: |-
@@ -12924,25 +12385,6 @@ components:
             maxLength: 0
         email_reminders:
           type: boolean
-    PatchedRecordRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          minLength: 1
-          maxLength: 100
-        folder:
-          type: string
-          format: uuid
-          nullable: true
-        facility:
-          type: string
-          format: uuid
-          nullable: true
-        department:
-          type: string
-          format: uuid
-          nullable: true
     PatchedStaffProfileRequest:
       type: object
       description: |-
@@ -14520,52 +13962,6 @@ components:
       required:
       - problems
       - reconciled
-    Record:
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          readOnly: true
-        title:
-          type: string
-          maxLength: 100
-        folder:
-          type: string
-          format: uuid
-          nullable: true
-        facility:
-          type: string
-          format: uuid
-          nullable: true
-        department:
-          type: string
-          format: uuid
-          nullable: true
-      required:
-      - id
-      - title
-    RecordRequest:
-      type: object
-      properties:
-        title:
-          type: string
-          minLength: 1
-          maxLength: 100
-        folder:
-          type: string
-          format: uuid
-          nullable: true
-        facility:
-          type: string
-          format: uuid
-          nullable: true
-        department:
-          type: string
-          format: uuid
-          nullable: true
-      required:
-      - title
     RecordResultRequest:
       type: object
       properties:
