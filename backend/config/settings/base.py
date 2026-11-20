@@ -132,6 +132,12 @@ STORAGES = {
 
 EMAIL_CONFIG = env.email("EMAIL_URL", default="consolemail://")
 vars().update(EMAIL_CONFIG)
+# Never wait forever on a mail server: a blocked port would hold a worker slot for good.
+EMAIL_TIMEOUT = env.int("EMAIL_TIMEOUT", default=15)
+# Resend over HTTPS, for hosts that block SMTP. Setting the key switches the backend.
+RESEND_API_KEY = env("RESEND_API_KEY", default="")
+if RESEND_API_KEY:
+    EMAIL_BACKEND = "apps.notifications.backends.ResendBackend"
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="no-reply@example.com")
 
 REST_FRAMEWORK = {

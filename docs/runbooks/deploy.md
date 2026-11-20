@@ -50,5 +50,10 @@ are not sent. The web app forwards `/api/*` to the API (`frontend/next.config.ts
   sign-up and sign-in codes. Without it no code is delivered.
 - **beat** (`celery -A config beat -l info --schedule /tmp/celerybeat-schedule`), exactly one
   replica: ward charges, licence watcher, reminders.
-- Both use the web service's variables. Also set `EMAIL_URL` (mail provider) and
-  `DEFAULT_FROM_EMAIL`; the defaults only print to the log.
+- Both use the web service's variables. Also set `DEFAULT_FROM_EMAIL` and a mail provider; the
+  defaults only print to the log.
+- **Mail over HTTPS (Resend):** Railway blocks outbound SMTP on its smaller plans, so an SMTP
+  `EMAIL_URL` makes the worker wait for a connection that never opens and no email is sent. Set
+  `RESEND_API_KEY` on the **worker** instead (it switches delivery to Resend's HTTPS API) and
+  remove `EMAIL_URL`. The sender domain must be verified in Resend. `EMAIL_TIMEOUT` (15 seconds)
+  limits any mail connection.
