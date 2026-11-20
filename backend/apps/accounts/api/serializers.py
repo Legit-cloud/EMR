@@ -68,11 +68,50 @@ class MeSerializer(serializers.ModelSerializer):
         return self.context["subject"].can_break_glass()
 
 
+# Roles an administrator can invite someone as. The patient role comes from the portal.
+INVITABLE_ROLE_CHOICES = [(r.value, r.label) for r in Role if r != Role.PATIENT]
+
+
 class UserSerializer(serializers.ModelSerializer):
+    # People sign in with their email address, so a username is optional and defaults to it.
+    username = serializers.CharField(max_length=150, required=False)
+    email = serializers.EmailField(max_length=254)
+    # Who the person is invited as. Write-only: roles are read from role-assignments.
+    role = serializers.ChoiceField(choices=INVITABLE_ROLE_CHOICES, write_only=True, required=False)
+
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "is_active"]
+        fields = ["id", "username", "email", "first_name", "last_name", "is_active", "role"]
         read_only_fields = ["id", "is_active"]
+
+    def validate(self, attrs):
+        email = attrs.get("email", getattr(self.instance, "email", "")).strip().lower()
+        if "email" in attrs:
+            attrs["email"] = email
+        if self.instance is None:
+            attrs["username"] = (attrs.get("username") or email).strip()
+            if User.objects.filter(username__iexact=attrs["username"]).exists():
+                raise serializers.ValidationError({"username": "That username is already taken."})
+            if User.objects.filter(email__iexact=email, is_active=True).exists():
+                raise serializers.ValidationError(
+                    {"email": "That email address already belongs to another account."}
+                )
+        return attrs
+
+
+class PermissionLineSerializer(serializers.Serializer):
+    resource = serializers.CharField()
+    label = serializers.CharField()
+    actions = serializers.ListField(child=serializers.CharField())
+    limit = serializers.CharField(allow_blank=True)
+    on_duty_only = serializers.BooleanField()
+
+
+class RoleInfoSerializer(serializers.Serializer):
+    role = serializers.ChoiceField(choices=Role.choices)
+    label = serializers.CharField()
+    description = serializers.CharField()
+    permissions = PermissionLineSerializer(many=True)
 
 
 class RoleAssignmentSerializer(serializers.ModelSerializer):

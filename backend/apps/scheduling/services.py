@@ -32,6 +32,8 @@ from .models import (
     AvailabilityWindow,
 )
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 logger = logging.getLogger(__name__)
 S = AppointmentStatus
 ACTIVE_FOR_PATIENT = [S.BOOKED, S.CONFIRMED, S.CHECKED_IN]
@@ -364,13 +366,10 @@ def send_booking_confirmation(appointment: Appointment, *, moved: bool = False) 
             location=str(appointment.facility),
             description=f"Reference {reference}",
         )
-        state = "now" if moved else "booked"
-        notifications.queue_email(
+        notifications.queue_message(
             to=contact["email"],
-            subject=f"Appointment {'moved' if moved else 'confirmed'}: {when}",
-            body=(
-                f"Dear {contact['first_name']},\n\nYour appointment with {doctor} is {state} "
-                f"for {when} at {appointment.facility}.\nReference: {reference}\n"
+            message=messages.appointment_confirmed(
+                contact["first_name"], doctor, when, str(appointment.facility), reference, moved
             ),
             purpose=purpose,
             related_object=related,
@@ -416,12 +415,10 @@ def _send_reminder(appointment: Appointment) -> None:
     if contact is None or not contact["email_reminders"]:
         return
     related = f"scheduling.appointment:{appointment.pk}"
-    text = f"Reminder: appointment with {doctor} on {when}."
     if contact["email"]:
-        notifications.queue_email(
+        notifications.queue_message(
             to=contact["email"],
-            subject=f"Reminder: appointment on {when}",
-            body=text,
+            message=messages.appointment_reminder(contact["first_name"], doctor, when),
             purpose="appointment_reminder",
             related_object=related,
         )

@@ -5,6 +5,7 @@ import os
 os.environ.setdefault("SECRET_KEY", "test-only-not-a-secret")
 os.environ.setdefault("DATABASE_URL", "postgres://emr:emr@localhost:5432/emr")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+os.environ.setdefault("FRONTEND_URL", "https://app.example.test")
 
 from .base import *  # noqa: E402, F403
 

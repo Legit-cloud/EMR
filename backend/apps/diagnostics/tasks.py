@@ -13,6 +13,8 @@ from apps.patients import selectors as patients
 from . import services
 from .models import DiagnosticOrder, Flag, Kind
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 logger = logging.getLogger(__name__)
 
 
@@ -61,14 +63,13 @@ def void_invoice_line(envelope):
         return {"voided": True}
 
 
-def _tell_orderer(order, subject, body, purpose):
+def _tell_orderer(order, message, purpose):
     to = accounts.email_of(order.ordered_by_id)
     if not to:
         return False
-    notifications.queue_email(
+    notifications.queue_message(
         to=to,
-        subject=subject,
-        body=body,
+        message=message,
         purpose=purpose,
         related_object=f"diagnostics.order:{order.pk}",
     )
@@ -95,9 +96,7 @@ def alert_critical_result(envelope):
         return {
             "alerted": _tell_orderer(
                 order,
-                "A critical result needs your attention",
-                f"The result of {_label(order)} is marked critical. "
-                "Please open it in the system and act on it now.",
+                messages.critical_result(_label(order)),
                 "critical_result",
             )
         }
@@ -113,8 +112,7 @@ def notify_correction(envelope):
         return {
             "notified": _tell_orderer(
                 order,
-                "A result has been corrected",
-                f"The result of {_label(order)} was corrected. Please review the new version.",
+                messages.result_corrected(_label(order)),
                 "result_corrected",
             )
         }

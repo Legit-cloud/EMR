@@ -23,6 +23,8 @@ from apps.tenants import services as tenants
 
 from .models import OnboardingProfile, Signup
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 MAX_ATTEMPTS = 5
 
 
@@ -48,28 +50,19 @@ def _new_code() -> str:
 
 
 def _send_code(signup: Signup, code: str) -> None:
-    minutes = max(1, settings.SIGNUP_CODE_TTL_MINUTES)
-    notifications.queue_untracked_email(
+    notifications.queue_untracked_message(
         to=signup.email,
-        subject="Confirm your email to open your account",
-        body=(
-            f"Your verification code is {code}\n\n"
-            f"It works for {minutes} minutes. If you did not ask to open an account, "
-            "ignore this message and nothing will be created."
+        message=messages.signup_code(
+            signup.first_name,
+            code,
+            max(1, settings.SIGNUP_CODE_TTL_MINUTES),
+            signup.organisation_name,
         ),
     )
 
 
-def _tell_existing_owner(email: str) -> None:
-    notifications.queue_untracked_email(
-        to=email,
-        subject="You already have an account",
-        body=(
-            "Someone tried to open a new account with this email address, but it already has "
-            "one. Sign in with your email as the username, or use 'Forgot your password?'. "
-            "If this was not you, ignore this message."
-        ),
-    )
+def _tell_existing_owner(email: str, first_name: str) -> None:
+    notifications.queue_untracked_message(to=email, message=messages.already_registered(first_name))
 
 
 @transaction.atomic
@@ -91,7 +84,7 @@ def start_signup(
     email = email.strip().lower()
     validate_password(password)
     if accounts.email_in_use(email):
-        _tell_existing_owner(email)
+        _tell_existing_owner(email, first_name)
         return
     Signup.objects.filter(email__iexact=email).delete()
     code = _new_code()

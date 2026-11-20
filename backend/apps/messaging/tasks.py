@@ -11,6 +11,8 @@ from apps.notifications import services as notifications
 from . import selectors
 from .models import Message
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,10 +29,9 @@ def notify_members(envelope) -> int:
             address = accounts.email_of(user_id)
             if not address:
                 continue
-            notifications.queue_email(
+            notifications.queue_message(
                 to=address,
-                subject="You have a new message",
-                body="You have a new message in the staff inbox. Sign in to read it.",
+                message=messages.new_message(),
                 purpose="staff_message",
                 related_object=f"thread:{message.thread_id}",
             )

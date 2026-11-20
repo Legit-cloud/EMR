@@ -4,7 +4,7 @@ import base64
 import logging
 
 from celery import shared_task
-from django.core.mail import EmailMessage
+from django.core.mail import EmailMessage, EmailMultiAlternatives
 
 from apps.core.tenancy import tenant_context
 
@@ -21,10 +21,19 @@ def _finish(notification_id, *, reference: str = "", error: str = "") -> None:
     )
 
 
+def _compose(subject, body, to, html):
+    """Plain text first, with the styled version beside it for mail apps that show HTML."""
+    if html:
+        message = EmailMultiAlternatives(subject, body, None, [to])
+        message.attach_alternative(html, "text/html")
+        return message
+    return EmailMessage(subject, body, None, [to])
+
+
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
-def deliver_email(self, tenant_id, notification_id, to, subject, body, attachments):
+def deliver_email(self, tenant_id, notification_id, to, subject, body, attachments, html=""):
     with tenant_context(tenant_id):
-        message = EmailMessage(subject, body, None, [to])
+        message = _compose(subject, body, to, html)
         for name, content, mime in attachments:
             message.attach(name, base64.b64decode(content), mime)
         try:
@@ -39,9 +48,9 @@ def deliver_email(self, tenant_id, notification_id, to, subject, body, attachmen
 
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
-def deliver_untracked_email(self, to, subject, body):
+def deliver_untracked_email(self, to, subject, body, html=""):
     try:
-        EmailMessage(subject, body, None, [to]).send()
+        _compose(subject, body, to, html).send()
     except Exception as exc:
         logger.warning("Untracked email delivery failed")
         if self.request.retries >= self.max_retries:

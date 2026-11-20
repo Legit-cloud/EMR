@@ -21,6 +21,8 @@ from .models import (
     StaffProfile,
 )
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 
 class ShiftError(DomainError):
     code = "shift_error"
@@ -114,17 +116,16 @@ def watch_licences() -> list[StaffProfile]:
 
 
 def _notify_licence(profile: StaffProfile) -> None:
-    state = "has expired" if profile.licence_flag == LicenceFlag.EXPIRED else "expires soon"
-    subject = f"Licence {state}: {profile}"
-    body = (
-        f"The {profile.get_licensing_body_display()} licence of {profile} {state} "
-        f"(expiry {profile.licence_expires_on:%d %B %Y}). Please follow up on renewal."
+    message = messages.licence_alert(
+        str(profile),
+        profile.get_licensing_body_display(),
+        profile.licence_flag == LicenceFlag.EXPIRED,
+        f"{profile.licence_expires_on:%d %B %Y}",
     )
     for email in accounts.emails_of_role_holders({Role.HR, Role.TENANT_ADMIN}):
-        notifications.queue_email(
+        notifications.queue_message(
             to=email,
-            subject=subject,
-            body=body,
+            message=message,
             purpose="licence_watch",
             related_object=f"staff.staffprofile:{profile.pk}",
         )
@@ -205,12 +206,15 @@ def _notify_leave_decision(leave) -> None:
     address = leave.staff.user.email
     if not address:
         return
-    notifications.queue_email(
+    notifications.queue_message(
         to=address,
-        subject=f"Your leave request was {leave.get_status_display().lower()}",
-        body=(
-            f"Your {leave.get_leave_type_display().lower()} from {leave.start_date:%d %b %Y} "
-            f"to {leave.end_date:%d %b %Y} was {leave.get_status_display().lower()}."
+        message=messages.leave_decision(
+            leave.staff.user.first_name,
+            leave.get_leave_type_display(),
+            f"{leave.start_date:%d %b %Y}",
+            f"{leave.end_date:%d %b %Y}",
+            leave.status == LeaveStatus.APPROVED,
+            leave.decision_note,
         ),
         purpose="leave_decision",
         related_object=f"leave:{leave.pk}",

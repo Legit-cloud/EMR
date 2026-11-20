@@ -188,7 +188,7 @@ class UserViewSet(TenantModelViewSet):
 
     model = User
     policy_resource = "accounts.user"
-    policy_actions = {"deactivate": Action.UPDATE}
+    policy_actions = {"deactivate": Action.UPDATE, "roles": Action.VIEW}
     serializer_class = s.UserSerializer
     http_method_names = ["get", "post", "patch", "head", "options"]
 
@@ -196,12 +196,25 @@ class UserViewSet(TenantModelViewSet):
         return User.objects.filter(tenant_id=get_current_tenant_id()).order_by("username")
 
     def perform_create(self, serializer):
+        role = serializer.validated_data.pop("role", None)
         with transaction.atomic():
             user = serializer.save(tenant_id=get_current_tenant_id())
             user.set_unusable_password()
             user.save(update_fields=["password"])
-            self.audit_write(Action.CREATE, user, sorted(serializer.validated_data))
+            if role:
+                RoleAssignment.objects.create(user=user, role=role)
+            self.audit_write(
+                Action.CREATE,
+                user,
+                sorted([*serializer.validated_data, *(["role"] if role else [])]),
+            )
             services.invite_user(user)  # queued: delivered after commit by a worker
+
+    @extend_schema(responses=s.RoleInfoSerializer(many=True))
+    @action(detail=False, methods=["get"], pagination_class=None)
+    def roles(self, request):
+        """The roles that can be given, and what each one may do. Built from the live rules."""
+        return Response(selectors.role_catalogue())
 
     @extend_schema(request=None, responses=s.UserSerializer)
     @action(detail=True, methods=["post"])

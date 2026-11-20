@@ -30,7 +30,7 @@ def request_code(api_client, django_capture_on_commit_callbacks):
         with django_capture_on_commit_callbacks(execute=True):
             response = (client or api_client).post(LOGIN, credentials, format="json")
         assert response.json()["error"]["code"] == "mfa_required"
-        return re.search(r"code is (\d{6})", mail.outbox[-1].body).group(1)
+        return re.search(r"\b(\d{6})\b", mail.outbox[-1].body).group(1)
 
     return request
 
