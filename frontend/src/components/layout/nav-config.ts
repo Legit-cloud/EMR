@@ -12,6 +12,7 @@ import {
     Buildings,
     BookOpen,
     CalendarPlus,
+    ChatCircleText,
     FileLock,
     Files,
     Flask,
