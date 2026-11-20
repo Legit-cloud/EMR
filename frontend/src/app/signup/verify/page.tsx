@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type FormEvent, Suspense, useEffect, useRef, useState } from "react";
 
-import { AUTH_LINK } from "@/components/auth/auth-layout";
-import { SignupShell } from "@/components/signup/signup-shell";
+import { AUTH_LINK, AuthLayout } from "@/components/auth/auth-layout";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,7 +58,7 @@ function VerifyForm() {
 
   if (!email) {
     return (
-      <SignupShell
+      <AuthLayout
         title="Start again"
         intro="We need your email address first."
         footer={
@@ -69,12 +68,12 @@ function VerifyForm() {
         }
       >
         {null}
-      </SignupShell>
+      </AuthLayout>
     );
   }
 
   return (
-    <SignupShell
+    <AuthLayout
       title="Check your email"
       intro={
         <>
@@ -83,7 +82,7 @@ function VerifyForm() {
         </>
       }
       footer={
-        <span className="flex flex-col items-center gap-2">
+        <span className="flex flex-col items-start gap-2">
           <button
             type="button"
             className={AUTH_LINK}
@@ -116,7 +115,7 @@ function VerifyForm() {
           Verify and continue
         </Button>
       </form>
-    </SignupShell>
+    </AuthLayout>
   );
 }
 

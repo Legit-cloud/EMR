@@ -109,7 +109,7 @@ function LoginForm() {
       }
       footer={
         step === "otp" ? (
-          <span className="flex flex-col items-center gap-2">
+          <span className="flex flex-col items-start gap-2">
             <button
               type="button"
               className={AUTH_LINK}
@@ -123,7 +123,7 @@ function LoginForm() {
             </button>
           </span>
         ) : (
-          <span className="flex flex-col items-center gap-2">
+          <span className="flex flex-col items-start gap-2">
             <Link href="/forgot-password" className={AUTH_LINK}>
               Forgot your password?
             </Link>

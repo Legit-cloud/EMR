@@ -4,8 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
-import { AUTH_LINK } from "@/components/auth/auth-layout";
-import { SignupShell } from "@/components/signup/signup-shell";
+import { AUTH_LINK, AuthLayout } from "@/components/auth/auth-layout";
 import { Banner } from "@/components/ui/banner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,7 +49,7 @@ export default function SignupPage() {
   }
 
   return (
-    <SignupShell
+    <AuthLayout
       title="Create your account"
       intro="For the person who manages the hospital or clinic. You can add your team after."
       footer={
@@ -137,6 +136,6 @@ export default function SignupPage() {
           Create account
         </Button>
       </form>
-    </SignupShell>
+    </AuthLayout>
   );
 }
