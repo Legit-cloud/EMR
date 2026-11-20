@@ -13,8 +13,16 @@ const config: NextConfig = {
   // first-party and no CORS is needed. With API_ORIGIN set, Next forwards those calls to the API.
   poweredByHeader: false,
   reactStrictMode: true,
+  // Every API address ends in a slash. Next would redirect /api/x/ to /api/x and Django would
+  // redirect it straight back, forever, so Next must leave trailing slashes alone.
+  skipTrailingSlashRedirect: true,
   async rewrites() {
-    return apiOrigin ? [{ source: "/api/:path*", destination: `${apiOrigin}/api/:path*` }] : [];
+    return apiOrigin
+      ? [
+          { source: "/api/:path*/", destination: `${apiOrigin}/api/:path*/` },
+          { source: "/api/:path*", destination: `${apiOrigin}/api/:path*` },
+        ]
+      : [];
   },
 };
 
