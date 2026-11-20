@@ -11,6 +11,7 @@ import {
     Bed,
     Buildings,
     BookOpen,
+    CalendarPlus,
     FileLock,
     Files,
     Flask,
