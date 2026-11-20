@@ -41,6 +41,7 @@ LOCAL_APPS = [
     "apps.staff",
     "apps.billing",
     "apps.inpatient",
+    "apps.inventory",
     "apps.diagnostics",
     "apps.portal",
     "apps.notifications",
