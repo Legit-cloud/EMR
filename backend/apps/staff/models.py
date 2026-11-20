@@ -119,3 +119,49 @@ class Shift(TenantModel):
 
     def __str__(self) -> str:
         return f"{self.staff} from {self.started_at:%Y-%m-%d %H:%M}"
+
+
+class LeaveType(models.TextChoices):
+    ANNUAL = "annual", "Annual leave"
+    SICK = "sick", "Sick leave"
+    MATERNITY = "maternity", "Maternity leave"
+    PATERNITY = "paternity", "Paternity leave"
+    STUDY = "study", "Study leave"
+    UNPAID = "unpaid", "Unpaid leave"
+
+
+class LeaveStatus(models.TextChoices):
+    PENDING = "pending", "Pending"
+    APPROVED = "approved", "Approved"
+    REJECTED = "rejected", "Rejected"
+    CANCELLED = "cancelled", "Cancelled"
+
+
+class LeaveRequest(TenantModel):
+    """Time off asked for by a staff member and decided by HR. Dates are inclusive."""
+
+    staff = models.ForeignKey(StaffProfile, on_delete=models.PROTECT, related_name="leave")
+    leave_type = models.CharField(max_length=10, choices=LeaveType.choices)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    note = models.CharField(max_length=300, blank=True)
+    status = models.CharField(
+        max_length=10, choices=LeaveStatus.choices, default=LeaveStatus.PENDING
+    )
+    decided_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name="+"
+    )
+    decided_at = models.DateTimeField(null=True, blank=True)
+    decision_note = models.CharField(max_length=300, blank=True)
+
+    class Meta(TenantModel.Meta):
+        ordering = ["-start_date"]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(end_date__gte=models.F("start_date")), name="leave_ends_after_start"
+            )
+        ]
+
+    @property
+    def days(self) -> int:
+        return (self.end_date - self.start_date).days + 1

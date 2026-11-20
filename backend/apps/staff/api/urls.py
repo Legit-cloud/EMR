@@ -5,6 +5,7 @@ from . import views
 
 router = SimpleRouter()
 router.register("profiles", views.StaffProfileViewSet, basename="staff-profile")
+router.register("leave", views.LeaveViewSet, basename="leave")
 router.register("shifts", views.ShiftViewSet, basename="shift")
 
 urlpatterns = [

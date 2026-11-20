@@ -45,6 +45,7 @@ ADMINISTRATION = {
     "portal.account",
     "portal.request",
     "scheduling.availabilitywindow",
+    "staff.leave",
     "staff.shift",
     "staff.staffprofile",
     "tenants.department",
