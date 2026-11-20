@@ -52,7 +52,7 @@ export function OnboardingWizard() {
   }, [done, router]);
 
   return (
-    <main className="bg-canvas flex min-h-dvh justify-center p-4 sm:p-8">
+    <main className="bg-surface flex min-h-dvh justify-center p-4 sm:p-8">
       <div className="flex w-full max-w-[640px] flex-col gap-6">
         <div className="flex items-center gap-2 self-center">
           <LogoMark />
@@ -179,10 +179,7 @@ function Questions({ profile }: { profile: Profile }) {
         </p>
       </div>
       <Stepper steps={STEPS} current={step} />
-      <section
-        aria-label={STEPS[step].label}
-        className="rounded-card border-line bg-surface shadow-card flex flex-col gap-5 border p-6"
-      >
+      <section aria-label={STEPS[step].label} className="flex flex-col gap-5">
         {problem && <Banner tone="danger" live title={problem} />}
         {step === 0 && (
           <>

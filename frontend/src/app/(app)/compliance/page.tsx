@@ -53,7 +53,7 @@ export default function CompliancePage() {
           Object.fromEntries(
             (data?.results ?? []).map((u) => [
               u.id,
-              [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username,
+              [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username || "",
             ]),
           ),
         ),

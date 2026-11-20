@@ -76,7 +76,7 @@ function LoginForm() {
       setError(
         problem.code === "throttled"
           ? "Too many attempts. Wait a minute and try again."
-          : "The username or password is not correct.",
+          : "The email address or password is not correct.",
       );
       setStep("password");
       return;
@@ -100,11 +100,11 @@ function LoginForm() {
       intro={
         step === "otp" ? (
           <>
-            We emailed a 6-digit code to the address on the account{" "}
+            We emailed a 6-digit code to the address on the account of{" "}
             <strong className="text-ink-900">{username}</strong>. It works for a few minutes.
           </>
         ) : (
-          "Sign in with your staff account."
+          "Sign in with your email address and password."
         )
       }
       footer={
@@ -141,8 +141,9 @@ function LoginForm() {
         {step === "password" ? (
           <>
             <Input
-              label="Username"
+              label="Email address"
               name="username"
+              inputMode="email"
               autoComplete="username"
               required
               value={username}

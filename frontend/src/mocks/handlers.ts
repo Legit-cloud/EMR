@@ -16,6 +16,7 @@ import { leaveHandlers } from "./leave";
 import { messageHandlers } from "./messages";
 import { onboardingHandlers } from "./onboarding";
 import { patientHandlers } from "./patients";
+import { peopleHandlers } from "./people";
 import { pharmacyHandlers } from "./pharmacy";
 import { portalHandlers } from "./portal";
 import { staffHandlers } from "./staff";
@@ -44,6 +45,7 @@ export const handlers: HttpHandler[] = [
   ...leaveHandlers,
   ...messageHandlers,
   ...onboardingHandlers,
+  ...peopleHandlers,
   ...patientHandlers,
   ...portalHandlers,
   ...pharmacyHandlers,

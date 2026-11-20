@@ -6,13 +6,13 @@ import { useEffect, useState, type FormEvent } from "react";
 import {
   Button,
   Dialog,
-  Field,
   Loading,
   LoadFailed,
   NoAccess,
   Notice,
   Select,
 } from "@/components/legacy-ui";
+import { InviteDialog } from "@/components/people/invite-dialog";
 import { api, apiError, fieldErrors, type Schemas } from "@/lib/api";
 import { humanise } from "@/lib/format";
 
@@ -168,12 +168,11 @@ export default function ManageUsersPage() {
       </ul>
       <InviteDialog
         open={inviting}
-        onClose={() => setInviting(false)}
-        onDone={(username) => {
-          setInviting(false);
+        onOpenChange={setInviting}
+        onInvited={(email) => {
           setMessage({
             tone: "success",
-            text: `${username} invited. They will get an email to set a password.`,
+            text: `${email} invited. They will get an email to set a password.`,
           });
           load();
         }}
@@ -190,80 +189,6 @@ export default function ManageUsersPage() {
         }}
       />
     </div>
-  );
-}
-
-function InviteDialog({
-  open,
-  onClose,
-  onDone,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onDone: (username: string) => void;
-}) {
-  const blank = { username: "", email: "", first_name: "", last_name: "" };
-  const [form, setForm] = useState(blank);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [failure, setFailure] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!open) {
-      setForm(blank);
-      setErrors({});
-      setFailure(null);
-    }
-  }, [open]);
-
-  async function submit(event: FormEvent) {
-    event.preventDefault();
-    const { error } = await api.POST("/api/accounts/users/", { body: form });
-    if (error) {
-      const problem = apiError(error);
-      setErrors(fieldErrors(problem));
-      return setFailure(problem.code === "validation_error" ? null : problem.message);
-    }
-    onDone(form.username);
-  }
-
-  return (
-    <Dialog open={open} title="Invite user" onClose={onClose}>
-      <form onSubmit={submit} className="flex flex-col gap-3">
-        {failure && <Notice tone="error" title={failure} />}
-        <Field
-          label="Username"
-          required
-          value={form.username}
-          onChange={(e) => setForm({ ...form, username: e.target.value })}
-          error={errors.username}
-        />
-        <Field
-          label="Email"
-          type="email"
-          required
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          error={errors.email}
-          hint="The invitation to set a password goes here."
-        />
-        <Field
-          label="First name"
-          value={form.first_name}
-          onChange={(e) => setForm({ ...form, first_name: e.target.value })}
-        />
-        <Field
-          label="Last name"
-          value={form.last_name}
-          onChange={(e) => setForm({ ...form, last_name: e.target.value })}
-        />
-        <div className="flex justify-end gap-2">
-          <Button variant="secondary" onClick={onClose}>
-            Cancel
-          </Button>
-          <Button type="submit">Send invitation</Button>
-        </div>
-      </form>
-    </Dialog>
   );
 }
 

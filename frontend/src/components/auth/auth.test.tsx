@@ -41,7 +41,7 @@ beforeEach(() => {
 });
 
 async function enterPassword(username: string, password = MOCK_PASSWORD) {
-  await userEvent.type(screen.getByLabelText("Username"), username);
+  await userEvent.type(screen.getByLabelText("Email address"), username);
   await userEvent.type(screen.getByLabelText("Password"), password);
   await userEvent.click(screen.getByRole("button", { name: "Continue" }));
 }
@@ -71,11 +71,11 @@ describe("sign-in (mock layer)", () => {
     expect(navigation.replace).not.toHaveBeenCalled();
   });
 
-  it("does not say which of username or password was wrong", async () => {
+  it("does not say which of email address or password was wrong", async () => {
     renderWithApp(<LoginPage />);
     await enterPassword("ada.doctor", "wrong-password-1");
     expect(await screen.findByRole("alert")).toHaveTextContent(
-      "The username or password is not correct.",
+      "The email address or password is not correct.",
     );
   });
 

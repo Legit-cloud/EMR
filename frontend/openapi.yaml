@@ -534,6 +534,25 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
           description: ''
+  /api/accounts/users/roles/:
+    get:
+      operationId: accounts_users_roles_list
+      description: The roles that can be given, and what each one may do. Built from
+        the live rules.
+      tags:
+      - accounts
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RoleInfo'
+          description: ''
   /api/audit/entries/:
     get:
       operationId: audit_entries_list
@@ -9960,6 +9979,30 @@ components:
       required:
       - kind
       - name
+    InvitableRoleEnum:
+      enum:
+      - tenant_admin
+      - doctor
+      - nurse
+      - pharmacist
+      - lab_technician
+      - front_desk
+      - billing_officer
+      - finance
+      - hr
+      - compliance_officer
+      type: string
+      description: |-
+        * `tenant_admin` - Tenant admin
+        * `doctor` - Doctor
+        * `nurse` - Nurse
+        * `pharmacist` - Pharmacist
+        * `lab_technician` - Lab / imaging technician
+        * `front_desk` - Front desk / receptionist
+        * `billing_officer` - Billing officer
+        * `finance` - Finance / accountant
+        * `hr` - HR
+        * `compliance_officer` - Compliance officer
     InviteRequest:
       type: object
       properties:
@@ -12760,24 +12803,22 @@ components:
         username:
           type: string
           minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
           maxLength: 150
         email:
-          title: Email address
-          oneOf:
-          - type: string
-            format: email
-            maxLength: 254
-          - type: string
-            maxLength: 0
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
         first_name:
           type: string
           maxLength: 150
         last_name:
           type: string
           maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/InvitableRoleEnum'
+          writeOnly: true
     PatchedVendorRequest:
       type: object
       description: |-
@@ -13436,6 +13477,27 @@ components:
         * `unpaid` - Unpaid
         * `partially_paid` - Partially paid
         * `paid` - Paid
+    PermissionLine:
+      type: object
+      properties:
+        resource:
+          type: string
+        label:
+          type: string
+        actions:
+          type: array
+          items:
+            type: string
+        limit:
+          type: string
+        on_duty_only:
+          type: boolean
+      required:
+      - actions
+      - label
+      - limit
+      - on_duty_only
+      - resource
     PlaceDiagnosticOrderRequest:
       type: object
       properties:
@@ -14723,6 +14785,24 @@ components:
         * `hr` - HR
         * `compliance_officer` - Compliance officer
         * `patient` - Patient
+    RoleInfo:
+      type: object
+      properties:
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        label:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PermissionLine'
+      required:
+      - description
+      - label
+      - permissions
+      - role
     SafetyAlert:
       type: object
       properties:
@@ -15351,18 +15431,11 @@ components:
           readOnly: true
         username:
           type: string
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
           maxLength: 150
         email:
-          title: Email address
-          oneOf:
-          - type: string
-            format: email
-            maxLength: 254
-          - type: string
-            maxLength: 0
+          type: string
+          format: email
+          maxLength: 254
         first_name:
           type: string
           maxLength: 150
@@ -15376,35 +15449,33 @@ components:
           description: Designates whether this user should be treated as active. Unselect
             this instead of deleting accounts.
       required:
+      - email
       - id
       - is_active
-      - username
     UserRequest:
       type: object
       properties:
         username:
           type: string
           minLength: 1
-          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
-            only.
-          pattern: ^[\w.@+-]+$
           maxLength: 150
         email:
-          title: Email address
-          oneOf:
-          - type: string
-            format: email
-            maxLength: 254
-          - type: string
-            maxLength: 0
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
         first_name:
           type: string
           maxLength: 150
         last_name:
           type: string
           maxLength: 150
+        role:
+          allOf:
+          - $ref: '#/components/schemas/InvitableRoleEnum'
+          writeOnly: true
       required:
-      - username
+      - email
     Vendor:
       type: object
       description: |-

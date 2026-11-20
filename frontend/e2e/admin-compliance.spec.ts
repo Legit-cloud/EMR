@@ -8,13 +8,17 @@ test.describe("tenant admin", () => {
   test.use({ storageState: authFile("admin") });
 
   test("invites a user, scopes a role to a department, and deactivates them", async ({ page }) => {
-    const username = `invited-${lettersFrom(seed.run)}`;
+    // People sign in with their email address, so it is also the name shown in the list.
+    const username = `invited-${lettersFrom(seed.run)}@example.test`;
     await page.goto("/manage");
     await page.getByRole("button", { name: "Invite user" }).click();
-    const invite = page.getByRole("dialog", { name: "Invite user" });
-    await invite.getByLabel("Username").fill(username);
-    await invite.getByLabel("Email").fill(`${username}@example.test`);
+    const invite = page.getByRole("dialog", { name: "Invite a team member" });
+    await invite.getByLabel("Email address").fill(username);
     await invite.getByLabel("First name").fill("Invited");
+    await invite.getByRole("combobox", { name: "Role" }).click();
+    await page.getByRole("option", { name: "Front desk" }).click();
+    // The role's permissions are shown before the invitation is sent.
+    await expect(invite.getByRole("region", { name: "What Front desk can do" })).toBeVisible();
     await invite.getByRole("button", { name: "Send invitation" }).click();
     await expect(page.getByRole("status").filter({ hasText: "invited" })).toBeVisible();
 

@@ -344,6 +344,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/users/roles/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The roles that can be given, and what each one may do. Built from the live rules. */
+        get: operations["accounts_users_roles_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/audit/entries/": {
         parameters: {
             query?: never;
@@ -5069,6 +5086,20 @@ export interface components {
             currency?: string;
             active?: boolean;
         };
+        /**
+         * @description * `tenant_admin` - Tenant admin
+         *     * `doctor` - Doctor
+         *     * `nurse` - Nurse
+         *     * `pharmacist` - Pharmacist
+         *     * `lab_technician` - Lab / imaging technician
+         *     * `front_desk` - Front desk / receptionist
+         *     * `billing_officer` - Billing officer
+         *     * `finance` - Finance / accountant
+         *     * `hr` - HR
+         *     * `compliance_officer` - Compliance officer
+         * @enum {string}
+         */
+        InvitableRoleEnum: "tenant_admin" | "doctor" | "nurse" | "pharmacist" | "lab_technician" | "front_desk" | "billing_officer" | "finance" | "hr" | "compliance_officer";
         InviteRequest: {
             /** Format: uuid */
             patient: string;
@@ -6477,12 +6508,12 @@ export interface components {
             quantity_on_hand?: number;
         };
         PatchedUserRequest: {
-            /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
             username?: string;
-            /** Email address */
+            /** Format: email */
             email?: string;
             first_name?: string;
             last_name?: string;
+            role?: components["schemas"]["InvitableRoleEnum"];
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -6748,6 +6779,13 @@ export interface components {
          * @enum {string}
          */
         PaymentStatusEnum: "unpaid" | "partially_paid" | "paid";
+        PermissionLine: {
+            resource: string;
+            label: string;
+            actions: string[];
+            limit: string;
+            on_duty_only: boolean;
+        };
         PlaceDiagnosticOrderRequest: {
             /** Format: uuid */
             patient: string;
@@ -7268,6 +7306,12 @@ export interface components {
          * @enum {string}
          */
         RoleEnum: "tenant_admin" | "doctor" | "nurse" | "pharmacist" | "lab_technician" | "front_desk" | "billing_officer" | "finance" | "hr" | "compliance_officer" | "patient";
+        RoleInfo: {
+            role: components["schemas"]["RoleEnum"];
+            label: string;
+            description: string;
+            permissions: components["schemas"]["PermissionLine"][];
+        };
         SafetyAlert: {
             kind: string;
             key: string;
@@ -7525,10 +7569,9 @@ export interface components {
         User: {
             /** Format: uuid */
             readonly id: string;
-            /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
-            username: string;
-            /** Email address */
-            email?: string;
+            username?: string;
+            /** Format: email */
+            email: string;
             first_name?: string;
             last_name?: string;
             /**
@@ -7538,12 +7581,12 @@ export interface components {
             readonly is_active: boolean;
         };
         UserRequest: {
-            /** @description Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only. */
-            username: string;
-            /** Email address */
-            email?: string;
+            username?: string;
+            /** Format: email */
+            email: string;
             first_name?: string;
             last_name?: string;
+            role?: components["schemas"]["InvitableRoleEnum"];
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -8111,6 +8154,25 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["User"];
+                };
+            };
+        };
+    };
+    accounts_users_roles_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleInfo"][];
                 };
             };
         };
