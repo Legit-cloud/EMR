@@ -38,7 +38,10 @@ ledger with invoices and payments; the trial balance still covers every entry.
 
 ## Consequences
 
-- No screens yet: the API and OpenAPI schema are ready; the web app has no pages for these.
+- Screens: `/inventory` (Supplies), `/messages`, `/leave` and `/accounting` (entries, income
+  statement, balance sheet) are in the staff app. Messages refresh by polling every 30 seconds;
+  there is no live push. Account choices for manual entries are a fixed list in the web app
+  that mirrors the server's chart.
 - Inventory does not post to the ledger, and issued supplies are not billed to patients.
 - Messaging has no attachments, no live push over WebSockets, and no patient access.
 - Leave has no entitlement balances or public-holiday calendar.

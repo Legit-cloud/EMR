@@ -3,5 +3,5 @@
 import { MessagesScreen } from "@/components/messages/messages-screen";
 
 export default function MessagesPage() {
-    return <MessagesScreen />;
+  return <MessagesScreen />;
 }

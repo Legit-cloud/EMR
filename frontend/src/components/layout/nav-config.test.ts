@@ -20,11 +20,13 @@ describe("visibleNav", () => {
     expect(seen).not.toContain("Audit log");
   });
 
-  it("shows a compliance officer the admin group only", () => {
+  it("shows a compliance officer the admin group and staff messages", () => {
     const groups = visibleNav(["compliance_officer"]);
-    expect(groups.map((g) => g.caption)).toEqual([null, "Admin"]);
+    expect(groups.map((g) => g.caption)).toEqual([null, "Workplace", "Admin"]);
     expect(labels(["compliance_officer"])).toEqual([
       "Dashboard",
+      "Messages",
+      "Leave",
       "Break-glass review",
       "Audit log",
       "Data requests",
@@ -39,13 +41,17 @@ describe("visibleNav", () => {
       "Patients",
       "Duplicate review",
       "Staff list",
+      "Messages",
+      "Leave",
       "Wards and beds",
       "Tests and scans",
       "Test catalogue",
       "Invoices",
       "Insurer claims",
+      "Accounting",
       "Insurers",
       "Stock",
+      "Supplies",
       "Formulary",
       "Users and roles",
       "Facilities and departments",
