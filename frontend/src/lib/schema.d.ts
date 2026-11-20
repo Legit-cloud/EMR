@@ -12,7 +12,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Sets the CSRF cookie for the web app before a session sign-in. */
-        get: operations["accounts_auth_csrf_retrieve"];
+        get: operations["api_accounts_auth_csrf_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -36,7 +36,7 @@ export interface paths {
          *     A request without ``otp_token`` emails a code and answers ``mfa_required``; send the same
          *     credentials again with the code. Session or bearer token.
          */
-        post: operations["accounts_auth_login_create"];
+        post: operations["api_accounts_auth_login_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -52,7 +52,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["accounts_auth_logout_create"];
+        post: operations["api_accounts_auth_logout_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -66,7 +66,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get: operations["accounts_auth_me_retrieve"];
+        get: operations["api_accounts_auth_me_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -84,7 +84,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["accounts_auth_password_reset_create"];
+        post: operations["api_accounts_auth_password_reset_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -100,7 +100,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["accounts_auth_password_reset_confirm_create"];
+        post: operations["api_accounts_auth_password_reset_confirm_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -117,7 +117,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description A clinician opens one record outside their scope by giving a reason. */
-        post: operations["accounts_break_glass_create"];
+        post: operations["api_accounts_break_glass_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -132,7 +132,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Compliance review queue for break-glass access. */
-        get: operations["accounts_break_glass_grants_list"];
+        get: operations["api_accounts_break_glass_grants_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -149,7 +149,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Compliance review queue for break-glass access. */
-        get: operations["accounts_break_glass_grants_retrieve"];
+        get: operations["api_accounts_break_glass_grants_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -168,7 +168,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Compliance review queue for break-glass access. */
-        post: operations["accounts_break_glass_grants_review_create"];
+        post: operations["api_accounts_break_glass_grants_review_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -186,7 +186,7 @@ export interface paths {
          * @description Tells the chart whether some of a patient's records are outside the user's access,
          *     so it can offer patient-level break-glass, and shows any grant already open.
          */
-        get: operations["accounts_break_glass_patients_retrieve"];
+        get: operations["api_accounts_break_glass_patients_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -218,7 +218,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["accounts_role_assignments_list"];
+        get: operations["api_accounts_role_assignments_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -236,7 +236,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["accounts_role_assignments_create"];
+        post: operations["api_accounts_role_assignments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -266,7 +266,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["accounts_role_assignments_retrieve"];
+        get: operations["api_accounts_role_assignments_retrieve"];
         put?: never;
         post?: never;
         /**
@@ -285,7 +285,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        delete: operations["accounts_role_assignments_destroy"];
+        delete: operations["api_accounts_role_assignments_destroy"];
         options?: never;
         head?: never;
         patch?: never;
@@ -299,10 +299,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Tenant admins manage the users of their organisation. Users are deactivated, not deleted. */
-        get: operations["accounts_users_list"];
+        get: operations["api_accounts_users_list"];
         put?: never;
         /** @description Tenant admins manage the users of their organisation. Users are deactivated, not deleted. */
-        post: operations["accounts_users_create"];
+        post: operations["api_accounts_users_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -317,14 +317,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Tenant admins manage the users of their organisation. Users are deactivated, not deleted. */
-        get: operations["accounts_users_retrieve"];
+        get: operations["api_accounts_users_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Tenant admins manage the users of their organisation. Users are deactivated, not deleted. */
-        patch: operations["accounts_users_partial_update"];
+        patch: operations["api_accounts_users_partial_update"];
         trace?: never;
     };
     "/api/accounts/users/{id}/deactivate/": {
@@ -337,7 +337,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Tenant admins manage the users of their organisation. Users are deactivated, not deleted. */
-        post: operations["accounts_users_deactivate_create"];
+        post: operations["api_accounts_users_deactivate_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -352,7 +352,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Read-only audit log of the current tenant for compliance review. */
-        get: operations["audit_entries_list"];
+        get: operations["api_audit_entries_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -369,7 +369,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Read-only audit log of the current tenant for compliance review. */
-        get: operations["audit_entries_retrieve"];
+        get: operations["api_audit_entries_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -386,7 +386,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description The filtered log as a CSV, newest first, up to 5000 rows. The export is audited. */
-        get: operations["audit_entries_export_retrieve"];
+        get: operations["api_audit_entries_export_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -403,7 +403,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Counts for the same filters as the list: all, denied, break-glass, and reviews. */
-        get: operations["audit_entries_summary_retrieve"];
+        get: operations["api_audit_entries_summary_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -423,13 +423,13 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        get: operations["billing_claims_list"];
+        get: operations["api_billing_claims_list"];
         put?: never;
         /**
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        post: operations["billing_claims_create"];
+        post: operations["api_billing_claims_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -447,7 +447,7 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        get: operations["billing_claims_retrieve"];
+        get: operations["api_billing_claims_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -469,7 +469,7 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        post: operations["billing_claims_approve_create"];
+        post: operations["api_billing_claims_approve_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -489,7 +489,7 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        post: operations["billing_claims_reject_create"];
+        post: operations["api_billing_claims_reject_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -509,7 +509,7 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        post: operations["billing_claims_settle_create"];
+        post: operations["api_billing_claims_settle_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -529,7 +529,7 @@ export interface paths {
          * @description Claims to insurers. Billing officers make and send them and record the answers; finance
          *     and the administrator look.
          */
-        post: operations["billing_claims_submit_create"];
+        post: operations["api_billing_claims_submit_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -544,7 +544,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description What insurers still owe, by how long ago the claim was sent. */
-        get: operations["billing_claims_ageing_list"];
+        get: operations["api_billing_claims_ageing_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -576,7 +576,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["billing_insurers_list"];
+        get: operations["api_billing_insurers_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -594,7 +594,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["billing_insurers_create"];
+        post: operations["api_billing_insurers_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -624,7 +624,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["billing_insurers_retrieve"];
+        get: operations["api_billing_insurers_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -646,7 +646,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        patch: operations["billing_insurers_partial_update"];
+        patch: operations["api_billing_insurers_partial_update"];
         trace?: never;
     };
     "/api/billing/invoices/": {
@@ -657,7 +657,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Invoices are built from charges; billing staff set coverage and take payments. */
-        get: operations["billing_invoices_list"];
+        get: operations["api_billing_invoices_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -674,7 +674,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Invoices are built from charges; billing staff set coverage and take payments. */
-        get: operations["billing_invoices_retrieve"];
+        get: operations["api_billing_invoices_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -693,7 +693,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description A manual charge, such as a registration fee. */
-        post: operations["billing_invoices_charge_create"];
+        post: operations["api_billing_invoices_charge_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -710,7 +710,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Invoices are built from charges; billing staff set coverage and take payments. */
-        post: operations["billing_invoices_coverage_create"];
+        post: operations["api_billing_invoices_coverage_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -727,7 +727,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Invoices are built from charges; billing staff set coverage and take payments. */
-        post: operations["billing_invoices_pay_create"];
+        post: operations["api_billing_invoices_pay_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -744,7 +744,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Message the patient about the balance still due. */
-        post: operations["billing_invoices_remind_create"];
+        post: operations["api_billing_invoices_remind_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -759,7 +759,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Counts by payment status and the money billed, collected and still due. */
-        get: operations["billing_invoices_summary_retrieve"];
+        get: operations["api_billing_invoices_summary_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -776,7 +776,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Chart of accounts with balances, and reconciliation, for finance. */
-        get: operations["billing_ledger_accounts_list"];
+        get: operations["api_billing_ledger_accounts_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -793,7 +793,41 @@ export interface paths {
             cookie?: never;
         };
         /** @description Chart of accounts with balances, and reconciliation, for finance. */
-        get: operations["billing_ledger_accounts_retrieve"];
+        get: operations["api_billing_ledger_accounts_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/ledger/accounts/balance-sheet/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Chart of accounts with balances, and reconciliation, for finance. */
+        get: operations["api_billing_ledger_accounts_balance_sheet_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/ledger/accounts/income-statement/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Revenue and expenses from ``start`` to ``end`` (dates; default this calendar month). */
+        get: operations["api_billing_ledger_accounts_income_statement_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -810,7 +844,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Chart of accounts with balances, and reconciliation, for finance. */
-        get: operations["billing_ledger_accounts_reconcile_retrieve"];
+        get: operations["api_billing_ledger_accounts_reconcile_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -827,7 +861,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Chart of accounts with balances, and reconciliation, for finance. */
-        get: operations["billing_ledger_accounts_trial_balance_retrieve"];
+        get: operations["api_billing_ledger_accounts_trial_balance_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -844,24 +878,16 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
-         *
-         *     Subclasses set:
-         *
-         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-         *       any tenant is active, so its tenant filter would be wrong.
-         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-         *
-         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-         *     filtered to the user's scope; detail views check the object, so a row outside the
-         *     scope gives 403 and can be opened with break-glass where the resource allows it.
-         *
-         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         * @description The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
+         *     edited or deleted.
          */
-        get: operations["billing_ledger_entries_list"];
+        get: operations["api_billing_ledger_entries_list"];
         put?: never;
-        post?: never;
+        /**
+         * @description The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
+         *     edited or deleted.
+         */
+        post: operations["api_billing_ledger_entries_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -876,24 +902,32 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
-         *
-         *     Subclasses set:
-         *
-         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
-         *       any tenant is active, so its tenant filter would be wrong.
-         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
-         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
-         *
-         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
-         *     filtered to the user's scope; detail views check the object, so a row outside the
-         *     scope gives 403 and can be opened with break-glass where the resource allows it.
-         *
-         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         * @description The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
+         *     edited or deleted.
          */
-        get: operations["billing_ledger_entries_retrieve"];
+        get: operations["api_billing_ledger_entries_retrieve"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/billing/ledger/entries/{id}/reverse/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
+         *     edited or deleted.
+         */
+        post: operations["api_billing_ledger_entries_reverse_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -908,7 +942,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Online payments started by patients, so finance can see any that need review. */
-        get: operations["billing_payment_intents_list"];
+        get: operations["api_billing_payment_intents_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -925,7 +959,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Online payments started by patients, so finance can see any that need review. */
-        get: operations["billing_payment_intents_retrieve"];
+        get: operations["api_billing_payment_intents_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -957,7 +991,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["billing_payments_list"];
+        get: operations["api_billing_payments_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -989,7 +1023,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["billing_payments_retrieve"];
+        get: operations["api_billing_payments_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1007,7 +1041,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        post: operations["billing_webhooks_paystack_create"];
+        post: operations["api_billing_webhooks_paystack_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1022,7 +1056,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Reference data: ICD-10 code search (``?q=``). No tenant data. */
-        get: operations["clinical_codes_icd10_list"];
+        get: operations["api_clinical_codes_icd10_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1039,7 +1073,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Reference data: LOINC vital-sign codes with UCUM units. No tenant data. */
-        get: operations["clinical_codes_loinc_list"];
+        get: operations["api_clinical_codes_loinc_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1060,14 +1094,14 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_diagnoses_list"];
+        get: operations["api_clinical_diagnoses_list"];
         put?: never;
         /**
          * @description Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_diagnoses_create"];
+        post: operations["api_clinical_diagnoses_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1086,7 +1120,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_diagnoses_retrieve"];
+        get: operations["api_clinical_diagnoses_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1097,7 +1131,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        patch: operations["clinical_diagnoses_partial_update"];
+        patch: operations["api_clinical_diagnoses_partial_update"];
         trace?: never;
     };
     "/api/clinical/diagnoses/{id}/entered-in-error/": {
@@ -1114,7 +1148,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_diagnoses_entered_in_error_create"];
+        post: operations["api_clinical_diagnoses_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1133,14 +1167,14 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_encounters_list"];
+        get: operations["api_clinical_encounters_list"];
         put?: never;
         /**
          * @description Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_encounters_create"];
+        post: operations["api_clinical_encounters_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1159,7 +1193,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_encounters_retrieve"];
+        get: operations["api_clinical_encounters_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1170,7 +1204,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        patch: operations["clinical_encounters_partial_update"];
+        patch: operations["api_clinical_encounters_partial_update"];
         trace?: never;
     };
     "/api/clinical/encounters/{id}/entered-in-error/": {
@@ -1187,7 +1221,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_encounters_entered_in_error_create"];
+        post: operations["api_clinical_encounters_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1208,7 +1242,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_encounters_rank_diagnoses_create"];
+        post: operations["api_clinical_encounters_rank_diagnoses_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1229,7 +1263,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_encounters_status_create"];
+        post: operations["api_clinical_encounters_status_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1248,14 +1282,14 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_notes_list"];
+        get: operations["api_clinical_notes_list"];
         put?: never;
         /**
          * @description Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_notes_create"];
+        post: operations["api_clinical_notes_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1274,7 +1308,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_notes_retrieve"];
+        get: operations["api_clinical_notes_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1285,7 +1319,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        patch: operations["clinical_notes_partial_update"];
+        patch: operations["api_clinical_notes_partial_update"];
         trace?: never;
     };
     "/api/clinical/notes/{id}/close/": {
@@ -1302,7 +1336,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_notes_close_create"];
+        post: operations["api_clinical_notes_close_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1323,7 +1357,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_notes_entered_in_error_create"];
+        post: operations["api_clinical_notes_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1342,14 +1376,14 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_vitals_list"];
+        get: operations["api_clinical_vitals_list"];
         put?: never;
         /**
          * @description Lists show the active chart; ``?history=true`` adds Entered-in-Error rows.
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_vitals_create"];
+        post: operations["api_clinical_vitals_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1368,7 +1402,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        get: operations["clinical_vitals_retrieve"];
+        get: operations["api_clinical_vitals_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1391,7 +1425,7 @@ export interface paths {
          *
          *     Nothing is deleted: Entered-in-Error hides a row with a reason, and history keeps it.
          */
-        post: operations["clinical_vitals_entered_in_error_create"];
+        post: operations["api_clinical_vitals_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1406,10 +1440,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
-        get: operations["diagnostics_investigations_list"];
+        get: operations["api_diagnostics_investigations_list"];
         put?: never;
         /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
-        post: operations["diagnostics_investigations_create"];
+        post: operations["api_diagnostics_investigations_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1424,14 +1458,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
-        get: operations["diagnostics_investigations_retrieve"];
+        get: operations["api_diagnostics_investigations_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description The catalogue of tests and scans. The administrator sets it up with POST and PATCH. */
-        patch: operations["diagnostics_investigations_partial_update"];
+        patch: operations["api_diagnostics_investigations_partial_update"];
         trace?: never;
     };
     "/api/diagnostics/orders/": {
@@ -1442,10 +1476,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
-        get: operations["diagnostics_orders_list"];
+        get: operations["api_diagnostics_orders_list"];
         put?: never;
         /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
-        post: operations["diagnostics_orders_create"];
+        post: operations["api_diagnostics_orders_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1460,7 +1494,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
-        get: operations["diagnostics_orders_retrieve"];
+        get: operations["api_diagnostics_orders_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1479,7 +1513,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
-        post: operations["diagnostics_orders_cancel_create"];
+        post: operations["api_diagnostics_orders_cancel_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1496,7 +1530,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Orders for tests and scans. Ordering, collecting and cancelling are actions. */
-        post: operations["diagnostics_orders_collect_create"];
+        post: operations["api_diagnostics_orders_collect_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1514,13 +1548,13 @@ export interface paths {
          * @description Results, newest version first. Recording and correcting are for the technician; a
          *     doctor reviews.
          */
-        get: operations["diagnostics_results_list"];
+        get: operations["api_diagnostics_results_list"];
         put?: never;
         /**
          * @description Results, newest version first. Recording and correcting are for the technician; a
          *     doctor reviews.
          */
-        post: operations["diagnostics_results_create"];
+        post: operations["api_diagnostics_results_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1538,7 +1572,7 @@ export interface paths {
          * @description Results, newest version first. Recording and correcting are for the technician; a
          *     doctor reviews.
          */
-        get: operations["diagnostics_results_retrieve"];
+        get: operations["api_diagnostics_results_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1560,7 +1594,7 @@ export interface paths {
          * @description Results, newest version first. Recording and correcting are for the technician; a
          *     doctor reviews.
          */
-        post: operations["diagnostics_results_correct_create"];
+        post: operations["api_diagnostics_results_correct_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1580,7 +1614,7 @@ export interface paths {
          * @description Results, newest version first. Recording and correcting are for the technician; a
          *     doctor reviews.
          */
-        post: operations["diagnostics_results_review_create"];
+        post: operations["api_diagnostics_results_review_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1595,10 +1629,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
-        get: operations["inpatient_admissions_list"];
+        get: operations["api_inpatient_admissions_list"];
         put?: never;
         /** @description Admit a patient to a vacant bed. */
-        post: operations["inpatient_admissions_create"];
+        post: operations["api_inpatient_admissions_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1613,7 +1647,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
-        get: operations["inpatient_admissions_retrieve"];
+        get: operations["api_inpatient_admissions_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1632,7 +1666,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
-        post: operations["inpatient_admissions_discharge_create"];
+        post: operations["api_inpatient_admissions_discharge_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1649,7 +1683,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Stays. Admit, transfer and discharge are actions; nothing edits a stay. */
-        post: operations["inpatient_admissions_transfer_create"];
+        post: operations["api_inpatient_admissions_transfer_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1667,13 +1701,13 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        get: operations["inpatient_beds_list"];
+        get: operations["api_inpatient_beds_list"];
         put?: never;
         /**
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        post: operations["inpatient_beds_create"];
+        post: operations["api_inpatient_beds_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1691,7 +1725,7 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        get: operations["inpatient_beds_retrieve"];
+        get: operations["api_inpatient_beds_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1701,7 +1735,7 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        patch: operations["inpatient_beds_partial_update"];
+        patch: operations["api_inpatient_beds_partial_update"];
         trace?: never;
     };
     "/api/inpatient/beds/{id}/in-service/": {
@@ -1717,7 +1751,7 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        post: operations["inpatient_beds_in_service_create"];
+        post: operations["api_inpatient_beds_in_service_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1737,7 +1771,7 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        post: operations["inpatient_beds_out_of_service_create"];
+        post: operations["api_inpatient_beds_out_of_service_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1757,7 +1791,7 @@ export interface paths {
          * @description Beds are created by the administrator; a nurse marks a cleaned bed ready, or a vacant
          *     bed out of service.
          */
-        post: operations["inpatient_beds_ready_create"];
+        post: operations["api_inpatient_beds_ready_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1775,13 +1809,13 @@ export interface paths {
          * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
          *     sets wards up with POST and PATCH.
          */
-        get: operations["inpatient_wards_list"];
+        get: operations["api_inpatient_wards_list"];
         put?: never;
         /**
          * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
          *     sets wards up with POST and PATCH.
          */
-        post: operations["inpatient_wards_create"];
+        post: operations["api_inpatient_wards_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1799,7 +1833,7 @@ export interface paths {
          * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
          *     sets wards up with POST and PATCH.
          */
-        get: operations["inpatient_wards_retrieve"];
+        get: operations["api_inpatient_wards_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1809,7 +1843,234 @@ export interface paths {
          * @description ``GET`` is the ward board (every ward, its beds and who is in them); the administrator
          *     sets wards up with POST and PATCH.
          */
-        patch: operations["inpatient_wards_partial_update"];
+        patch: operations["api_inpatient_wards_partial_update"];
+        trace?: never;
+    };
+    "/api/inventory/items/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["api_inventory_items_list"];
+        put?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        post: operations["api_inventory_items_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inventory/items/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["api_inventory_items_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        patch: operations["api_inventory_items_partial_update"];
+        trace?: never;
+    };
+    "/api/inventory/items/summary/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["api_inventory_items_summary_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inventory/movements/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description History of every receipt, issue and count correction. Movements are only added. */
+        get: operations["api_inventory_movements_list"];
+        put?: never;
+        /** @description History of every receipt, issue and count correction. Movements are only added. */
+        post: operations["api_inventory_movements_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/inventory/movements/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description History of every receipt, issue and count correction. Movements are only added. */
+        get: operations["api_inventory_movements_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/messaging/threads/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The signed-in person's own conversations. Membership, not role, decides who can read a
+         *     thread, so a thread of other people is a 404 for everyone, the tenant admin included.
+         */
+        get: operations["api_messaging_threads_list"];
+        put?: never;
+        /**
+         * @description The signed-in person's own conversations. Membership, not role, decides who can read a
+         *     thread, so a thread of other people is a 404 for everyone, the tenant admin included.
+         */
+        post: operations["api_messaging_threads_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/messaging/threads/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description The signed-in person's own conversations. Membership, not role, decides who can read a
+         *     thread, so a thread of other people is a 404 for everyone, the tenant admin included.
+         */
+        get: operations["api_messaging_threads_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/messaging/threads/{id}/reply/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description The signed-in person's own conversations. Membership, not role, decides who can read a
+         *     thread, so a thread of other people is a 404 for everyone, the tenant admin included.
+         */
+        post: operations["api_messaging_threads_reply_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/patients/allergies/": {
@@ -1820,10 +2081,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Entered-in-Error rows are hidden from lists unless ``?history=true``; never deleted. */
-        get: operations["patients_allergies_list"];
+        get: operations["api_patients_allergies_list"];
         put?: never;
         /** @description Entered-in-Error rows are hidden from lists unless ``?history=true``; never deleted. */
-        post: operations["patients_allergies_create"];
+        post: operations["api_patients_allergies_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1838,14 +2099,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Entered-in-Error rows are hidden from lists unless ``?history=true``; never deleted. */
-        get: operations["patients_allergies_retrieve"];
+        get: operations["api_patients_allergies_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Entered-in-Error rows are hidden from lists unless ``?history=true``; never deleted. */
-        patch: operations["patients_allergies_partial_update"];
+        patch: operations["api_patients_allergies_partial_update"];
         trace?: never;
     };
     "/api/patients/allergies/{id}/entered-in-error/": {
@@ -1858,7 +2119,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Entered-in-Error rows are hidden from lists unless ``?history=true``; never deleted. */
-        post: operations["patients_allergies_entered_in_error_create"];
+        post: operations["api_patients_allergies_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1873,10 +2134,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Files in private storage. Content is only reachable through a short-lived signed URL. */
-        get: operations["patients_attachments_list"];
+        get: operations["api_patients_attachments_list"];
         put?: never;
         /** @description Files in private storage. Content is only reachable through a short-lived signed URL. */
-        post: operations["patients_attachments_create"];
+        post: operations["api_patients_attachments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1891,7 +2152,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Files in private storage. Content is only reachable through a short-lived signed URL. */
-        get: operations["patients_attachments_retrieve"];
+        get: operations["api_patients_attachments_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1908,7 +2169,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Files in private storage. Content is only reachable through a short-lived signed URL. */
-        get: operations["patients_attachments_download_retrieve"];
+        get: operations["api_patients_attachments_download_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1927,7 +2188,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Files in private storage. Content is only reachable through a short-lived signed URL. */
-        post: operations["patients_attachments_entered_in_error_create"];
+        post: operations["api_patients_attachments_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1942,7 +2203,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Queue of registrations held as possible duplicates. */
-        get: operations["patients_duplicate_reviews_list"];
+        get: operations["api_patients_duplicate_reviews_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1959,7 +2220,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Queue of registrations held as possible duplicates. */
-        get: operations["patients_duplicate_reviews_retrieve"];
+        get: operations["api_patients_duplicate_reviews_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1978,7 +2239,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Queue of registrations held as possible duplicates. */
-        post: operations["patients_duplicate_reviews_resolve_create"];
+        post: operations["api_patients_duplicate_reviews_resolve_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1993,10 +2254,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        get: operations["patients_patients_list"];
+        get: operations["api_patients_patients_list"];
         put?: never;
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        post: operations["patients_patients_create"];
+        post: operations["api_patients_patients_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2011,14 +2272,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        get: operations["patients_patients_retrieve"];
+        get: operations["api_patients_patients_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        patch: operations["patients_patients_partial_update"];
+        patch: operations["api_patients_patients_partial_update"];
         trace?: never;
     };
     "/api/patients/patients/{id}/entered-in-error/": {
@@ -2031,7 +2292,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        post: operations["patients_patients_entered_in_error_create"];
+        post: operations["api_patients_patients_entered_in_error_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2048,7 +2309,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Patient register. Registration may be held for duplicate review (409). */
-        post: operations["patients_patients_status_create"];
+        post: operations["api_patients_patients_status_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2068,7 +2329,7 @@ export interface paths {
          * @description Possible matches for the person being registered, for the form to show as the
          *     clerk types. Nothing is saved; matches above the hold threshold say so.
          */
-        post: operations["patients_patients_check_duplicates_create"];
+        post: operations["api_patients_patients_check_duplicates_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2083,10 +2344,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description The formulary. */
-        get: operations["pharmacy_drugs_list"];
+        get: operations["api_pharmacy_drugs_list"];
         put?: never;
         /** @description The formulary. */
-        post: operations["pharmacy_drugs_create"];
+        post: operations["api_pharmacy_drugs_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2101,14 +2362,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description The formulary. */
-        get: operations["pharmacy_drugs_retrieve"];
+        get: operations["api_pharmacy_drugs_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description The formulary. */
-        patch: operations["pharmacy_drugs_partial_update"];
+        patch: operations["api_pharmacy_drugs_partial_update"];
         trace?: never;
     };
     "/api/pharmacy/orders/": {
@@ -2119,7 +2380,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
-        get: operations["pharmacy_orders_list"];
+        get: operations["api_pharmacy_orders_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2136,7 +2397,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
-        get: operations["pharmacy_orders_retrieve"];
+        get: operations["api_pharmacy_orders_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2155,7 +2416,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
-        post: operations["pharmacy_orders_cancel_create"];
+        post: operations["api_pharmacy_orders_cancel_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2172,7 +2433,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
-        post: operations["pharmacy_orders_receive_create"];
+        post: operations["api_pharmacy_orders_receive_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2189,7 +2450,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Orders to vendors. Placing and receiving are actions; nothing edits an order. */
-        post: operations["pharmacy_orders_place_create"];
+        post: operations["api_pharmacy_orders_place_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2204,10 +2465,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        get: operations["pharmacy_prescriptions_list"];
+        get: operations["api_pharmacy_prescriptions_list"];
         put?: never;
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        post: operations["pharmacy_prescriptions_create"];
+        post: operations["api_pharmacy_prescriptions_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2222,14 +2483,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        get: operations["pharmacy_prescriptions_retrieve"];
+        get: operations["api_pharmacy_prescriptions_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        patch: operations["pharmacy_prescriptions_partial_update"];
+        patch: operations["api_pharmacy_prescriptions_partial_update"];
         trace?: never;
     };
     "/api/pharmacy/prescriptions/{id}/authorise/": {
@@ -2242,7 +2503,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        post: operations["pharmacy_prescriptions_authorise_create"];
+        post: operations["api_pharmacy_prescriptions_authorise_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2259,7 +2520,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        post: operations["pharmacy_prescriptions_cancel_create"];
+        post: operations["api_pharmacy_prescriptions_cancel_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2276,7 +2537,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Preview the safety alerts of a draft without signing. */
-        post: operations["pharmacy_prescriptions_check_create"];
+        post: operations["api_pharmacy_prescriptions_check_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2293,7 +2554,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        post: operations["pharmacy_prescriptions_dispense_create"];
+        post: operations["api_pharmacy_prescriptions_dispense_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2308,7 +2569,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Prescribing (draft, safety check, sign) and dispensing. */
-        get: operations["pharmacy_prescriptions_verify_retrieve"];
+        get: operations["api_pharmacy_prescriptions_verify_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2340,7 +2601,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["pharmacy_stock_list"];
+        get: operations["api_pharmacy_stock_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -2358,7 +2619,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["pharmacy_stock_create"];
+        post: operations["api_pharmacy_stock_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2388,7 +2649,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["pharmacy_stock_retrieve"];
+        get: operations["api_pharmacy_stock_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2410,7 +2671,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        patch: operations["pharmacy_stock_partial_update"];
+        patch: operations["api_pharmacy_stock_partial_update"];
         trace?: never;
     };
     "/api/pharmacy/stock/inventory/": {
@@ -2421,7 +2682,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description One row per formulary drug: units available, on order, and its stock status. */
-        get: operations["pharmacy_stock_inventory_list"];
+        get: operations["api_pharmacy_stock_inventory_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2438,7 +2699,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Asset value, product count and how many drugs are in stock, low or out. */
-        get: operations["pharmacy_stock_summary_retrieve"];
+        get: operations["api_pharmacy_stock_summary_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2470,7 +2731,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["pharmacy_vendors_list"];
+        get: operations["api_pharmacy_vendors_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -2488,7 +2749,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["pharmacy_vendors_create"];
+        post: operations["api_pharmacy_vendors_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2518,7 +2779,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["pharmacy_vendors_retrieve"];
+        get: operations["api_pharmacy_vendors_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2540,7 +2801,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        patch: operations["pharmacy_vendors_partial_update"];
+        patch: operations["api_pharmacy_vendors_partial_update"];
         trace?: never;
     };
     "/api/portal/accounts/": {
@@ -2551,10 +2812,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Staff invite a patient to the portal and switch access off. */
-        get: operations["portal_accounts_list"];
+        get: operations["api_portal_accounts_list"];
         put?: never;
         /** @description Staff invite a patient to the portal and switch access off. */
-        post: operations["portal_accounts_create"];
+        post: operations["api_portal_accounts_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2569,7 +2830,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Staff invite a patient to the portal and switch access off. */
-        get: operations["portal_accounts_retrieve"];
+        get: operations["api_portal_accounts_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2588,7 +2849,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Staff invite a patient to the portal and switch access off. */
-        post: operations["portal_accounts_revoke_create"];
+        post: operations["api_portal_accounts_revoke_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2603,7 +2864,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_appointment_slots_list"];
+        get: operations["api_portal_appointment_slots_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2620,10 +2881,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_appointments_list"];
+        get: operations["api_portal_appointments_list"];
         put?: never;
         /** @description Base for the patient's own endpoints. */
-        post: operations["portal_appointments_create"];
+        post: operations["api_portal_appointments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2640,7 +2901,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Base for the patient's own endpoints. */
-        post: operations["portal_appointments_cancel_create"];
+        post: operations["api_portal_appointments_cancel_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2655,7 +2916,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
-        get: operations["portal_data_requests_list"];
+        get: operations["api_portal_data_requests_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2672,7 +2933,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
-        get: operations["portal_data_requests_retrieve"];
+        get: operations["api_portal_data_requests_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2691,7 +2952,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Compliance answers patients' data-protection requests. The most overdue come first. */
-        post: operations["portal_data_requests_respond_create"];
+        post: operations["api_portal_data_requests_respond_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2706,7 +2967,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_home_retrieve"];
+        get: operations["api_portal_home_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2723,7 +2984,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_invoices_list"];
+        get: operations["api_portal_invoices_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2742,7 +3003,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Start paying part or all of one of the patient's own bills at Paystack's page. */
-        post: operations["portal_invoices_pay_create"];
+        post: operations["api_portal_invoices_pay_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2761,7 +3022,7 @@ export interface paths {
          *     copy of the medical record: for that the patient makes an "access" request, which staff
          *     answer.
          */
-        get: operations["portal_my_information_retrieve"];
+        get: operations["api_portal_my_information_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2783,7 +3044,7 @@ export interface paths {
          * @description Called when the patient comes back from the payment page: ask Paystack, then say what
          *     happened. The browser's word is never taken for it.
          */
-        post: operations["portal_payments_verify_create"];
+        post: operations["api_portal_payments_verify_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2798,7 +3059,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_prescriptions_list"];
+        get: operations["api_portal_prescriptions_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2818,7 +3079,7 @@ export interface paths {
          * @description Who is responsible for the patient's information, how to reach them, and for how long it is
          *     kept. The wording of the notice itself is in the web app and is versioned with this.
          */
-        get: operations["portal_privacy_retrieve"];
+        get: operations["api_portal_privacy_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2835,14 +3096,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_profile_retrieve"];
+        get: operations["api_portal_profile_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Base for the patient's own endpoints. */
-        patch: operations["portal_profile_partial_update"];
+        patch: operations["api_portal_profile_partial_update"];
         trace?: never;
     };
     "/api/portal/requests/": {
@@ -2853,10 +3114,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description The patient's own data-protection requests: list them, make a new one. */
-        get: operations["portal_requests_list"];
+        get: operations["api_portal_requests_list"];
         put?: never;
         /** @description The patient's own data-protection requests: list them, make a new one. */
-        post: operations["portal_requests_create"];
+        post: operations["api_portal_requests_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2871,7 +3132,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Base for the patient's own endpoints. */
-        get: operations["portal_results_list"];
+        get: operations["api_portal_results_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2890,7 +3151,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Base for the patient's own endpoints. */
-        post: operations["portal_results_seen_create"];
+        post: operations["api_portal_results_seen_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2905,7 +3166,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Totals for the dashboard cards the user may see (see ``reports.services``). */
-        get: operations["reports_dashboard_retrieve"];
+        get: operations["api_reports_dashboard_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2922,10 +3183,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        get: operations["scheduling_appointments_list"];
+        get: operations["api_scheduling_appointments_list"];
         put?: never;
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        post: operations["scheduling_appointments_create"];
+        post: operations["api_scheduling_appointments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2940,14 +3201,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        get: operations["scheduling_appointments_retrieve"];
+        get: operations["api_scheduling_appointments_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        patch: operations["scheduling_appointments_partial_update"];
+        patch: operations["api_scheduling_appointments_partial_update"];
         trace?: never;
     };
     "/api/scheduling/appointments/{id}/reschedule/": {
@@ -2960,7 +3221,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Move an appointment that has not started to another time or physician. */
-        post: operations["scheduling_appointments_reschedule_create"];
+        post: operations["api_scheduling_appointments_reschedule_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2977,7 +3238,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        post: operations["scheduling_appointments_status_create"];
+        post: operations["api_scheduling_appointments_status_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2994,7 +3255,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        post: operations["scheduling_appointments_triage_create"];
+        post: operations["api_scheduling_appointments_triage_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3009,7 +3270,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Booking, the appointment lifecycle and the physician queue. */
-        get: operations["scheduling_appointments_free_slots_list"];
+        get: operations["api_scheduling_appointments_free_slots_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3026,7 +3287,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description The physician's waiting queue (``?physician=``), as the WebSocket sends it. */
-        get: operations["scheduling_appointments_queue_list"];
+        get: operations["api_scheduling_appointments_queue_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3058,7 +3319,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["scheduling_availability_list"];
+        get: operations["api_scheduling_availability_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -3076,7 +3337,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["scheduling_availability_create"];
+        post: operations["api_scheduling_availability_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3106,7 +3367,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["scheduling_availability_retrieve"];
+        get: operations["api_scheduling_availability_retrieve"];
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
          *
@@ -3123,7 +3384,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        put: operations["scheduling_availability_update"];
+        put: operations["api_scheduling_availability_update"];
         post?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -3141,7 +3402,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        delete: operations["scheduling_availability_destroy"];
+        delete: operations["api_scheduling_availability_destroy"];
         options?: never;
         head?: never;
         /**
@@ -3160,7 +3421,91 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        patch: operations["scheduling_availability_partial_update"];
+        patch: operations["api_scheduling_availability_partial_update"];
+        trace?: never;
+    };
+    "/api/staff/leave/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
+         *     and HR decides.
+         */
+        get: operations["api_staff_leave_list"];
+        put?: never;
+        /**
+         * @description Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
+         *     and HR decides.
+         */
+        post: operations["api_staff_leave_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/leave/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
+         *     and HR decides.
+         */
+        get: operations["api_staff_leave_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/leave/{id}/cancel/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
+         *     and HR decides.
+         */
+        post: operations["api_staff_leave_cancel_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/staff/leave/{id}/decide/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Leave requests. Everyone sees and manages their own; HR and the tenant admin see all
+         *     and HR decides.
+         */
+        post: operations["api_staff_leave_decide_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/staff/profiles/": {
@@ -3171,10 +3516,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Staff directory and licence records. HR and tenant admins maintain them. */
-        get: operations["staff_profiles_list"];
+        get: operations["api_staff_profiles_list"];
         put?: never;
         /** @description Staff directory and licence records. HR and tenant admins maintain them. */
-        post: operations["staff_profiles_create"];
+        post: operations["api_staff_profiles_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3189,14 +3534,14 @@ export interface paths {
             cookie?: never;
         };
         /** @description Staff directory and licence records. HR and tenant admins maintain them. */
-        get: operations["staff_profiles_retrieve"];
+        get: operations["api_staff_profiles_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Staff directory and licence records. HR and tenant admins maintain them. */
-        patch: operations["staff_profiles_partial_update"];
+        patch: operations["api_staff_profiles_partial_update"];
         trace?: never;
     };
     "/api/staff/profiles/{id}/verify-licence/": {
@@ -3209,7 +3554,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description Staff directory and licence records. HR and tenant admins maintain them. */
-        post: operations["staff_profiles_verify_licence_create"];
+        post: operations["api_staff_profiles_verify_licence_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3224,7 +3569,7 @@ export interface paths {
             cookie?: never;
         };
         /** @description Headcount for the two tabs, and how many licences need attention. */
-        get: operations["staff_profiles_summary_retrieve"];
+        get: operations["api_staff_profiles_summary_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3256,7 +3601,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["staff_shifts_list"];
+        get: operations["api_staff_shifts_list"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3288,7 +3633,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["staff_shifts_retrieve"];
+        get: operations["api_staff_shifts_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3307,7 +3652,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description The caller starts their own shift (On-Duty). */
-        post: operations["staff_shifts_clock_in_create"];
+        post: operations["api_staff_shifts_clock_in_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3324,7 +3669,7 @@ export interface paths {
         get?: never;
         put?: never;
         /** @description The caller ends their own shift (Off-Duty). */
-        post: operations["staff_shifts_clock_out_create"];
+        post: operations["api_staff_shifts_clock_out_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3354,7 +3699,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["tenants_departments_list"];
+        get: operations["api_tenants_departments_list"];
         put?: never;
         /**
          * @description Base for every API view over tenant data: policy checks plus automatic auditing.
@@ -3372,7 +3717,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        post: operations["tenants_departments_create"];
+        post: operations["api_tenants_departments_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3402,7 +3747,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        get: operations["tenants_departments_retrieve"];
+        get: operations["api_tenants_departments_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
@@ -3424,7 +3769,7 @@ export interface paths {
          *
          *     Audit: reads of PHI resources, every write and every denied request are recorded.
          */
-        patch: operations["tenants_departments_partial_update"];
+        patch: operations["api_tenants_departments_partial_update"];
         trace?: never;
     };
     "/api/tenants/facilities/": {
@@ -3435,10 +3780,10 @@ export interface paths {
             cookie?: never;
         };
         /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
-        get: operations["tenants_facilities_list"];
+        get: operations["api_tenants_facilities_list"];
         put?: never;
         /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
-        post: operations["tenants_facilities_create"];
+        post: operations["api_tenants_facilities_create"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3453,14 +3798,270 @@ export interface paths {
             cookie?: never;
         };
         /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
-        get: operations["tenants_facilities_retrieve"];
+        get: operations["api_tenants_facilities_retrieve"];
         put?: never;
         post?: never;
         delete?: never;
         options?: never;
         head?: never;
         /** @description Sites of the organisation. Tenant admins maintain them; all staff can list them. */
-        patch: operations["tenants_facilities_partial_update"];
+        patch: operations["api_tenants_facilities_partial_update"];
+        trace?: never;
+    };
+    "/test-api/folders/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["test_api_folders_list"];
+        put?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        post: operations["test_api_folders_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-api/folders/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["test_api_folders_retrieve"];
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        put: operations["test_api_folders_update"];
+        post?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        delete: operations["test_api_folders_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        patch: operations["test_api_folders_partial_update"];
+        trace?: never;
+    };
+    "/test-api/records/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["test_api_records_list"];
+        put?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        post: operations["test_api_records_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/test-api/records/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        get: operations["test_api_records_retrieve"];
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        put: operations["test_api_records_update"];
+        post?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        delete: operations["test_api_records_destroy"];
+        options?: never;
+        head?: never;
+        /**
+         * @description Base for every API view over tenant data: policy checks plus automatic auditing.
+         *
+         *     Subclasses set:
+         *
+         *     - ``model``: not ``queryset``. A class-level queryset is built at import time, before
+         *       any tenant is active, so its tenant filter would be wrong.
+         *     - ``policy_resource``: the name registered with ``apps.core.policy.register``.
+         *     - ``policy_actions``: policy action for each custom ``@action`` (``{"approve": UPDATE}``).
+         *
+         *     Override ``get_base_queryset`` (not ``get_queryset``) to narrow the rows. List views are
+         *     filtered to the user's scope; detail views check the object, so a row outside the
+         *     scope gives 403 and can be opened with break-glass where the resource allows it.
+         *
+         *     Audit: reads of PHI resources, every write and every denied request are recorded.
+         */
+        patch: operations["test_api_records_partial_update"];
         trace?: never;
     };
 }
@@ -3791,6 +4392,18 @@ export interface components {
             start_at: string;
             /** Format: date-time */
             end_at: string;
+        };
+        BalanceSheet: {
+            /** Format: date */
+            as_of: string;
+            currency: string;
+            assets: components["schemas"]["StatementLine"][];
+            liabilities: components["schemas"]["StatementLine"][];
+            equity: components["schemas"]["StatementLine"][];
+            profit_to_date_minor: number;
+            total_assets_minor: number;
+            total_liabilities_minor: number;
+            total_equity_minor: number;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -4421,6 +5034,16 @@ export interface components {
             /** @description Charges raised (not voided). */
             billed_minor: number;
         };
+        Folder: {
+            /** Format: uuid */
+            readonly id: string;
+            name: string;
+            /** Format: uuid */
+            readonly tenant: string;
+        };
+        FolderRequest: {
+            name: string;
+        };
         FreeSlot: {
             /** Format: date-time */
             start_at: string;
@@ -4438,6 +5061,18 @@ export interface components {
         Icd10Code: {
             code: string;
             display: string;
+        };
+        IncomeStatement: {
+            /** Format: date */
+            start: string;
+            /** Format: date */
+            end: string;
+            currency: string;
+            revenue: components["schemas"]["StatementLine"][];
+            expenses: components["schemas"]["StatementLine"][];
+            total_revenue_minor: number;
+            total_expenses_minor: number;
+            net_minor: number;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -4615,6 +5250,44 @@ export interface components {
             collected_minor: number;
             outstanding_minor: number;
         };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        Item: {
+            /** Format: uuid */
+            readonly id: string;
+            sku: string;
+            name: string;
+            category?: string;
+            unit?: string;
+            readonly on_hand: number;
+            reorder_level?: number;
+            /** Format: int64 */
+            unit_cost_minor?: number;
+            currency?: string;
+            active?: boolean;
+            readonly is_low: boolean;
+        };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        ItemRequest: {
+            sku: string;
+            name: string;
+            category?: string;
+            unit?: string;
+            reorder_level?: number;
+            /** Format: int64 */
+            unit_cost_minor?: number;
+            currency?: string;
+            active?: boolean;
+        };
         JournalEntry: {
             /** Format: uuid */
             readonly id: string;
@@ -4633,6 +5306,56 @@ export interface components {
             /** Format: int64 */
             credit_minor?: number;
         };
+        Leave: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly staff: string;
+            readonly staff_name: string;
+            readonly leave_type: components["schemas"]["LeaveTypeEnum"];
+            /** Format: date */
+            readonly start_date: string;
+            /** Format: date */
+            readonly end_date: string;
+            readonly days: number;
+            readonly note: string;
+            readonly status: components["schemas"]["LeaveStatusEnum"];
+            /** Format: date-time */
+            readonly decided_at: string | null;
+            readonly decision_note: string;
+        };
+        LeaveDecisionRequest: {
+            approve: boolean;
+            /** @default  */
+            note: string;
+        };
+        LeaveRequestRequest: {
+            leave_type: components["schemas"]["LeaveTypeEnum"];
+            /** Format: date */
+            start_date: string;
+            /** Format: date */
+            end_date: string;
+            /** @default  */
+            note: string;
+        };
+        /**
+         * @description * `pending` - Pending
+         *     * `approved` - Approved
+         *     * `rejected` - Rejected
+         *     * `cancelled` - Cancelled
+         * @enum {string}
+         */
+        LeaveStatusEnum: "pending" | "approved" | "rejected" | "cancelled";
+        /**
+         * @description * `annual` - Annual leave
+         *     * `sick` - Sick leave
+         *     * `maternity` - Maternity leave
+         *     * `paternity` - Paternity leave
+         *     * `study` - Study leave
+         *     * `unpaid` - Unpaid leave
+         * @enum {string}
+         */
+        LeaveTypeEnum: "annual" | "sick" | "maternity" | "paternity" | "study" | "unpaid";
         /**
          * @description * `ok` - Valid
          *     * `expiring` - Expires soon
@@ -4714,6 +5437,19 @@ export interface components {
             delivered: boolean;
             idempotency_key?: string;
         };
+        ManualEntryRequest: {
+            description: string;
+            /** @default NGN */
+            currency: string;
+            lines: components["schemas"]["ManualLineRequest"][];
+        };
+        ManualLineRequest: {
+            account: string;
+            /** @default 0 */
+            debit_minor: number;
+            /** @default 0 */
+            credit_minor: number;
+        };
         /**
          * @description The signed-in user and the attributes the web app uses to tailor menus and buttons.
          *
@@ -4736,12 +5472,56 @@ export interface components {
             readonly on_duty: boolean;
             readonly can_break_glass: boolean;
         };
+        Message: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            sender: string;
+            sender_name: string;
+            body: string;
+            /** Format: date-time */
+            created_at: string;
+        };
         /**
          * @description * `session` - session
          *     * `token` - token
          * @enum {string}
          */
         ModeEnum: "session" | "token";
+        Movement: {
+            /** Format: uuid */
+            readonly id: string;
+            /** Format: uuid */
+            readonly item: string;
+            readonly kind: components["schemas"]["MovementKindEnum"];
+            readonly quantity: number;
+            readonly balance_after: number;
+            /** Format: uuid */
+            readonly department: string | null;
+            readonly reason: string;
+            /** Format: date-time */
+            readonly created_at: string;
+            /** Format: uuid */
+            readonly created_by: string | null;
+        };
+        /**
+         * @description * `receive` - Received
+         *     * `issue` - Issued
+         *     * `adjust` - Count correction
+         * @enum {string}
+         */
+        MovementKindEnum: "receive" | "issue" | "adjust";
+        /** @description ``quantity`` is units in or out for receive and issue, and the counted total for adjust. */
+        MovementRequestRequest: {
+            /** Format: uuid */
+            item: string;
+            kind: components["schemas"]["MovementKindEnum"];
+            quantity: number;
+            /** Format: uuid */
+            department?: string | null;
+            /** @default  */
+            reason: string;
+        };
         MyDay: {
             open_notes: number;
             draft_prescriptions: number;
@@ -4762,6 +5542,11 @@ export interface components {
             prescriptions: components["schemas"]["PortalPrescription"][];
             invoices: components["schemas"]["PortalInvoice"][];
             requests: components["schemas"]["PortalRequest"][];
+        };
+        NewThreadRequest: {
+            recipients: string[];
+            subject: string;
+            body: string;
         };
         /**
          * @description * `open` - Open
@@ -5136,6 +5921,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Facility"][];
         };
+        PaginatedFolderList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Folder"][];
+        };
         PaginatedIcd10CodeList: {
             /** @example 123 */
             count: number;
@@ -5211,6 +6011,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["InvoiceList"][];
         };
+        PaginatedItemList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Item"][];
+        };
         PaginatedJournalEntryList: {
             /** @example 123 */
             count: number;
@@ -5225,6 +6040,36 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["JournalEntry"][];
+        };
+        PaginatedLeaveList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Leave"][];
+        };
+        PaginatedMovementList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Movement"][];
         };
         PaginatedOrderListList: {
             /** @example 123 */
@@ -5316,6 +6161,21 @@ export interface components {
             previous?: string | null;
             results: components["schemas"]["Prescription"][];
         };
+        PaginatedRecordList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Record"][];
+        };
         PaginatedResultList: {
             /** @example 123 */
             count: number;
@@ -5405,6 +6265,21 @@ export interface components {
              */
             previous?: string | null;
             results: components["schemas"]["StockBatch"][];
+        };
+        PaginatedThreadList: {
+            /** @example 123 */
+            count: number;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=4
+             */
+            next?: string | null;
+            /**
+             * Format: uri
+             * @example http://api.example.org/accounts/?page=2
+             */
+            previous?: string | null;
+            results: components["schemas"]["Thread"][];
         };
         PaginatedUserList: {
             /** @example 123 */
@@ -5590,6 +6465,9 @@ export interface components {
             name?: string;
             code?: string;
         };
+        PatchedFolderRequest: {
+            name?: string;
+        };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -5619,6 +6497,23 @@ export interface components {
             currency?: string;
             active?: boolean;
         };
+        /**
+         * @description ModelSerializer that runs the model's ``full_clean`` before every save.
+         *
+         *     Business rules that live on the model (status transitions, cross-field checks,
+         *     constraints) then apply to API writes exactly as they do in services.
+         */
+        PatchedItemRequest: {
+            sku?: string;
+            name?: string;
+            category?: string;
+            unit?: string;
+            reorder_level?: number;
+            /** Format: int64 */
+            unit_cost_minor?: number;
+            currency?: string;
+            active?: boolean;
+        };
         PatchedPatientRequest: {
             first_name?: string;
             middle_name?: string;
@@ -5645,6 +6540,15 @@ export interface components {
             phone?: string;
             email?: string;
             email_reminders?: boolean;
+        };
+        PatchedRecordRequest: {
+            title?: string;
+            /** Format: uuid */
+            folder?: string | null;
+            /** Format: uuid */
+            facility?: string | null;
+            /** Format: uuid */
+            department?: string | null;
         };
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
@@ -6283,6 +7187,26 @@ export interface components {
             reconciled: boolean;
             problems: string[];
         };
+        Record: {
+            /** Format: uuid */
+            readonly id: string;
+            title: string;
+            /** Format: uuid */
+            folder?: string | null;
+            /** Format: uuid */
+            facility?: string | null;
+            /** Format: uuid */
+            department?: string | null;
+        };
+        RecordRequest: {
+            title: string;
+            /** Format: uuid */
+            folder?: string | null;
+            /** Format: uuid */
+            facility?: string | null;
+            /** Format: uuid */
+            department?: string | null;
+        };
         RecordResultRequest: {
             /** Format: uuid */
             order: string;
@@ -6328,6 +7252,9 @@ export interface components {
             channels: string[];
             /** Format: date-time */
             last_reminder_at: string;
+        };
+        ReplyRequest: {
+            body: string;
         };
         RequestCreateRequest: {
             kind: components["schemas"]["DataRequestKindEnum"];
@@ -6404,6 +7331,9 @@ export interface components {
             category: string;
             label: string;
             amount_minor: number;
+        };
+        ReverseEntryRequest: {
+            reason: string;
         };
         /**
          * @description * `pending` - Pending review
@@ -6575,6 +7505,11 @@ export interface components {
          * @enum {string}
          */
         StaffTypeEnum: "physician" | "nurse" | "pharmacist" | "lab_scientist" | "radiographer" | "other_clinical" | "non_clinical";
+        StatementLine: {
+            code: string;
+            name: string;
+            amount_minor: number;
+        };
         Stock: {
             currency: string;
             /** @description Units available at selling price. */
@@ -6636,6 +7571,35 @@ export interface components {
         SubmitClaimRequest: {
             /** @default  */
             insurer_reference: string;
+        };
+        Summary: {
+            items: number;
+            out: number;
+            low: number;
+            units: number;
+            value_minor: number;
+            currency: string;
+        };
+        Thread: {
+            /** Format: uuid */
+            id: string;
+            subject: string;
+            /** Format: date-time */
+            updated_at: string;
+            last_body: string | null;
+            unread: number;
+            members: string[];
+        };
+        ThreadDetail: {
+            /** Format: uuid */
+            id: string;
+            subject: string;
+            /** Format: date-time */
+            updated_at: string;
+            last_body: string | null;
+            unread: number;
+            members: string[];
+            messages: components["schemas"]["Message"][];
         };
         TransferRequest: {
             /** Format: uuid */
@@ -6785,7 +7749,7 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
-    accounts_auth_csrf_retrieve: {
+    api_accounts_auth_csrf_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -6804,7 +7768,7 @@ export interface operations {
             };
         };
     };
-    accounts_auth_login_create: {
+    api_accounts_auth_login_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -6829,7 +7793,7 @@ export interface operations {
             };
         };
     };
-    accounts_auth_logout_create: {
+    api_accounts_auth_logout_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -6847,7 +7811,7 @@ export interface operations {
             };
         };
     };
-    accounts_auth_me_retrieve: {
+    api_accounts_auth_me_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -6866,7 +7830,7 @@ export interface operations {
             };
         };
     };
-    accounts_auth_password_reset_create: {
+    api_accounts_auth_password_reset_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -6890,7 +7854,7 @@ export interface operations {
             };
         };
     };
-    accounts_auth_password_reset_confirm_create: {
+    api_accounts_auth_password_reset_confirm_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -6914,7 +7878,7 @@ export interface operations {
             };
         };
     };
-    accounts_break_glass_create: {
+    api_accounts_break_glass_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -6939,7 +7903,7 @@ export interface operations {
             };
         };
     };
-    accounts_break_glass_grants_list: {
+    api_accounts_break_glass_grants_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -6961,7 +7925,7 @@ export interface operations {
             };
         };
     };
-    accounts_break_glass_grants_retrieve: {
+    api_accounts_break_glass_grants_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -6982,7 +7946,7 @@ export interface operations {
             };
         };
     };
-    accounts_break_glass_grants_review_create: {
+    api_accounts_break_glass_grants_review_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7009,7 +7973,7 @@ export interface operations {
             };
         };
     };
-    accounts_break_glass_patients_retrieve: {
+    api_accounts_break_glass_patients_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7030,7 +7994,7 @@ export interface operations {
             };
         };
     };
-    accounts_role_assignments_list: {
+    api_accounts_role_assignments_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -7052,7 +8016,7 @@ export interface operations {
             };
         };
     };
-    accounts_role_assignments_create: {
+    api_accounts_role_assignments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7077,7 +8041,7 @@ export interface operations {
             };
         };
     };
-    accounts_role_assignments_retrieve: {
+    api_accounts_role_assignments_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7098,7 +8062,7 @@ export interface operations {
             };
         };
     };
-    accounts_role_assignments_destroy: {
+    api_accounts_role_assignments_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -7118,7 +8082,7 @@ export interface operations {
             };
         };
     };
-    accounts_users_list: {
+    api_accounts_users_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -7140,7 +8104,7 @@ export interface operations {
             };
         };
     };
-    accounts_users_create: {
+    api_accounts_users_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7165,7 +8129,7 @@ export interface operations {
             };
         };
     };
-    accounts_users_retrieve: {
+    api_accounts_users_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7186,7 +8150,7 @@ export interface operations {
             };
         };
     };
-    accounts_users_partial_update: {
+    api_accounts_users_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -7213,7 +8177,7 @@ export interface operations {
             };
         };
     };
-    accounts_users_deactivate_create: {
+    api_accounts_users_deactivate_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7234,7 +8198,7 @@ export interface operations {
             };
         };
     };
-    audit_entries_list: {
+    api_audit_entries_list: {
         parameters: {
             query?: {
                 action?: string;
@@ -7267,7 +8231,7 @@ export interface operations {
             };
         };
     };
-    audit_entries_retrieve: {
+    api_audit_entries_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7288,7 +8252,7 @@ export interface operations {
             };
         };
     };
-    audit_entries_export_retrieve: {
+    api_audit_entries_export_retrieve: {
         parameters: {
             query?: {
                 action?: string;
@@ -7317,7 +8281,7 @@ export interface operations {
             };
         };
     };
-    audit_entries_summary_retrieve: {
+    api_audit_entries_summary_retrieve: {
         parameters: {
             query?: {
                 action?: string;
@@ -7346,7 +8310,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_list: {
+    api_billing_claims_list: {
         parameters: {
             query?: {
                 insurer?: string;
@@ -7372,7 +8336,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_create: {
+    api_billing_claims_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7397,7 +8361,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_retrieve: {
+    api_billing_claims_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7418,7 +8382,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_approve_create: {
+    api_billing_claims_approve_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7445,7 +8409,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_reject_create: {
+    api_billing_claims_reject_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7472,7 +8436,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_settle_create: {
+    api_billing_claims_settle_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7499,7 +8463,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_submit_create: {
+    api_billing_claims_submit_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7526,7 +8490,7 @@ export interface operations {
             };
         };
     };
-    billing_claims_ageing_list: {
+    api_billing_claims_ageing_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -7545,7 +8509,7 @@ export interface operations {
             };
         };
     };
-    billing_insurers_list: {
+    api_billing_insurers_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -7567,7 +8531,7 @@ export interface operations {
             };
         };
     };
-    billing_insurers_create: {
+    api_billing_insurers_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7592,7 +8556,7 @@ export interface operations {
             };
         };
     };
-    billing_insurers_retrieve: {
+    api_billing_insurers_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7613,7 +8577,7 @@ export interface operations {
             };
         };
     };
-    billing_insurers_partial_update: {
+    api_billing_insurers_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -7640,7 +8604,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_list: {
+    api_billing_invoices_list: {
         parameters: {
             query?: {
                 estate_review?: string;
@@ -7672,7 +8636,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_retrieve: {
+    api_billing_invoices_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7693,7 +8657,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_charge_create: {
+    api_billing_invoices_charge_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7720,7 +8684,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_coverage_create: {
+    api_billing_invoices_coverage_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7747,7 +8711,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_pay_create: {
+    api_billing_invoices_pay_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7774,7 +8738,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_remind_create: {
+    api_billing_invoices_remind_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -7795,7 +8759,7 @@ export interface operations {
             };
         };
     };
-    billing_invoices_summary_retrieve: {
+    api_billing_invoices_summary_retrieve: {
         parameters: {
             query?: {
                 currency?: string;
@@ -7818,7 +8782,7 @@ export interface operations {
             };
         };
     };
-    billing_ledger_accounts_list: {
+    api_billing_ledger_accounts_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -7840,7 +8804,7 @@ export interface operations {
             };
         };
     };
-    billing_ledger_accounts_retrieve: {
+    api_billing_ledger_accounts_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7861,7 +8825,45 @@ export interface operations {
             };
         };
     };
-    billing_ledger_accounts_reconcile_retrieve: {
+    api_billing_ledger_accounts_balance_sheet_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BalanceSheet"];
+                };
+            };
+        };
+    };
+    api_billing_ledger_accounts_income_statement_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IncomeStatement"];
+                };
+            };
+        };
+    };
+    api_billing_ledger_accounts_reconcile_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7880,7 +8882,7 @@ export interface operations {
             };
         };
     };
-    billing_ledger_accounts_trial_balance_retrieve: {
+    api_billing_ledger_accounts_trial_balance_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7899,7 +8901,7 @@ export interface operations {
             };
         };
     };
-    billing_ledger_entries_list: {
+    api_billing_ledger_entries_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -7921,7 +8923,32 @@ export interface operations {
             };
         };
     };
-    billing_ledger_entries_retrieve: {
+    api_billing_ledger_entries_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManualEntryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ManualEntryRequest"];
+                "multipart/form-data": components["schemas"]["ManualEntryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_billing_ledger_entries_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7942,7 +8969,34 @@ export interface operations {
             };
         };
     };
-    billing_payment_intents_list: {
+    api_billing_ledger_entries_reverse_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReverseEntryRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReverseEntryRequest"];
+                "multipart/form-data": components["schemas"]["ReverseEntryRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JournalEntry"];
+                };
+            };
+        };
+    };
+    api_billing_payment_intents_list: {
         parameters: {
             query?: {
                 invoice?: string;
@@ -7967,7 +9021,7 @@ export interface operations {
             };
         };
     };
-    billing_payment_intents_retrieve: {
+    api_billing_payment_intents_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -7988,7 +9042,7 @@ export interface operations {
             };
         };
     };
-    billing_payments_list: {
+    api_billing_payments_list: {
         parameters: {
             query?: {
                 invoice?: string;
@@ -8011,7 +9065,7 @@ export interface operations {
             };
         };
     };
-    billing_payments_retrieve: {
+    api_billing_payments_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8032,7 +9086,7 @@ export interface operations {
             };
         };
     };
-    billing_webhooks_paystack_create: {
+    api_billing_webhooks_paystack_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8057,7 +9111,7 @@ export interface operations {
             };
         };
     };
-    clinical_codes_icd10_list: {
+    api_clinical_codes_icd10_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -8081,7 +9135,7 @@ export interface operations {
             };
         };
     };
-    clinical_codes_loinc_list: {
+    api_clinical_codes_loinc_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -8100,7 +9154,7 @@ export interface operations {
             };
         };
     };
-    clinical_diagnoses_list: {
+    api_clinical_diagnoses_list: {
         parameters: {
             query?: {
                 current?: string;
@@ -8129,7 +9183,7 @@ export interface operations {
             };
         };
     };
-    clinical_diagnoses_create: {
+    api_clinical_diagnoses_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8154,7 +9208,7 @@ export interface operations {
             };
         };
     };
-    clinical_diagnoses_retrieve: {
+    api_clinical_diagnoses_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8175,7 +9229,7 @@ export interface operations {
             };
         };
     };
-    clinical_diagnoses_partial_update: {
+    api_clinical_diagnoses_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -8202,7 +9256,7 @@ export interface operations {
             };
         };
     };
-    clinical_diagnoses_entered_in_error_create: {
+    api_clinical_diagnoses_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8229,7 +9283,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_list: {
+    api_clinical_encounters_list: {
         parameters: {
             query?: {
                 /** @description Only rows of this encounter (id). */
@@ -8257,7 +9311,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_create: {
+    api_clinical_encounters_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8282,7 +9336,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_retrieve: {
+    api_clinical_encounters_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8303,7 +9357,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_partial_update: {
+    api_clinical_encounters_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -8330,7 +9384,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_entered_in_error_create: {
+    api_clinical_encounters_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8357,7 +9411,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_rank_diagnoses_create: {
+    api_clinical_encounters_rank_diagnoses_create: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -8387,7 +9441,7 @@ export interface operations {
             };
         };
     };
-    clinical_encounters_status_create: {
+    api_clinical_encounters_status_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8414,7 +9468,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_list: {
+    api_clinical_notes_list: {
         parameters: {
             query?: {
                 /** @description Only rows of this encounter (id). */
@@ -8442,7 +9496,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_create: {
+    api_clinical_notes_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8467,7 +9521,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_retrieve: {
+    api_clinical_notes_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8488,7 +9542,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_partial_update: {
+    api_clinical_notes_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -8515,7 +9569,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_close_create: {
+    api_clinical_notes_close_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8536,7 +9590,7 @@ export interface operations {
             };
         };
     };
-    clinical_notes_entered_in_error_create: {
+    api_clinical_notes_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8563,7 +9617,7 @@ export interface operations {
             };
         };
     };
-    clinical_vitals_list: {
+    api_clinical_vitals_list: {
         parameters: {
             query?: {
                 /** @description Only rows of this encounter (id). */
@@ -8591,7 +9645,7 @@ export interface operations {
             };
         };
     };
-    clinical_vitals_create: {
+    api_clinical_vitals_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8616,7 +9670,7 @@ export interface operations {
             };
         };
     };
-    clinical_vitals_retrieve: {
+    api_clinical_vitals_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8637,7 +9691,7 @@ export interface operations {
             };
         };
     };
-    clinical_vitals_entered_in_error_create: {
+    api_clinical_vitals_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8664,7 +9718,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_investigations_list: {
+    api_diagnostics_investigations_list: {
         parameters: {
             query?: {
                 kind?: string;
@@ -8687,7 +9741,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_investigations_create: {
+    api_diagnostics_investigations_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8712,7 +9766,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_investigations_retrieve: {
+    api_diagnostics_investigations_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8733,7 +9787,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_investigations_partial_update: {
+    api_diagnostics_investigations_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -8760,7 +9814,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_orders_list: {
+    api_diagnostics_orders_list: {
         parameters: {
             query?: {
                 kind?: string;
@@ -8787,7 +9841,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_orders_create: {
+    api_diagnostics_orders_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8812,7 +9866,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_orders_retrieve: {
+    api_diagnostics_orders_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8833,7 +9887,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_orders_cancel_create: {
+    api_diagnostics_orders_cancel_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8860,7 +9914,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_orders_collect_create: {
+    api_diagnostics_orders_collect_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8881,7 +9935,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_results_list: {
+    api_diagnostics_results_list: {
         parameters: {
             query?: {
                 order?: string;
@@ -8906,7 +9960,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_results_create: {
+    api_diagnostics_results_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8931,7 +9985,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_results_retrieve: {
+    api_diagnostics_results_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -8952,7 +10006,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_results_correct_create: {
+    api_diagnostics_results_correct_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -8979,7 +10033,7 @@ export interface operations {
             };
         };
     };
-    diagnostics_results_review_create: {
+    api_diagnostics_results_review_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9000,7 +10054,7 @@ export interface operations {
             };
         };
     };
-    inpatient_admissions_list: {
+    api_inpatient_admissions_list: {
         parameters: {
             query?: {
                 open?: string;
@@ -9025,7 +10079,7 @@ export interface operations {
             };
         };
     };
-    inpatient_admissions_create: {
+    api_inpatient_admissions_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9050,7 +10104,7 @@ export interface operations {
             };
         };
     };
-    inpatient_admissions_retrieve: {
+    api_inpatient_admissions_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9071,7 +10125,7 @@ export interface operations {
             };
         };
     };
-    inpatient_admissions_discharge_create: {
+    api_inpatient_admissions_discharge_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9098,7 +10152,7 @@ export interface operations {
             };
         };
     };
-    inpatient_admissions_transfer_create: {
+    api_inpatient_admissions_transfer_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9125,7 +10179,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_list: {
+    api_inpatient_beds_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -9147,7 +10201,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_create: {
+    api_inpatient_beds_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9172,7 +10226,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_retrieve: {
+    api_inpatient_beds_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9193,7 +10247,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_partial_update: {
+    api_inpatient_beds_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -9220,7 +10274,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_in_service_create: {
+    api_inpatient_beds_in_service_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9241,7 +10295,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_out_of_service_create: {
+    api_inpatient_beds_out_of_service_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9262,7 +10316,7 @@ export interface operations {
             };
         };
     };
-    inpatient_beds_ready_create: {
+    api_inpatient_beds_ready_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9283,7 +10337,7 @@ export interface operations {
             };
         };
     };
-    inpatient_wards_list: {
+    api_inpatient_wards_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -9302,7 +10356,7 @@ export interface operations {
             };
         };
     };
-    inpatient_wards_create: {
+    api_inpatient_wards_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9327,7 +10381,7 @@ export interface operations {
             };
         };
     };
-    inpatient_wards_retrieve: {
+    api_inpatient_wards_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9348,7 +10402,7 @@ export interface operations {
             };
         };
     };
-    inpatient_wards_partial_update: {
+    api_inpatient_wards_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -9375,7 +10429,288 @@ export interface operations {
             };
         };
     };
-    patients_allergies_list: {
+    api_inventory_items_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                search?: string;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedItemList"];
+                };
+            };
+        };
+    };
+    api_inventory_items_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ItemRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ItemRequest"];
+                "multipart/form-data": components["schemas"]["ItemRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Item"];
+                };
+            };
+        };
+    };
+    api_inventory_items_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Item"];
+                };
+            };
+        };
+    };
+    api_inventory_items_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedItemRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedItemRequest"];
+                "multipart/form-data": components["schemas"]["PatchedItemRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Item"];
+                };
+            };
+        };
+    };
+    api_inventory_items_summary_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Summary"];
+                };
+            };
+        };
+    };
+    api_inventory_movements_list: {
+        parameters: {
+            query?: {
+                item?: string;
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedMovementList"];
+                };
+            };
+        };
+    };
+    api_inventory_movements_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MovementRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["MovementRequestRequest"];
+                "multipart/form-data": components["schemas"]["MovementRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Movement"];
+                };
+            };
+        };
+    };
+    api_inventory_movements_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Movement"];
+                };
+            };
+        };
+    };
+    api_messaging_threads_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedThreadList"];
+                };
+            };
+        };
+    };
+    api_messaging_threads_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NewThreadRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["NewThreadRequest"];
+                "multipart/form-data": components["schemas"]["NewThreadRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadDetail"];
+                };
+            };
+        };
+    };
+    api_messaging_threads_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ThreadDetail"];
+                };
+            };
+        };
+    };
+    api_messaging_threads_reply_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReplyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ReplyRequest"];
+                "multipart/form-data": components["schemas"]["ReplyRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Message"];
+                };
+            };
+        };
+    };
+    api_patients_allergies_list: {
         parameters: {
             query?: {
                 /** @description true to include Entered-in-Error rows. */
@@ -9401,7 +10736,7 @@ export interface operations {
             };
         };
     };
-    patients_allergies_create: {
+    api_patients_allergies_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9426,7 +10761,7 @@ export interface operations {
             };
         };
     };
-    patients_allergies_retrieve: {
+    api_patients_allergies_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9447,7 +10782,7 @@ export interface operations {
             };
         };
     };
-    patients_allergies_partial_update: {
+    api_patients_allergies_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -9474,7 +10809,7 @@ export interface operations {
             };
         };
     };
-    patients_allergies_entered_in_error_create: {
+    api_patients_allergies_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9501,7 +10836,7 @@ export interface operations {
             };
         };
     };
-    patients_attachments_list: {
+    api_patients_attachments_list: {
         parameters: {
             query?: {
                 /** @description true to include Entered-in-Error rows. */
@@ -9527,7 +10862,7 @@ export interface operations {
             };
         };
     };
-    patients_attachments_create: {
+    api_patients_attachments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9552,7 +10887,7 @@ export interface operations {
             };
         };
     };
-    patients_attachments_retrieve: {
+    api_patients_attachments_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9573,7 +10908,7 @@ export interface operations {
             };
         };
     };
-    patients_attachments_download_retrieve: {
+    api_patients_attachments_download_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9594,7 +10929,7 @@ export interface operations {
             };
         };
     };
-    patients_attachments_entered_in_error_create: {
+    api_patients_attachments_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9621,7 +10956,7 @@ export interface operations {
             };
         };
     };
-    patients_duplicate_reviews_list: {
+    api_patients_duplicate_reviews_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -9645,7 +10980,7 @@ export interface operations {
             };
         };
     };
-    patients_duplicate_reviews_retrieve: {
+    api_patients_duplicate_reviews_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9666,7 +11001,7 @@ export interface operations {
             };
         };
     };
-    patients_duplicate_reviews_resolve_create: {
+    api_patients_duplicate_reviews_resolve_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9693,7 +11028,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_list: {
+    api_patients_patients_list: {
         parameters: {
             query?: {
                 /** @description true for only patients with a recorded allergy. */
@@ -9727,7 +11062,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_create: {
+    api_patients_patients_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9752,7 +11087,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_retrieve: {
+    api_patients_patients_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9773,7 +11108,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_partial_update: {
+    api_patients_patients_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -9800,7 +11135,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_entered_in_error_create: {
+    api_patients_patients_entered_in_error_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9827,7 +11162,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_status_create: {
+    api_patients_patients_status_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9854,7 +11189,7 @@ export interface operations {
             };
         };
     };
-    patients_patients_check_duplicates_create: {
+    api_patients_patients_check_duplicates_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9879,7 +11214,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_drugs_list: {
+    api_pharmacy_drugs_list: {
         parameters: {
             query?: {
                 formulary?: string;
@@ -9904,7 +11239,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_drugs_create: {
+    api_pharmacy_drugs_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -9929,7 +11264,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_drugs_retrieve: {
+    api_pharmacy_drugs_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -9950,7 +11285,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_drugs_partial_update: {
+    api_pharmacy_drugs_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -9977,7 +11312,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_orders_list: {
+    api_pharmacy_orders_list: {
         parameters: {
             query?: {
                 /** @description Sort field, with a leading - for descending. */
@@ -10007,7 +11342,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_orders_retrieve: {
+    api_pharmacy_orders_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10028,7 +11363,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_orders_cancel_create: {
+    api_pharmacy_orders_cancel_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10049,7 +11384,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_orders_receive_create: {
+    api_pharmacy_orders_receive_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10076,7 +11411,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_orders_place_create: {
+    api_pharmacy_orders_place_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10101,7 +11436,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_list: {
+    api_pharmacy_prescriptions_list: {
         parameters: {
             query?: {
                 /** @description Only rows of this encounter (id). */
@@ -10129,7 +11464,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_create: {
+    api_pharmacy_prescriptions_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10154,7 +11489,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_retrieve: {
+    api_pharmacy_prescriptions_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10175,7 +11510,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_partial_update: {
+    api_pharmacy_prescriptions_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -10202,7 +11537,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_authorise_create: {
+    api_pharmacy_prescriptions_authorise_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10229,7 +11564,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_cancel_create: {
+    api_pharmacy_prescriptions_cancel_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10256,7 +11591,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_check_create: {
+    api_pharmacy_prescriptions_check_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10277,7 +11612,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_dispense_create: {
+    api_pharmacy_prescriptions_dispense_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10304,7 +11639,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_prescriptions_verify_retrieve: {
+    api_pharmacy_prescriptions_verify_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10325,7 +11660,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_list: {
+    api_pharmacy_stock_list: {
         parameters: {
             query?: {
                 drug?: string;
@@ -10348,7 +11683,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_create: {
+    api_pharmacy_stock_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10373,7 +11708,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_retrieve: {
+    api_pharmacy_stock_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10394,7 +11729,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_partial_update: {
+    api_pharmacy_stock_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -10421,7 +11756,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_inventory_list: {
+    api_pharmacy_stock_inventory_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -10449,7 +11784,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_stock_summary_retrieve: {
+    api_pharmacy_stock_summary_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10468,7 +11803,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_vendors_list: {
+    api_pharmacy_vendors_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -10487,7 +11822,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_vendors_create: {
+    api_pharmacy_vendors_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10512,7 +11847,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_vendors_retrieve: {
+    api_pharmacy_vendors_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10533,7 +11868,7 @@ export interface operations {
             };
         };
     };
-    pharmacy_vendors_partial_update: {
+    api_pharmacy_vendors_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -10560,7 +11895,7 @@ export interface operations {
             };
         };
     };
-    portal_accounts_list: {
+    api_portal_accounts_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -10582,7 +11917,7 @@ export interface operations {
             };
         };
     };
-    portal_accounts_create: {
+    api_portal_accounts_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10607,7 +11942,7 @@ export interface operations {
             };
         };
     };
-    portal_accounts_retrieve: {
+    api_portal_accounts_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10628,7 +11963,7 @@ export interface operations {
             };
         };
     };
-    portal_accounts_revoke_create: {
+    api_portal_accounts_revoke_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10649,7 +11984,7 @@ export interface operations {
             };
         };
     };
-    portal_appointment_slots_list: {
+    api_portal_appointment_slots_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -10668,7 +12003,7 @@ export interface operations {
             };
         };
     };
-    portal_appointments_list: {
+    api_portal_appointments_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -10687,7 +12022,7 @@ export interface operations {
             };
         };
     };
-    portal_appointments_create: {
+    api_portal_appointments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10712,7 +12047,7 @@ export interface operations {
             };
         };
     };
-    portal_appointments_cancel_create: {
+    api_portal_appointments_cancel_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10739,7 +12074,7 @@ export interface operations {
             };
         };
     };
-    portal_data_requests_list: {
+    api_portal_data_requests_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -10761,7 +12096,7 @@ export interface operations {
             };
         };
     };
-    portal_data_requests_retrieve: {
+    api_portal_data_requests_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10782,7 +12117,7 @@ export interface operations {
             };
         };
     };
-    portal_data_requests_respond_create: {
+    api_portal_data_requests_respond_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10809,7 +12144,7 @@ export interface operations {
             };
         };
     };
-    portal_home_retrieve: {
+    api_portal_home_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10828,7 +12163,7 @@ export interface operations {
             };
         };
     };
-    portal_invoices_list: {
+    api_portal_invoices_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -10847,7 +12182,7 @@ export interface operations {
             };
         };
     };
-    portal_invoices_pay_create: {
+    api_portal_invoices_pay_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10874,7 +12209,7 @@ export interface operations {
             };
         };
     };
-    portal_my_information_retrieve: {
+    api_portal_my_information_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10893,7 +12228,7 @@ export interface operations {
             };
         };
     };
-    portal_payments_verify_create: {
+    api_portal_payments_verify_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -10914,7 +12249,7 @@ export interface operations {
             };
         };
     };
-    portal_prescriptions_list: {
+    api_portal_prescriptions_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -10933,7 +12268,7 @@ export interface operations {
             };
         };
     };
-    portal_privacy_retrieve: {
+    api_portal_privacy_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10952,7 +12287,7 @@ export interface operations {
             };
         };
     };
-    portal_profile_retrieve: {
+    api_portal_profile_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -10971,7 +12306,7 @@ export interface operations {
             };
         };
     };
-    portal_profile_partial_update: {
+    api_portal_profile_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -10996,7 +12331,7 @@ export interface operations {
             };
         };
     };
-    portal_requests_list: {
+    api_portal_requests_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -11015,7 +12350,7 @@ export interface operations {
             };
         };
     };
-    portal_requests_create: {
+    api_portal_requests_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11040,7 +12375,7 @@ export interface operations {
             };
         };
     };
-    portal_results_list: {
+    api_portal_results_list: {
         parameters: {
             query?: never;
             header?: never;
@@ -11059,7 +12394,7 @@ export interface operations {
             };
         };
     };
-    portal_results_seen_create: {
+    api_portal_results_seen_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11080,7 +12415,7 @@ export interface operations {
             };
         };
     };
-    reports_dashboard_retrieve: {
+    api_reports_dashboard_retrieve: {
         parameters: {
             query?: {
                 /**
@@ -11105,7 +12440,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_list: {
+    api_scheduling_appointments_list: {
         parameters: {
             query?: {
                 date?: string;
@@ -11140,7 +12475,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_create: {
+    api_scheduling_appointments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11165,7 +12500,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_retrieve: {
+    api_scheduling_appointments_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11186,7 +12521,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_partial_update: {
+    api_scheduling_appointments_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11213,7 +12548,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_reschedule_create: {
+    api_scheduling_appointments_reschedule_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11240,7 +12575,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_status_create: {
+    api_scheduling_appointments_status_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11267,7 +12602,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_triage_create: {
+    api_scheduling_appointments_triage_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11294,7 +12629,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_free_slots_list: {
+    api_scheduling_appointments_free_slots_list: {
         parameters: {
             query: {
                 date: string;
@@ -11316,7 +12651,7 @@ export interface operations {
             };
         };
     };
-    scheduling_appointments_queue_list: {
+    api_scheduling_appointments_queue_list: {
         parameters: {
             query: {
                 physician: string;
@@ -11337,7 +12672,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_list: {
+    api_scheduling_availability_list: {
         parameters: {
             query?: {
                 /** @description Only rows starting at or after this time (ISO 8601). */
@@ -11366,7 +12701,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_create: {
+    api_scheduling_availability_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11391,7 +12726,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_retrieve: {
+    api_scheduling_availability_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11412,7 +12747,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_update: {
+    api_scheduling_availability_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11439,7 +12774,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_destroy: {
+    api_scheduling_availability_destroy: {
         parameters: {
             query?: never;
             header?: never;
@@ -11459,7 +12794,7 @@ export interface operations {
             };
         };
     };
-    scheduling_availability_partial_update: {
+    api_scheduling_availability_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11486,7 +12821,125 @@ export interface operations {
             };
         };
     };
-    staff_profiles_list: {
+    api_staff_leave_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+                /** @description Only rows with this status. */
+                status?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedLeaveList"];
+                };
+            };
+        };
+    };
+    api_staff_leave_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaveRequestRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LeaveRequestRequest"];
+                "multipart/form-data": components["schemas"]["LeaveRequestRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leave"];
+                };
+            };
+        };
+    };
+    api_staff_leave_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leave"];
+                };
+            };
+        };
+    };
+    api_staff_leave_cancel_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leave"];
+                };
+            };
+        };
+    };
+    api_staff_leave_decide_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LeaveDecisionRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["LeaveDecisionRequest"];
+                "multipart/form-data": components["schemas"]["LeaveDecisionRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Leave"];
+                };
+            };
+        };
+    };
+    api_staff_profiles_list: {
         parameters: {
             query?: {
                 group?: string;
@@ -11515,7 +12968,7 @@ export interface operations {
             };
         };
     };
-    staff_profiles_create: {
+    api_staff_profiles_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11540,7 +12993,7 @@ export interface operations {
             };
         };
     };
-    staff_profiles_retrieve: {
+    api_staff_profiles_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11561,7 +13014,7 @@ export interface operations {
             };
         };
     };
-    staff_profiles_partial_update: {
+    api_staff_profiles_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11588,7 +13041,7 @@ export interface operations {
             };
         };
     };
-    staff_profiles_verify_licence_create: {
+    api_staff_profiles_verify_licence_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11615,7 +13068,7 @@ export interface operations {
             };
         };
     };
-    staff_profiles_summary_retrieve: {
+    api_staff_profiles_summary_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11634,7 +13087,7 @@ export interface operations {
             };
         };
     };
-    staff_shifts_list: {
+    api_staff_shifts_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -11656,7 +13109,7 @@ export interface operations {
             };
         };
     };
-    staff_shifts_retrieve: {
+    api_staff_shifts_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11677,7 +13130,7 @@ export interface operations {
             };
         };
     };
-    staff_shifts_clock_in_create: {
+    api_staff_shifts_clock_in_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11696,7 +13149,7 @@ export interface operations {
             };
         };
     };
-    staff_shifts_clock_out_create: {
+    api_staff_shifts_clock_out_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11715,7 +13168,7 @@ export interface operations {
             };
         };
     };
-    tenants_departments_list: {
+    api_tenants_departments_list: {
         parameters: {
             query?: {
                 facility?: string;
@@ -11738,7 +13191,7 @@ export interface operations {
             };
         };
     };
-    tenants_departments_create: {
+    api_tenants_departments_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11763,7 +13216,7 @@ export interface operations {
             };
         };
     };
-    tenants_departments_retrieve: {
+    api_tenants_departments_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11784,7 +13237,7 @@ export interface operations {
             };
         };
     };
-    tenants_departments_partial_update: {
+    api_tenants_departments_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11811,7 +13264,7 @@ export interface operations {
             };
         };
     };
-    tenants_facilities_list: {
+    api_tenants_facilities_list: {
         parameters: {
             query?: {
                 /** @description A page number within the paginated result set. */
@@ -11833,7 +13286,7 @@ export interface operations {
             };
         };
     };
-    tenants_facilities_create: {
+    api_tenants_facilities_create: {
         parameters: {
             query?: never;
             header?: never;
@@ -11858,7 +13311,7 @@ export interface operations {
             };
         };
     };
-    tenants_facilities_retrieve: {
+    api_tenants_facilities_retrieve: {
         parameters: {
             query?: never;
             header?: never;
@@ -11879,7 +13332,7 @@ export interface operations {
             };
         };
     };
-    tenants_facilities_partial_update: {
+    api_tenants_facilities_partial_update: {
         parameters: {
             query?: never;
             header?: never;
@@ -11902,6 +13355,290 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Facility"];
+                };
+            };
+        };
+    };
+    test_api_folders_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedFolderList"];
+                };
+            };
+        };
+    };
+    test_api_folders_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FolderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FolderRequest"];
+                "multipart/form-data": components["schemas"]["FolderRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Folder"];
+                };
+            };
+        };
+    };
+    test_api_folders_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Folder"];
+                };
+            };
+        };
+    };
+    test_api_folders_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FolderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["FolderRequest"];
+                "multipart/form-data": components["schemas"]["FolderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Folder"];
+                };
+            };
+        };
+    };
+    test_api_folders_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    test_api_folders_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedFolderRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedFolderRequest"];
+                "multipart/form-data": components["schemas"]["PatchedFolderRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Folder"];
+                };
+            };
+        };
+    };
+    test_api_records_list: {
+        parameters: {
+            query?: {
+                /** @description A page number within the paginated result set. */
+                page?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PaginatedRecordList"];
+                };
+            };
+        };
+    };
+    test_api_records_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RecordRequest"];
+                "multipart/form-data": components["schemas"]["RecordRequest"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Record"];
+                };
+            };
+        };
+    };
+    test_api_records_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Record"];
+                };
+            };
+        };
+    };
+    test_api_records_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RecordRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["RecordRequest"];
+                "multipart/form-data": components["schemas"]["RecordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Record"];
+                };
+            };
+        };
+    };
+    test_api_records_destroy: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description No response body */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    test_api_records_partial_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["PatchedRecordRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["PatchedRecordRequest"];
+                "multipart/form-data": components["schemas"]["PatchedRecordRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Record"];
                 };
             };
         };

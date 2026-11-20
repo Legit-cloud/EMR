@@ -178,6 +178,7 @@ SPECTACULAR_SETTINGS = {
         "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
         "PurchaseOrderStatusEnum": "apps.pharmacy.models.OrderStatus",
         "BedStatusEnum": "apps.inpatient.models.BedStatus",
+        "MovementKindEnum": "apps.inventory.models.MovementKind",
         "DataRequestStatusEnum": "apps.portal.models.RequestStatus",
         "DataRequestKindEnum": "apps.portal.models.RequestKind",
         "DischargeStatusEnum": "apps.inpatient.models.DischargeStatus",
