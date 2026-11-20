@@ -7,6 +7,7 @@ from django.utils import timezone
 from django_otp.plugins.otp_email.models import EmailDevice
 
 from apps.core.policy import PATIENT_RESOURCE, Assignment
+from apps.core.roles import Role
 
 from .models import ApiToken, BreakGlassGrant, RoleAssignment
 
@@ -107,3 +108,21 @@ def is_session_mfa_verified(session, user) -> bool:
         return False
     device = Device.from_persistent_id(persistent_id)
     return device is not None and device.user_id == user.pk and device.confirmed
+
+
+def staff_user_ids(user_ids) -> set:
+    """Of ``user_ids``, those that are active staff (any role but patient) in the current tenant."""
+    rows = (
+        RoleAssignment.objects.filter(user_id__in=list(user_ids), user__is_active=True)
+        .exclude(role=Role.PATIENT)
+        .values_list("user_id", flat=True)
+    )
+    return set(rows)
+
+
+def display_names(user_ids) -> dict:
+    """``{user id: full name or username}`` for users of the current tenant."""
+    rows = RoleAssignment.objects.filter(user_id__in=list(user_ids)).values_list(
+        "user_id", "user__first_name", "user__last_name", "user__username"
+    )
+    return {uid: f"{first} {last}".strip() or username for uid, first, last, username in rows}

@@ -41,6 +41,7 @@ ADMINISTRATION = {
     "inpatient.bed",
     "inpatient.ward",
     "inventory.item",
+    "messaging.thread",
     "portal.account",
     "portal.request",
     "scheduling.availabilitywindow",
