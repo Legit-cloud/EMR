@@ -10153,12 +10153,16 @@ components:
         decision_note:
           type: string
           readOnly: true
+        is_mine:
+          type: boolean
+          readOnly: true
       required:
       - days
       - decided_at
       - decision_note
       - end_date
       - id
+      - is_mine
       - leave_type
       - note
       - staff

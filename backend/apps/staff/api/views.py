@@ -142,7 +142,9 @@ class LeaveViewSet(TenantReadOnlyViewSet):
         with transaction.atomic():
             leave = services.request_leave(request.user, **data.validated_data)
             self.audit_write(Action.CREATE, leave, ["leave_type", "start_date", "end_date"])
-        return Response(s.LeaveSerializer(leave).data, status=201)
+        return Response(
+            s.LeaveSerializer(leave, context=self.get_serializer_context()).data, status=201
+        )
 
     @extend_schema(request=s.LeaveDecisionSerializer, responses=s.LeaveSerializer)
     @action(detail=True, methods=["post"])
@@ -158,7 +160,7 @@ class LeaveViewSet(TenantReadOnlyViewSet):
                 note=data.validated_data["note"],
             )
             self.audit_write(Action.UPDATE, leave, ["status"])
-        return Response(s.LeaveSerializer(leave).data)
+        return Response(s.LeaveSerializer(leave, context=self.get_serializer_context()).data)
 
     @extend_schema(request=None, responses=s.LeaveSerializer)
     @action(detail=True, methods=["post"])
@@ -167,4 +169,4 @@ class LeaveViewSet(TenantReadOnlyViewSet):
         with transaction.atomic():
             leave = services.cancel_leave(leave, user=request.user)
             self.audit_write(Action.UPDATE, leave, ["status"])
-        return Response(s.LeaveSerializer(leave).data)
+        return Response(s.LeaveSerializer(leave, context=self.get_serializer_context()).data)

@@ -133,3 +133,9 @@ def test_sec_07_other_tenant_sees_no_leave(staff, make_user, signed_in, tenant_b
     ask(staff["nurse"][1])
     other = signed_in(make_user("hr-b", tenant_b, [Role.HR]))
     assert other.get(LEAVE).json()["results"] == []
+
+
+def test_leave_rows_say_whether_they_belong_to_the_viewer(staff):
+    ask(staff["nurse"][1])
+    assert staff["nurse"][1].get(LEAVE).json()["results"][0]["is_mine"] is True
+    assert staff["hr"][1].get(LEAVE).json()["results"][0]["is_mine"] is False

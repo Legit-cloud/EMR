@@ -5057,6 +5057,7 @@ export interface components {
             /** Format: date-time */
             readonly decided_at: string | null;
             readonly decision_note: string;
+            readonly is_mine: boolean;
         };
         LeaveDecisionRequest: {
             approve: boolean;

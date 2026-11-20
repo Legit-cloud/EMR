@@ -47,9 +47,18 @@ describe("leave rules", () => {
     expect(leaveRange({ start_date: "2026-12-01", end_date: "2026-12-03", days: 3 })).toBe(
       "1 Dec 2026 to 3 Dec 2026 (3 days)",
     );
-    expect(canCancel({ status: "pending", start_date: "2020-01-01" }, "2026-11-20")).toBe(true);
-    expect(canCancel({ status: "approved", start_date: "2026-11-20" }, "2026-11-20")).toBe(false);
-    expect(canCancel({ status: "rejected", start_date: "2027-01-01" }, "2026-11-20")).toBe(false);
+    expect(
+      canCancel({ status: "pending", start_date: "2020-01-01", is_mine: true }, "2026-11-20"),
+    ).toBe(true);
+    expect(
+      canCancel({ status: "approved", start_date: "2026-11-20", is_mine: true }, "2026-11-20"),
+    ).toBe(false);
+    expect(
+      canCancel({ status: "rejected", start_date: "2027-01-01", is_mine: true }, "2026-11-20"),
+    ).toBe(false);
+    expect(
+      canCancel({ status: "pending", start_date: "2027-01-01", is_mine: false }, "2026-11-20"),
+    ).toBe(false);
   });
 });
 

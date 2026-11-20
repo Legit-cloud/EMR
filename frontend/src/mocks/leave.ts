@@ -22,6 +22,7 @@ function seeded(): Mutable<Leave>[] {
     status,
     decided_at: null,
     decision_note: "",
+    is_mine: false,
   });
   return [make(1, "Amaka Obi", 10, 12, "pending"), make(2, "Bola Adeyemi", 20, 20, "approved")];
 }
@@ -56,6 +57,7 @@ export const leaveHandlers = [
       status: "pending",
       decided_at: null,
       decision_note: "",
+      is_mine: true,
     };
     leaves.unshift(leave);
     return HttpResponse.json(leave, { status: 201 });
