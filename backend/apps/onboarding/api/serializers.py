@@ -56,6 +56,8 @@ class VerifiedSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    departments = serializers.ListField(child=serializers.CharField(), read_only=True)
+    modules = serializers.ListField(child=serializers.CharField(), read_only=True)
     complete = serializers.SerializerMethodField()
     organisation_name = serializers.SerializerMethodField()
     department_choices = serializers.SerializerMethodField()

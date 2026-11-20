@@ -2073,6 +2073,144 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/onboarding/profile/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The organisation's onboarding answers. Only its administrator sees or changes them. */
+        get: operations["onboarding_profile_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/profile/{id}/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The organisation's onboarding answers. Only its administrator sees or changes them. */
+        get: operations["onboarding_profile_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/profile/current/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description The organisation's onboarding answers. Only its administrator sees or changes them. */
+        get: operations["onboarding_profile_current_retrieve"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/profile/finish/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description The organisation's onboarding answers. Only its administrator sees or changes them. */
+        post: operations["onboarding_profile_finish_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/profile/save/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description The organisation's onboarding answers. Only its administrator sees or changes them. */
+        post: operations["onboarding_profile_save_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/signup/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * @description Ask to open an account. Emails a code; the answer never says whether the address is
+         *     already registered.
+         */
+        post: operations["onboarding_signup_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/signup/resend/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["onboarding_signup_resend_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/onboarding/signup/verify/": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Enter the emailed code. Creates the organisation and its administrator and signs them in. */
+        post: operations["onboarding_signup_verify_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/patients/allergies/": {
         parameters: {
             query?: never;
@@ -3812,6 +3950,11 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description The same answer for every sign-up request, whatever the address. */
+        Accepted: {
+            /** Format: email */
+            email: string;
+        };
         Account: {
             /** Format: uuid */
             readonly id: string;
@@ -3923,6 +4066,19 @@ export interface components {
          * @enum {string}
          */
         AllergySeverityEnum: "mild" | "moderate" | "severe";
+        /** @description Any subset of the answers, saved as the person moves between steps. */
+        AnswersRequest: {
+            facility_name?: string;
+            facility_type?: components["schemas"]["FacilityTypeEnum"];
+            country?: string;
+            city?: string;
+            phone?: string;
+            staff_band?: components["schemas"]["StaffBandEnum"];
+            bed_band?: components["schemas"]["BedBandEnum"];
+            departments?: components["schemas"]["DepartmentsEnum"][];
+            modules?: components["schemas"]["ModulesEnum"][];
+            heard_from?: string;
+        };
         Appointment: {
             /** Format: uuid */
             readonly id: string;
@@ -4163,6 +4319,14 @@ export interface components {
             label: string;
             readonly status: components["schemas"]["BedStatusEnum"];
         };
+        /**
+         * @description * `none` - No inpatient beds
+         *     * `1-20` - 1 to 20
+         *     * `21-100` - 21 to 100
+         *     * `100+` - More than 100
+         * @enum {string}
+         */
+        BedBandEnum: "none" | "1-20" | "21-100" | "100+";
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -4435,6 +4599,18 @@ export interface components {
             facility: string;
             name: string;
         };
+        /**
+         * @description * `Outpatient (OPD)` - Outpatient (OPD)
+         *     * `Emergency` - Emergency
+         *     * `Paediatrics` - Paediatrics
+         *     * `Maternity` - Maternity
+         *     * `Surgery` - Surgery
+         *     * `Laboratory` - Laboratory
+         *     * `Radiology` - Radiology
+         *     * `Pharmacy` - Pharmacy
+         * @enum {string}
+         */
+        DepartmentsEnum: "Outpatient (OPD)" | "Emergency" | "Paediatrics" | "Maternity" | "Surgery" | "Laboratory" | "Radiology" | "Pharmacy";
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -4759,6 +4935,14 @@ export interface components {
             name: string;
             code: string;
         };
+        /**
+         * @description * `clinic` - Clinic
+         *     * `hospital` - Hospital
+         *     * `specialist_centre` - Specialist centre
+         *     * `group` - Group of facilities
+         * @enum {string}
+         */
+        FacilityTypeEnum: "clinic" | "hospital" | "specialist_centre" | "group";
         Finance: {
             currency: string;
             periods: components["schemas"]["FinancePeriod"][];
@@ -5223,6 +5407,20 @@ export interface components {
          * @enum {string}
          */
         ModeEnum: "session" | "token";
+        /**
+         * @description * `appointments` - appointments
+         *     * `patient_records` - patient_records
+         *     * `pharmacy` - pharmacy
+         *     * `inpatient` - inpatient
+         *     * `diagnostics` - diagnostics
+         *     * `billing` - billing
+         *     * `insurance_claims` - insurance_claims
+         *     * `patient_portal` - patient_portal
+         *     * `inventory` - inventory
+         *     * `hr` - hr
+         * @enum {string}
+         */
+        ModulesEnum: "appointments" | "patient_records" | "pharmacy" | "inpatient" | "diagnostics" | "billing" | "insurance_claims" | "patient_portal" | "inventory" | "hr";
         Movement: {
             /** Format: uuid */
             readonly id: string;
@@ -6827,6 +7025,22 @@ export interface components {
             retention_years: number;
             response_days: number;
         };
+        Profile: {
+            facility_name?: string;
+            facility_type?: components["schemas"]["FacilityTypeEnum"] | components["schemas"]["BlankEnum"];
+            country?: string;
+            city?: string;
+            phone?: string;
+            staff_band?: components["schemas"]["StaffBandEnum"] | components["schemas"]["BlankEnum"];
+            bed_band?: components["schemas"]["BedBandEnum"] | components["schemas"]["BlankEnum"];
+            readonly departments: string[];
+            readonly modules: string[];
+            heard_from?: string;
+            readonly complete: boolean;
+            readonly organisation_name: string;
+            readonly department_choices: string[];
+            readonly module_choices: string[];
+        };
         /**
          * @description * `pending` - Pending
          *     * `partially_received` - Partially received
@@ -6941,6 +7155,10 @@ export interface components {
             end_at?: string;
             /** Format: uuid */
             physician?: string;
+        };
+        ResendRequest: {
+            /** Format: email */
+            email: string;
         };
         ResolveReviewRequest: {
             decision: components["schemas"]["DecisionEnum"];
@@ -7088,6 +7306,23 @@ export interface components {
             valid: boolean;
             signing_key_id: string;
         };
+        SignupRequest: {
+            organisation_name: string;
+            first_name: string;
+            last_name: string;
+            /** Format: email */
+            email: string;
+            password: string;
+            accepted_terms: boolean;
+        };
+        /**
+         * @description * `1-10` - 1 to 10
+         *     * `11-50` - 11 to 50
+         *     * `51-200` - 51 to 200
+         *     * `200+` - More than 200
+         * @enum {string}
+         */
+        StaffBandEnum: "1-10" | "11-50" | "51-200" | "200+";
         /**
          * @description ModelSerializer that runs the model's ``full_clean`` before every save.
          *
@@ -7344,6 +7579,15 @@ export interface components {
          * @enum {string}
          */
         VerificationStatusEnum: "unconfirmed" | "confirmed" | "refuted" | "entered_in_error";
+        Verified: {
+            /** Format: uuid */
+            user_id: string;
+        };
+        VerifyRequest: {
+            /** Format: email */
+            email: string;
+            code: string;
+        };
         VitalSigns: {
             /** Format: uuid */
             readonly id: string;
@@ -10389,6 +10633,184 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Message"];
+                };
+            };
+        };
+    };
+    onboarding_profile_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"][];
+                };
+            };
+        };
+    };
+    onboarding_profile_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    onboarding_profile_current_retrieve: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    onboarding_profile_finish_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    onboarding_profile_save_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": components["schemas"]["AnswersRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["AnswersRequest"];
+                "multipart/form-data": components["schemas"]["AnswersRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Profile"];
+                };
+            };
+        };
+    };
+    onboarding_signup_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SignupRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["SignupRequest"];
+                "multipart/form-data": components["schemas"]["SignupRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Accepted"];
+                };
+            };
+        };
+    };
+    onboarding_signup_resend_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResendRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["ResendRequest"];
+                "multipart/form-data": components["schemas"]["ResendRequest"];
+            };
+        };
+        responses: {
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Accepted"];
+                };
+            };
+        };
+    };
+    onboarding_signup_verify_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["VerifyRequest"];
+                "application/x-www-form-urlencoded": components["schemas"]["VerifyRequest"];
+                "multipart/form-data": components["schemas"]["VerifyRequest"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Verified"];
                 };
             };
         };

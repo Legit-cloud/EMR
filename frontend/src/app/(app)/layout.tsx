@@ -10,6 +10,7 @@ import { PageContainer } from "@/components/layout/page-container";
 import type { Facility } from "@/components/layout/sidebar";
 import { Loading } from "@/components/legacy-ui";
 import { api, setSignedOutHandler } from "@/lib/api";
+import { useOnboarding } from "@/lib/onboarding";
 import { SessionContext } from "@/lib/session";
 import { useIdleTimeout } from "@/lib/use-idle-timeout";
 
@@ -64,6 +65,15 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     }
   }, [signedOut, router, pathname]);
 
+  // A new organisation's administrator answers the onboarding questions before anything else.
+  // Organisations set up by hand have none (404), and the answer is cached for a minute.
+  const isAdmin = !!me.data && me.data.roles.includes("tenant_admin");
+  const onboarding = useOnboarding(isAdmin);
+  const needsOnboarding = isAdmin && onboarding.data?.complete === false;
+  useEffect(() => {
+    if (needsOnboarding) router.replace("/onboarding");
+  }, [needsOnboarding, router]);
+
   // A patient belongs in the portal, not the staff app (the API refuses them staff data anyway).
   const patientOnly = !!me.data && me.data.roles.every((role) => role === "patient");
   useEffect(() => {
@@ -101,7 +111,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   );
   const idle = useIdleTimeout({ onTimeout: () => signOut("idle") });
 
-  if (!me.data || patientOnly) {
+  if (!me.data || patientOnly || needsOnboarding) {
     return (
       <main className="p-6">
         <Loading label="Checking your session" />
