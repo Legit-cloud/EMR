@@ -426,7 +426,9 @@ def reconcile(currency: str = "NGN") -> list[str]:
     debits, credits = ledger.trial_balance(currency)
     if debits != credits:
         problems.append(f"ledger: debits {debits} != credits {credits}")
-    balances = ledger.balances(currency)
+    # Invoices and payments explain only the entries they posted. Finance's manual entries
+    # and their reversals (ADR 0026) are checked by the trial balance above instead.
+    balances = ledger.balances(currency, exclude_sources=ledger.MANUAL_SOURCES)
     payments_total = (
         Payment.objects.filter(currency=currency).aggregate(total=Sum("amount_minor"))["total"] or 0
     )
@@ -624,3 +626,76 @@ def verify_online_payment(reference: str, *, patient_id=None) -> PaymentIntent:
         confirmation = payment_gateway.get_gateway().verify(reference)
         intent = settle_online_payment(reference, confirmation) or intent
     return intent
+
+
+# -- manual ledger entries ---------------------------------------------------------------
+
+
+class ManualEntryRefused(DomainError):
+    code = "manual_entry_refused"
+    status_code = 400
+
+
+def _known_code(code: str) -> bool:
+    from .models import Account
+
+    return code in ledger.CHART or Account.objects.filter(code=code).exists()
+
+
+@transaction.atomic
+def post_manual_entry(*, description: str, currency: str, lines: list[dict]):
+    """Finance records something that did not come from an invoice: an expense, a supplier bill,
+    an opening balance. ``lines`` are ``{"account", "debit_minor", "credit_minor"}``. Entries
+    cannot be edited afterwards, only reversed."""
+    description = description.strip()
+    if not description:
+        raise ManualEntryRefused("Describe what the entry is for.")
+    if len(lines) < 2:
+        raise ManualEntryRefused("An entry needs at least two lines.")
+    posting = []
+    for line in lines:
+        code, debit, credit = line["account"], line["debit_minor"], line["credit_minor"]
+        if not _known_code(code):
+            raise ManualEntryRefused(f"There is no account {code}.")
+        if (debit > 0) == (credit > 0):
+            raise ManualEntryRefused(
+                "Each line is either a debit or a credit, not both or neither."
+            )
+        posting.append((code, Money(debit, currency), Money(credit, currency)))
+    key = f"manual:{uuid.uuid4()}"
+    try:
+        return ledger.post(
+            description=description,
+            source="manual",
+            source_id=key,
+            idempotency_key=key,
+            lines=posting,
+        )
+    except ledger.UnbalancedEntry as problem:
+        raise ManualEntryRefused(str(problem)) from problem
+
+
+@transaction.atomic
+def reverse_entry(entry, *, reason: str):
+    """Undo an entry by posting its mirror image. An entry is reversed at most once."""
+    if not reason.strip():
+        raise ManualEntryRefused("Say why the entry is being reversed.")
+    if entry.source != "manual":
+        raise ManualEntryRefused(
+            "Only manual entries can be reversed here. Correct an invoice entry on the invoice."
+        )
+    lines = [
+        (
+            line.account.code,
+            Money(line.credit_minor, entry.currency),
+            Money(line.debit_minor, entry.currency),
+        )
+        for line in entry.lines.select_related("account")
+    ]
+    return ledger.post(
+        description=f"Reversal: {entry.description} ({reason.strip()})"[:255],
+        source="reversal",
+        source_id=entry.pk,
+        idempotency_key=f"reversal:{entry.pk}",
+        lines=lines,
+    )

@@ -10,7 +10,7 @@ class StaffConfig(AppConfig):
         from apps.core.policy import Action
         from apps.core.roles import STAFF_ROLES, Role
 
-        from .models import Shift, StaffProfile
+        from .models import LeaveRequest, Shift, StaffProfile
         from .selectors import is_on_duty
 
         # Shift status feeds grants marked on_duty (CLAUDE.md Section 5).
@@ -30,5 +30,16 @@ class StaffConfig(AppConfig):
             "staff.shift",
             model=Shift,
             grants=[policy.grant(managers, {Action.VIEW})],
+            phi=False,
+        )
+        # Everyone asks for their own leave (the view narrows to their own rows); HR decides;
+        # the tenant admin looks.
+        policy.register(
+            "staff.leave",
+            model=LeaveRequest,
+            grants=[
+                policy.grant(STAFF_ROLES, {Action.VIEW, Action.CREATE}),
+                policy.grant({Role.HR}, {Action.UPDATE}),
+            ],
             phi=False,
         )

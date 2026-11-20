@@ -2,7 +2,7 @@ from rest_framework import serializers
 
 from apps.core.api.serializers import CleanModelSerializer
 
-from ..models import LicenceVerification, Shift, StaffProfile
+from ..models import LeaveRequest, LeaveType, LicenceVerification, Shift, StaffProfile
 
 
 class StaffProfileSerializer(CleanModelSerializer):
@@ -65,3 +65,37 @@ class StaffSummarySerializer(serializers.Serializer):
     general = serializers.IntegerField()
     licences_expiring = serializers.IntegerField()
     licences_expired = serializers.IntegerField()
+
+
+class LeaveSerializer(serializers.ModelSerializer):
+    staff_name = serializers.CharField(source="staff.user.get_full_name", read_only=True)
+    days = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = LeaveRequest
+        fields = [
+            "id",
+            "staff",
+            "staff_name",
+            "leave_type",
+            "start_date",
+            "end_date",
+            "days",
+            "note",
+            "status",
+            "decided_at",
+            "decision_note",
+        ]
+        read_only_fields = fields
+
+
+class LeaveRequestSerializer(serializers.Serializer):
+    leave_type = serializers.ChoiceField(choices=LeaveType.choices)
+    start_date = serializers.DateField()
+    end_date = serializers.DateField()
+    note = serializers.CharField(max_length=300, required=False, allow_blank=True, default="")
+
+
+class LeaveDecisionSerializer(serializers.Serializer):
+    approve = serializers.BooleanField()
+    note = serializers.CharField(max_length=300, required=False, allow_blank=True, default="")

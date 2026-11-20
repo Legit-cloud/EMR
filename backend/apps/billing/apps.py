@@ -49,7 +49,10 @@ class BillingConfig(AppConfig):
         policy.register(
             "billing.journalentry",
             model=JournalEntry,
-            grants=[policy.grant({Role.FINANCE, Role.TENANT_ADMIN}, {view})],
+            grants=[
+                policy.grant({Role.FINANCE, Role.TENANT_ADMIN}, {view}),
+                policy.grant({Role.FINANCE}, {create}),
+            ],
             phi=False,
         )
         # Claims to insurers: billing officers work them; finance and the administrator look.

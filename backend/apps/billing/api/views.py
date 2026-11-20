@@ -1,11 +1,14 @@
 import uuid
+from datetime import date
 
 from django.db import transaction
 from django.db.models import CharField, Count, F, Q, Sum
 from django.db.models.functions import Cast
+from django.utils import timezone
 from drf_spectacular.utils import OpenApiParameter, extend_schema
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 from apps.core import policy
@@ -241,7 +244,12 @@ class AccountViewSet(TenantReadOnlyViewSet):
 
     model = Account
     policy_resource = "billing.ledger"
-    policy_actions = {"reconcile": Action.VIEW, "trial_balance": Action.VIEW}
+    policy_actions = {
+        "reconcile": Action.VIEW,
+        "trial_balance": Action.VIEW,
+        "income_statement": Action.VIEW,
+        "balance_sheet": Action.VIEW,
+    }
     serializer_class = s.AccountSerializer
 
     def get_serializer_context(self):
@@ -261,11 +269,62 @@ class AccountViewSet(TenantReadOnlyViewSet):
         debits, credits = ledger.trial_balance(request.query_params.get("currency", "NGN"))
         return Response({"debits_minor": debits, "credits_minor": credits})
 
+    @extend_schema(responses=s.IncomeStatementSerializer)
+    @action(detail=False, methods=["get"], url_path="income-statement")
+    def income_statement(self, request):
+        """Revenue and expenses from ``start`` to ``end`` (dates; default this calendar month)."""
+        today = timezone.localdate()
+        start = _date_param(request, "start", today.replace(day=1))
+        end = _date_param(request, "end", today)
+        return Response(
+            ledger.income_statement(start, end, request.query_params.get("currency", "NGN"))
+        )
+
+    @extend_schema(responses=s.BalanceSheetSerializer)
+    @action(detail=False, methods=["get"], url_path="balance-sheet")
+    def balance_sheet(self, request):
+        as_of = _date_param(request, "as_of", timezone.localdate())
+        return Response(ledger.balance_sheet(as_of, request.query_params.get("currency", "NGN")))
+
+
+def _date_param(request, name, default):
+    raw = request.query_params.get(name)
+    if not raw:
+        return default
+    try:
+        return date.fromisoformat(raw)
+    except ValueError:
+        raise ValidationError({name: "Use a date like 2026-11-30."}) from None
+
 
 class JournalEntryViewSet(TenantReadOnlyViewSet):
+    """The ledger's entries. Finance adds manual entries and reverses mistakes; nothing is
+    edited or deleted."""
+
     model = JournalEntry
     policy_resource = "billing.journalentry"
+    policy_actions = {"reverse": Action.CREATE}
     serializer_class = s.JournalEntrySerializer
+
+    @extend_schema(request=s.ManualEntrySerializer, responses={201: s.JournalEntrySerializer})
+    def create(self, request):
+        data = s.ManualEntrySerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        with transaction.atomic():
+            entry = services.post_manual_entry(**data.validated_data)
+            self.audit_write(Action.CREATE, entry, ["description", "lines"])
+        return Response(s.JournalEntrySerializer(entry).data, status=201)
+
+    @extend_schema(request=s.ReverseEntrySerializer, responses={201: s.JournalEntrySerializer})
+    @action(detail=True, methods=["post"])
+    def reverse(self, request, pk=None):
+        entry = self.get_object()
+        data = s.ReverseEntrySerializer(data=request.data)
+        data.is_valid(raise_exception=True)
+        with transaction.atomic():
+            reversal = services.reverse_entry(entry, reason=data.validated_data["reason"])
+            self.audit_write(Action.CREATE, reversal, ["reversal_of"])
+        return Response(s.JournalEntrySerializer(reversal).data, status=201)
 
     def get_base_queryset(self):
         queryset = super().get_base_queryset().prefetch_related("lines__account")

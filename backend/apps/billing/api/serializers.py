@@ -243,3 +243,48 @@ class PaymentIntentSerializer(serializers.ModelSerializer):
 
     def get_reference_number(self, intent) -> str:
         return f"INV-{str(intent.invoice_id)[:8].upper()}"
+
+
+class ManualLineSerializer(serializers.Serializer):
+    account = serializers.CharField(max_length=10)
+    debit_minor = serializers.IntegerField(min_value=0, default=0)
+    credit_minor = serializers.IntegerField(min_value=0, default=0)
+
+
+class ManualEntrySerializer(serializers.Serializer):
+    description = serializers.CharField(max_length=255)
+    currency = serializers.CharField(max_length=3, default="NGN")
+    lines = ManualLineSerializer(many=True, min_length=2, max_length=20)
+
+
+class ReverseEntrySerializer(serializers.Serializer):
+    reason = serializers.CharField(max_length=200)
+
+
+class StatementLineSerializer(serializers.Serializer):
+    code = serializers.CharField()
+    name = serializers.CharField()
+    amount_minor = serializers.IntegerField()
+
+
+class IncomeStatementSerializer(serializers.Serializer):
+    start = serializers.DateField()
+    end = serializers.DateField()
+    currency = serializers.CharField()
+    revenue = StatementLineSerializer(many=True)
+    expenses = StatementLineSerializer(many=True)
+    total_revenue_minor = serializers.IntegerField()
+    total_expenses_minor = serializers.IntegerField()
+    net_minor = serializers.IntegerField()
+
+
+class BalanceSheetSerializer(serializers.Serializer):
+    as_of = serializers.DateField()
+    currency = serializers.CharField()
+    assets = StatementLineSerializer(many=True)
+    liabilities = StatementLineSerializer(many=True)
+    equity = StatementLineSerializer(many=True)
+    profit_to_date_minor = serializers.IntegerField()
+    total_assets_minor = serializers.IntegerField()
+    total_liabilities_minor = serializers.IntegerField()
+    total_equity_minor = serializers.IntegerField()
