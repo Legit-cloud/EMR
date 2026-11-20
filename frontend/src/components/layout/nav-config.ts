@@ -12,6 +12,7 @@ import {
     Buildings,
     BookOpen,
     CalendarPlus,
+    Calculator,
     ChatCircleText,
     FileLock,
     Files,

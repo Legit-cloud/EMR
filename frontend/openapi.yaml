@@ -1423,6 +1423,16 @@ paths:
     get:
       operationId: api_billing_ledger_accounts_balance_sheet_retrieve
       description: Chart of accounts with balances, and reconciliation, for finance.
+      parameters:
+      - in: query
+        name: as_of
+        schema:
+          type: string
+        description: Date, YYYY-MM-DD.
+      - in: query
+        name: currency
+        schema:
+          type: string
       tags:
       - api
       security:
@@ -1440,6 +1450,21 @@ paths:
       operationId: api_billing_ledger_accounts_income_statement_retrieve
       description: Revenue and expenses from ``start`` to ``end`` (dates; default
         this calendar month).
+      parameters:
+      - in: query
+        name: currency
+        schema:
+          type: string
+      - in: query
+        name: end
+        schema:
+          type: string
+        description: Last date, YYYY-MM-DD.
+      - in: query
+        name: start
+        schema:
+          type: string
+        description: First date, YYYY-MM-DD.
       tags:
       - api
       security:

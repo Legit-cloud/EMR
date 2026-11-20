@@ -1,5 +1,6 @@
 import type { HttpHandler } from "msw";
 
+import { accountingHandlers } from "./accounting";
 import { appointmentHandlers } from "./appointments";
 import { auditHandlers } from "./audit";
 import { authHandlers } from "./auth";
@@ -27,6 +28,7 @@ import { stockHandlers } from "./stock";
  * that states the contract; their pages say so when the API answers 404 (docs/adr/0020).
  */
 export const handlers: HttpHandler[] = [
+    ...accountingHandlers,
     ...appointmentHandlers,
     ...auditHandlers,
     ...authHandlers,

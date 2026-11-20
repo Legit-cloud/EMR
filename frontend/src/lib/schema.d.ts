@@ -8827,7 +8827,11 @@ export interface operations {
     };
     api_billing_ledger_accounts_balance_sheet_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Date, YYYY-MM-DD. */
+                as_of?: string;
+                currency?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -8846,7 +8850,13 @@ export interface operations {
     };
     api_billing_ledger_accounts_income_statement_retrieve: {
         parameters: {
-            query?: never;
+            query?: {
+                currency?: string;
+                /** @description Last date, YYYY-MM-DD. */
+                end?: string;
+                /** @description First date, YYYY-MM-DD. */
+                start?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
