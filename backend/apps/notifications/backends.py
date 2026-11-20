@@ -43,6 +43,9 @@ class ResendBackend(BaseEmailBackend):
             "subject": message.subject,
             "text": message.body,
         }
+        for content, mimetype in getattr(message, "alternatives", []):
+            if mimetype == "text/html":
+                payload["html"] = content
         if message.cc:
             payload["cc"] = list(message.cc)
         if message.bcc:

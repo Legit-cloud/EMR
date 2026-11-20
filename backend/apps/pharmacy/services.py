@@ -35,6 +35,8 @@ from .models import (
     Vendor,
 )
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 P = PrescriptionStatus
 
 
@@ -337,19 +339,14 @@ def place_order(*, vendor: Vendor, lines: list[dict], note: str = "") -> Purchas
         for line in lines
     )
     if vendor.email:
-        rows = "\n".join(f"- {line['drug']}: {line['quantity']} units" for line in lines)
-        notifications.queue_email(
+        notifications.queue_message(
             to=vendor.email,
-            subject=f"Purchase order {order_reference(order)}",
-            body=(
-                f"Dear {vendor.name},\n\n"
-                f"Please supply the following to {tenant_name(order.tenant_id) or 'us'} under "
-                f"purchase order {order_reference(order)}:\n\n{rows}\n"
-                + (f"\nNote: {note}\n" if note else "")
-                + "\nPlease reply to confirm that you can supply this and when it will arrive. "
-                f"Quote {order_reference(order)} on your delivery note and your invoice, and "
-                "deliver only what is listed. Deliveries that do not match this order may be "
-                "refused.\n\nThank you.\n"
+            message=messages.purchase_order(
+                vendor.name,
+                tenant_name(order.tenant_id),
+                order_reference(order),
+                [(str(line["drug"]), line["quantity"]) for line in lines],
+                note,
             ),
             purpose="purchase_order",
             related_object=f"pharmacy.purchaseorder:{order.pk}",

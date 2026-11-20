@@ -126,3 +126,10 @@ def display_names(user_ids) -> dict:
         "user_id", "user__first_name", "user__last_name", "user__username"
     )
     return {uid: f"{first} {last}".strip() or username for uid, first, last, username in rows}
+
+
+def role_catalogue() -> list[dict]:
+    """Every role an administrator can give, with what it may do."""
+    from .role_info import catalogue
+
+    return catalogue()

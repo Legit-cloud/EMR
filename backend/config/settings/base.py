@@ -130,6 +130,10 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
+# People sign in with their email address and password. Older accounts that have a separate
+# username keep working with it.
+AUTHENTICATION_BACKENDS = ["apps.accounts.backends.EmailOrUsernameBackend"]
+
 EMAIL_CONFIG = env.email("EMAIL_URL", default="consolemail://")
 vars().update(EMAIL_CONFIG)
 # Never wait forever on a mail server: a blocked port would hold a worker slot for good.
@@ -185,6 +189,8 @@ SPECTACULAR_SETTINGS = {
         "PrescriptionStatusEnum": "apps.pharmacy.models.PrescriptionStatus",
         "PurchaseOrderStatusEnum": "apps.pharmacy.models.OrderStatus",
         "BedStatusEnum": "apps.inpatient.models.BedStatus",
+        "RoleEnum": "apps.core.roles.Role",
+        "InvitableRoleEnum": "apps.accounts.api.serializers.INVITABLE_ROLE_CHOICES",
         "MovementKindEnum": "apps.inventory.models.MovementKind",
         "DataRequestStatusEnum": "apps.portal.models.RequestStatus",
         "DataRequestKindEnum": "apps.portal.models.RequestKind",
@@ -277,13 +283,18 @@ MFA_REQUIRED_ROLES = env.list(
 # after that a person contacts the patient.
 BILLING_REMINDER_INTERVAL_HOURS = env.int("BILLING_REMINDER_INTERVAL_HOURS", default=72)
 BILLING_REMINDER_MAX = env.int("BILLING_REMINDER_MAX", default=3)
-# Public address of the web app, used in emails that link to the portal. Empty leaves the link out.
-PORTAL_URL = env("PORTAL_URL", default="")
+# Public address of the web app, with no trailing slash. Every link in an email (invitations,
+# password resets, the patient portal) is built from it, never from the API's own address.
+# Production has no default and refuses to start without it.
+FRONTEND_URL = env("FRONTEND_URL", default="http://localhost:3000").rstrip("/")
+# Where emails send patients; defaults to the web app. Set it only to use a different address.
+PORTAL_URL = env("PORTAL_URL", default=FRONTEND_URL).rstrip("/")
 BREAK_GLASS_ROLES = env.list("BREAK_GLASS_ROLES", default=["doctor", "nurse"])
 BREAK_GLASS_MINUTES = env.int("BREAK_GLASS_MINUTES", default=60)
 BREAK_GLASS_MIN_REASON_LENGTH = 15
+# The page that sets a password, for invitations and resets. {uid} and {token} are filled in.
 PASSWORD_RESET_URL = env(
-    "PASSWORD_RESET_URL", default="http://localhost:3000/reset-password?uid={uid}&token={token}"
+    "PASSWORD_RESET_URL", default=FRONTEND_URL + "/reset-password?uid={uid}&token={token}"
 )
 PASSWORD_RESET_TIMEOUT = env.int("PASSWORD_RESET_TIMEOUT", default=60 * 60 * 24)
 # Independent hash chains per tenant, so concurrent PHI reads do not queue on one lock.

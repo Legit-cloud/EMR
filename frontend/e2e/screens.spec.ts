@@ -45,7 +45,7 @@ test.describe("sign-in", () => {
     const before = await mailIdsFor(user.email);
     await page.goto("/patients");
     await expect(page).toHaveURL(/\/login/);
-    await page.getByLabel("Username").fill(user.username);
+    await page.getByLabel("Email address").fill(user.username);
     await page.getByLabel("Password").fill(seed.password);
     await page.getByRole("button", { name: "Continue" }).click();
     const code = page.getByLabel("Sign-in code");

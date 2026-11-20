@@ -19,9 +19,13 @@ from apps.core.errors import DomainError
 from apps.core.roles import Role
 from apps.core.tenancy import get_current_tenant_id, tenant_context
 from apps.notifications import services as notifications
+from apps.tenants.selectors import tenant_name
 
 from . import selectors
 from .models import ApiToken, BreakGlassGrant, BreakGlassReview, RoleAssignment, User
+from .role_info import ROLE_INFO
+
+messages = notifications.messages  # the words of each email, kept in the notifications module
 
 
 class AuthError(DomainError):
@@ -73,15 +77,8 @@ def _send_sign_in_code(user: User, device: EmailDevice) -> None:
     device.cooldown_set(commit=False)
     device.generate_token(valid_secs=settings.OTP_EMAIL_TOKEN_VALIDITY, commit=True)
     minutes = max(1, settings.OTP_EMAIL_TOKEN_VALIDITY // 60)
-    _queue_email(
-        user,
-        subject="Your sign-in code",
-        body=(
-            f"Your sign-in code is {device.token}\n\n"
-            f"It works for {minutes} minutes and only once. "
-            "If you did not try to sign in, change your password."
-        ),
-        purpose="login_code",
+    _queue_message(
+        user, messages.sign_in_code(user.first_name, device.token, minutes), purpose="login_code"
     )
 
 
@@ -175,7 +172,7 @@ def start_session(request, user: User, *, how: str) -> None:
     """Sign a user in without a password, because the caller has just proved the mailbox with a
     one-time code (account sign-up). The session counts as code-verified."""
     device = _sign_in_device(user)
-    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    login(request, user, backend="apps.accounts.backends.EmailOrUsernameBackend")
     django_otp.login(request, device)
     audit.record(
         action=audit.AuditAction.LOGIN,
@@ -186,41 +183,44 @@ def start_session(request, user: User, *, how: str) -> None:
     )
 
 
-def _queue_email(user: User, *, subject: str, body: str, purpose: str) -> None:
+def _queue_message(user: User, message, *, purpose: str) -> None:
     """Queue the email; a slow or unreachable mail server never fails the request.
 
     The delivery log keeps only a masked address and the purpose, never the body.
     """
     if user.tenant_id is None:
         # Platform staff have no tenant to log the delivery under.
-        notifications.queue_untracked_email(to=user.email, subject=subject, body=body)
+        notifications.queue_untracked_message(to=user.email, message=message)
         return
     with tenant_context(user.tenant_id, user.pk):
-        notifications.queue_email(
+        notifications.queue_message(
             to=user.email,
-            subject=subject,
-            body=body,
+            message=message,
             purpose=purpose,
             related_object=f"accounts.user:{user.pk}",
         )
 
 
-def _send_password_link(user: User, subject: str) -> None:
+def _password_link(user: User) -> str:
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = default_token_generator.make_token(user)
-    link = settings.PASSWORD_RESET_URL.format(uid=uid, token=token)
-    body = (
-        f"Use this link to set your password:\n\n{link}\n\n"
-        "If you did not expect this message, ignore it."
-    )
-    _queue_email(user, subject=subject, body=body, purpose="password_link")
+    return settings.PASSWORD_RESET_URL.format(uid=uid, token=token)
+
+
+def _valid_hours() -> int:
+    return max(1, settings.PASSWORD_RESET_TIMEOUT // 3600)
+
+
+def _send_password_reset(user: User) -> None:
+    message = messages.password_reset(user.first_name, _password_link(user), _valid_hours())
+    _queue_message(user, message, purpose="password_link")
 
 
 def request_password_reset(request, email: str) -> None:
     """Send a reset link if the address matches an active user. Never reveals whether it did."""
     users = list(User.objects.filter(email__iexact=email.strip(), is_active=True))
     for user in users:
-        _send_password_link(user, "Reset your password")
+        _send_password_reset(user)
     audit.record(
         action=audit.AuditAction.PASSWORD_RESET_REQUEST,
         request=request,
@@ -249,9 +249,22 @@ def reset_password(request, *, uid: str, token: str, new_password: str) -> User:
 
 
 def invite_user(user: User) -> None:
-    """New users get no password; they set one through an emailed link."""
-    if user.email:
-        _send_password_link(user, "You have been invited")
+    """New users get no password; they set one through an emailed link. Staff are told which
+    organisation and role they were invited to; patients get the portal wording."""
+    if not user.email:
+        return
+    organisation = tenant_name(user.tenant_id) or "your organisation"
+    roles = selectors.roles_of(user.pk)
+    if Role.PATIENT in roles:
+        message = messages.patient_invitation(
+            user.first_name, organisation, _password_link(user), _valid_hours()
+        )
+    else:
+        label = next((ROLE_INFO[r][0] for r in Role if r in roles and r in ROLE_INFO), "")
+        message = messages.staff_invitation(
+            user.first_name, organisation, label, _password_link(user), _valid_hours()
+        )
+    _queue_message(user, message, purpose="password_link")
 
 
 def create_patient_user(*, username: str, email: str, first_name: str, last_name: str) -> User:

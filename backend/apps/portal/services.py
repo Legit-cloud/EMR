@@ -19,6 +19,8 @@ from apps.patients import services as patient_services
 
 from .models import DataSubjectRequest, PortalAccount, RequestKind, RequestStatus
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 
 class PortalAccountError(DomainError):
     code = "portal_account_refused"
@@ -115,14 +117,12 @@ def submit_request(patient_id, *, kind: str, details: str = "") -> DataSubjectRe
     )
     contact = patients.contact_details(patient_id)
     if contact and contact["email"]:
-        notifications.queue_email(
+        notifications.queue_message(
             to=contact["email"],
-            subject="We have received your request",
-            body=(
-                f"Dear {contact['first_name']},\n\nWe have received your request "
-                f"({request.get_kind_display().lower()}). We will answer by "
-                f"{request.due_on:%d %B %Y}. You can follow it under Your rights in the patient "
-                "portal.\n"
+            message=messages.data_request_received(
+                contact["first_name"],
+                request.get_kind_display().lower(),
+                f"{request.due_on:%d %B %Y}",
             ),
             purpose="data_request_received",
             related_object=f"portal.datasubjectrequest:{request.pk}",
@@ -130,12 +130,10 @@ def submit_request(patient_id, *, kind: str, details: str = "") -> DataSubjectRe
     for to in accounts_selectors.emails_of_role_holders(
         [Role.COMPLIANCE_OFFICER, Role.TENANT_ADMIN]
     ):
-        notifications.queue_email(
+        notifications.queue_message(
             to=to,
-            subject="A patient has made a data-protection request",
-            body=(
-                f"A {request.get_kind_display().lower()} request was made and is due by "
-                f"{request.due_on:%d %B %Y}. Open the Data requests screen to answer it."
+            message=messages.data_request_staff(
+                request.get_kind_display().lower(), f"{request.due_on:%d %B %Y}"
             ),
             purpose="data_request_staff",
             related_object=f"portal.datasubjectrequest:{request.pk}",
@@ -173,13 +171,10 @@ def respond_to_request(
     )
     contact = patients.contact_details(request.patient_id)
     if contact and contact["email"]:
-        notifications.queue_email(
+        notifications.queue_message(
             to=contact["email"],
-            subject="Your request has been answered",
-            body=(
-                f"Dear {contact['first_name']},\n\n"
-                f"Your request ({request.get_kind_display().lower()}) has been answered. "
-                "Please sign in to the patient portal and open Your rights to read the answer.\n"
+            message=messages.data_request_answered(
+                contact["first_name"], request.get_kind_display().lower()
             ),
             purpose="data_request_answered",
             related_object=f"portal.datasubjectrequest:{request.pk}",

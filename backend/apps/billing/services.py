@@ -47,6 +47,8 @@ from .models import (
     RevenueCategory,
 )
 
+messages = notifications.messages  # the words of each email, kept in the notifications module
+
 
 class PaymentRefused(DomainError):
     code = "payment_refused"
@@ -362,23 +364,14 @@ def send_payment_reminder(invoice: Invoice) -> list[str]:
         )
 
     reference = invoice_reference(invoice)
-    online = (
-        f"\nYou can also pay online: {settings.PORTAL_URL.rstrip('/')}/portal/invoices\n"
-        if settings.PORTAL_URL
-        else ""
-    )
-    body = (
-        f"Dear {contact['first_name']},\n\n"
-        f"This is a friendly reminder that {Money(owed, invoice.currency)} is still to be paid on "
-        f"your bill {reference}.\n\n"
-        f"You can pay at the cashier or by bank transfer, quoting {reference}.{online}\n"
-        "If you have already paid, or you think this reminder is a mistake, please speak to our "
-        "billing office. Thank you.\n"
-    )
-    notifications.queue_email(
+    notifications.queue_message(
         to=contact["email"],
-        subject=f"A reminder about your bill {reference}",
-        body=body,
+        message=messages.payment_reminder(
+            contact["first_name"],
+            str(Money(owed, invoice.currency)),
+            reference,
+            can_pay_online=bool(settings.PORTAL_URL),
+        ),
         purpose="invoice_reminder",
         related_object=f"billing.invoice:{invoice.pk}",
     )
@@ -547,13 +540,10 @@ def _flag(intent: PaymentIntent, reason: str) -> PaymentIntent:
     intent.save(update_fields=["status", "note", "completed_at", "updated_at", "updated_by"])
     logger.error("Online payment %s needs review: %s", intent.reference, reason)
     for to in accounts.emails_of_role_holders([Role.BILLING_OFFICER, Role.FINANCE]):
-        notifications.queue_email(
+        notifications.queue_message(
             to=to,
-            subject="An online payment needs review",
-            body=(
-                f"Payment {intent.reference} for bill {invoice_reference(intent.invoice)} was "
-                f"taken by the payment service but could not be applied: {reason}\n\n"
-                "Please check it in the payment service dashboard and refund or apply it by hand."
+            message=messages.payment_flagged(
+                intent.reference, invoice_reference(intent.invoice), reason
             ),
             purpose="payment_flagged",
             related_object=f"billing.paymentintent:{intent.pk}",

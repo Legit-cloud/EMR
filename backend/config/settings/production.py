@@ -5,6 +5,13 @@ from .base import env
 
 DEBUG = False
 
+# Links in emails must point at the real web app, never localhost: no default.
+FRONTEND_URL = env("FRONTEND_URL").rstrip("/")
+PORTAL_URL = env("PORTAL_URL", default=FRONTEND_URL).rstrip("/")
+PASSWORD_RESET_URL = env(
+    "PASSWORD_RESET_URL", default=FRONTEND_URL + "/reset-password?uid={uid}&token={token}"
+)
+
 # SEC-09: production must have its own signing key; there is no default.
 PRESCRIPTION_SIGNING_KEY = env("PRESCRIPTION_SIGNING_KEY")
 

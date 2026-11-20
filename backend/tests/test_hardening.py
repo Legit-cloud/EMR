@@ -172,6 +172,7 @@ def test_sec_01_django_deployment_checks_pass_for_production():
         "ALLOWED_HOSTS": "emr.example.com,healthcheck.railway.app",
         "DATABASE_URL": "postgres://user:pass@db:5432/emr",
         "REDIS_URL": "redis://redis:6379/0",
+        "FRONTEND_URL": "https://app.example.com",
         "PRESCRIPTION_SIGNING_KEY": "cHJvZHVjdGlvbi10ZXN0LWtleS1ub3QtcmVhbC0zMmI=",
     }
     result = subprocess.run(
