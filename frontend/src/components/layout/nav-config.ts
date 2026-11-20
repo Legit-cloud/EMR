@@ -7,26 +7,27 @@
  * reports and support arrive with their screens.
  */
 import {
-  Bed,
-  Buildings,
-  BookOpen,
-  FileLock,
-  Files,
-  Flask,
-  CalendarBlank,
-  ClipboardText,
-  type Icon,
-  IdentificationCard,
-  ListNumbers,
-  Package,
-  Pill,
-  Receipt,
-  ShieldCheck,
-  ShieldWarning,
-  SquaresFour,
-  UserGear,
-  UserList,
-  UsersThree,
+    Archive,
+    Bed,
+    Buildings,
+    BookOpen,
+    FileLock,
+    Files,
+    Flask,
+    CalendarBlank,
+    ClipboardText,
+    type Icon,
+    IdentificationCard,
+    ListNumbers,
+    Package,
+    Pill,
+    Receipt,
+    ShieldCheck,
+    ShieldWarning,
+    SquaresFour,
+    UserGear,
+    UserList,
+    UsersThree,
 } from "@phosphor-icons/react";
 
 import type { Schemas } from "@/lib/api";
@@ -34,221 +35,232 @@ import type { Schemas } from "@/lib/api";
 export type Role = Schemas["RoleEnum"];
 
 export type NavItem = {
-  label: string;
-  href: string;
-  icon: Icon;
-  /** Roles that see the item; omitted means every signed-in user. */
-  roles?: Role[];
+    label: string;
+    href: string;
+    icon: Icon;
+    /** Roles that see the item; omitted means every signed-in user. */
+    roles?: Role[];
 };
 
 export type NavGroup = { caption: string | null; items: NavItem[] };
 
 export const NAV: NavGroup[] = [
-  {
-    caption: null,
-    items: [{ label: "Dashboard", href: "/dashboard", icon: SquaresFour }],
-  },
-  {
-    caption: "Clinic",
-    items: [
-      {
-        label: "Appointments",
-        href: "/appointments",
-        icon: CalendarBlank,
-        roles: ["front_desk", "tenant_admin", "doctor", "nurse"],
-      },
-      {
-        label: "Queue",
-        href: "/queue",
-        icon: ListNumbers,
-        roles: ["doctor", "nurse", "front_desk", "tenant_admin"],
-      },
-      {
-        label: "Patients",
-        href: "/patients",
-        icon: UserList,
-        roles: [
-          "doctor",
-          "nurse",
-          "pharmacist",
-          "lab_technician",
-          "front_desk",
-          "billing_officer",
-          "tenant_admin",
+    {
+        caption: null,
+        items: [{ label: "Dashboard", href: "/dashboard", icon: SquaresFour }],
+    },
+    {
+        caption: "Clinic",
+        items: [
+            {
+                label: "Appointments",
+                href: "/appointments",
+                icon: CalendarBlank,
+                roles: ["front_desk", "tenant_admin", "doctor", "nurse"],
+            },
+            {
+                label: "Queue",
+                href: "/queue",
+                icon: ListNumbers,
+                roles: ["doctor", "nurse", "front_desk", "tenant_admin"],
+            },
+            {
+                label: "Patients",
+                href: "/patients",
+                icon: UserList,
+                roles: [
+                    "doctor",
+                    "nurse",
+                    "pharmacist",
+                    "lab_technician",
+                    "front_desk",
+                    "billing_officer",
+                    "tenant_admin",
+                ],
+            },
+            {
+                label: "Duplicate review",
+                href: "/registrations",
+                icon: UsersThree,
+                roles: ["front_desk", "doctor", "tenant_admin"],
+            },
+            {
+                label: "Staff list",
+                href: "/staff",
+                icon: IdentificationCard,
+                roles: [
+                    "doctor",
+                    "nurse",
+                    "pharmacist",
+                    "lab_technician",
+                    "front_desk",
+                    "billing_officer",
+                    "hr",
+                    "tenant_admin",
+                ],
+            },
         ],
-      },
-      {
-        label: "Duplicate review",
-        href: "/registrations",
-        icon: UsersThree,
-        roles: ["front_desk", "doctor", "tenant_admin"],
-      },
-      {
-        label: "Staff list",
-        href: "/staff",
-        icon: IdentificationCard,
-        roles: [
-          "doctor",
-          "nurse",
-          "pharmacist",
-          "lab_technician",
-          "front_desk",
-          "billing_officer",
-          "hr",
-          "tenant_admin",
+    },
+    {
+        caption: "Inpatient",
+        items: [
+            {
+                label: "Wards and beds",
+                href: "/inpatient",
+                icon: Bed,
+                roles: ["nurse", "doctor", "tenant_admin"],
+            },
         ],
-      },
-    ],
-  },
-  {
-    caption: "Inpatient",
-    items: [
-      {
-        label: "Wards and beds",
-        href: "/inpatient",
-        icon: Bed,
-        roles: ["nurse", "doctor", "tenant_admin"],
-      },
-    ],
-  },
-  {
-    caption: "Diagnostics",
-    items: [
-      {
-        label: "Tests and scans",
-        href: "/diagnostics",
-        icon: Flask,
-        roles: ["doctor", "nurse", "lab_technician", "tenant_admin"],
-      },
-      {
-        label: "Test catalogue",
-        href: "/diagnostics/catalogue",
-        icon: BookOpen,
-        roles: ["lab_technician", "tenant_admin"],
-      },
-    ],
-  },
-  {
-    caption: "Finance",
-    items: [
-      {
-        label: "Invoices",
-        href: "/billing",
-        icon: Receipt,
-        roles: ["billing_officer", "finance", "front_desk", "tenant_admin"],
-      },
-      {
-        label: "Insurer claims",
-        href: "/claims",
-        icon: Files,
-        roles: ["billing_officer", "finance", "tenant_admin"],
-      },
-      {
-        label: "Insurers",
-        href: "/billing/insurers",
-        icon: ShieldCheck,
-        roles: ["billing_officer", "tenant_admin", "front_desk", "finance"],
-      },
-    ],
-  },
-  {
-    caption: "Physical asset",
-    items: [
-      { label: "Pharmacy", href: "/pharmacy", icon: Pill, roles: ["pharmacist"] },
-      {
-        label: "Stock",
-        href: "/pharmacy/stock",
-        icon: Package,
-        roles: ["pharmacist", "tenant_admin", "finance"],
-      },
-      {
-        label: "Formulary",
-        href: "/pharmacy/formulary",
-        icon: BookOpen,
-        roles: ["pharmacist", "doctor", "nurse", "tenant_admin"],
-      },
-    ],
-  },
-  {
-    caption: "Admin",
-    items: [
-      { label: "Users and roles", href: "/manage", icon: UserGear, roles: ["tenant_admin", "hr"] },
-      {
-        label: "Facilities and departments",
-        href: "/departments",
-        icon: Buildings,
-        roles: ["tenant_admin"],
-      },
-      {
-        label: "Break-glass review",
-        href: "/compliance",
-        icon: ShieldWarning,
-        roles: ["compliance_officer", "tenant_admin"],
-      },
-      {
-        label: "Audit log",
-        href: "/audit",
-        icon: ClipboardText,
-        roles: ["compliance_officer", "tenant_admin"],
-      },
-      {
-        label: "Data requests",
-        href: "/requests",
-        icon: FileLock,
-        roles: ["compliance_officer", "tenant_admin"],
-      },
-    ],
-  },
+    },
+    {
+        caption: "Diagnostics",
+        items: [
+            {
+                label: "Tests and scans",
+                href: "/diagnostics",
+                icon: Flask,
+                roles: ["doctor", "nurse", "lab_technician", "tenant_admin"],
+            },
+            {
+                label: "Test catalogue",
+                href: "/diagnostics/catalogue",
+                icon: BookOpen,
+                roles: ["lab_technician", "tenant_admin"],
+            },
+        ],
+    },
+    {
+        caption: "Finance",
+        items: [
+            {
+                label: "Invoices",
+                href: "/billing",
+                icon: Receipt,
+                roles: ["billing_officer", "finance", "front_desk", "tenant_admin"],
+            },
+            {
+                label: "Insurer claims",
+                href: "/claims",
+                icon: Files,
+                roles: ["billing_officer", "finance", "tenant_admin"],
+            },
+            {
+                label: "Insurers",
+                href: "/billing/insurers",
+                icon: ShieldCheck,
+                roles: ["billing_officer", "tenant_admin", "front_desk", "finance"],
+            },
+        ],
+    },
+    {
+        caption: "Physical asset",
+        items: [
+            { label: "Pharmacy", href: "/pharmacy", icon: Pill, roles: ["pharmacist"] },
+            {
+                label: "Stock",
+                href: "/pharmacy/stock",
+                icon: Package,
+                roles: ["pharmacist", "tenant_admin", "finance"],
+            },
+            {
+                label: "Supplies",
+                href: "/inventory",
+                icon: Archive,
+                roles: ["pharmacist", "nurse", "doctor", "finance", "tenant_admin"],
+            },
+            {
+                label: "Formulary",
+                href: "/pharmacy/formulary",
+                icon: BookOpen,
+                roles: ["pharmacist", "doctor", "nurse", "tenant_admin"],
+            },
+        ],
+    },
+    {
+        caption: "Admin",
+        items: [
+            {
+                label: "Users and roles",
+                href: "/manage",
+                icon: UserGear,
+                roles: ["tenant_admin", "hr"],
+            },
+            {
+                label: "Facilities and departments",
+                href: "/departments",
+                icon: Buildings,
+                roles: ["tenant_admin"],
+            },
+            {
+                label: "Break-glass review",
+                href: "/compliance",
+                icon: ShieldWarning,
+                roles: ["compliance_officer", "tenant_admin"],
+            },
+            {
+                label: "Audit log",
+                href: "/audit",
+                icon: ClipboardText,
+                roles: ["compliance_officer", "tenant_admin"],
+            },
+            {
+                label: "Data requests",
+                href: "/requests",
+                icon: FileLock,
+                roles: ["compliance_officer", "tenant_admin"],
+            },
+        ],
+    },
 ];
 
 export type QuickCreateItem = { label: string; href: string; roles: Role[] };
 
 /** The round + button's menu: only actions that have a screen. */
 export const QUICK_CREATE: QuickCreateItem[] = [
-  { label: "New patient", href: "/patients/new", roles: ["doctor", "nurse", "front_desk"] },
-  { label: "New appointment", href: "/appointments", roles: ["front_desk", "tenant_admin"] },
+    { label: "New patient", href: "/patients/new", roles: ["doctor", "nurse", "front_desk"] },
+    { label: "New appointment", href: "/appointments", roles: ["front_desk", "tenant_admin"] },
 ];
 
 function allowed(roles: readonly string[], item: { roles?: Role[] }): boolean {
-  return !item.roles || item.roles.some((role) => roles.includes(role));
+    return !item.roles || item.roles.some((role) => roles.includes(role));
 }
 
 /** The groups and items a user with these roles sees; empty groups are dropped. */
 export function visibleNav(roles: readonly string[], nav: NavGroup[] = NAV): NavGroup[] {
-  return nav
-    .map((group) => ({ ...group, items: group.items.filter((item) => allowed(roles, item)) }))
-    .filter((group) => group.items.length > 0);
+    return nav
+        .map((group) => ({ ...group, items: group.items.filter((item) => allowed(roles, item)) }))
+        .filter((group) => group.items.length > 0);
 }
 
 export function visibleQuickCreate(roles: readonly string[]): QuickCreateItem[] {
-  return QUICK_CREATE.filter((item) => allowed(roles, item));
+    return QUICK_CREATE.filter((item) => allowed(roles, item));
 }
 
 /** The item for a path: the longest href that matches, so /pharmacy/formulary beats /pharmacy. */
 export function activeItem(pathname: string, nav: NavGroup[] = NAV): NavItem | null {
-  let best: NavItem | null = null;
-  for (const item of nav.flatMap((group) => group.items)) {
-    const matches = pathname === item.href || pathname.startsWith(`${item.href}/`);
-    if (matches && (!best || item.href.length > best.href.length)) best = item;
-  }
-  return best;
+    let best: NavItem | null = null;
+    for (const item of nav.flatMap((group) => group.items)) {
+        const matches = pathname === item.href || pathname.startsWith(`${item.href}/`);
+        if (matches && (!best || item.href.length > best.href.length)) best = item;
+    }
+    return best;
 }
 
 const ROLE_LABELS: Record<Role, string> = {
-  tenant_admin: "Tenant admin",
-  doctor: "Doctor",
-  nurse: "Nurse",
-  pharmacist: "Pharmacist",
-  lab_technician: "Lab technician",
-  front_desk: "Front desk",
-  billing_officer: "Billing officer",
-  finance: "Finance",
-  hr: "HR",
-  compliance_officer: "Compliance officer",
-  patient: "Patient",
+    tenant_admin: "Tenant admin",
+    doctor: "Doctor",
+    nurse: "Nurse",
+    pharmacist: "Pharmacist",
+    lab_technician: "Lab technician",
+    front_desk: "Front desk",
+    billing_officer: "Billing officer",
+    finance: "Finance",
+    hr: "HR",
+    compliance_officer: "Compliance officer",
+    patient: "Patient",
 };
 
 export function roleLabel(roles: readonly string[]): string {
-  const first = roles.find((role): role is Role => role in ROLE_LABELS);
-  return first ? ROLE_LABELS[first] : "Staff";
+    const first = roles.find((role): role is Role => role in ROLE_LABELS);
+    return first ? ROLE_LABELS[first] : "Staff";
 }
