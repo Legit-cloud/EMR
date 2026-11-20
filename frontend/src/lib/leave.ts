@@ -41,9 +41,10 @@ export function checkLeaveDates(start: string, end: string, today: string): stri
   return null;
 }
 
-/** Whether the requester may still withdraw it. */
-export const canCancel = (leave: Pick<Leave, "status" | "start_date">, today: string) =>
-  leave.status === "pending" || (leave.status === "approved" && leave.start_date > today);
+/** Whether the viewer, who must be the requester, may still withdraw it. */
+export const canCancel = (leave: Pick<Leave, "status" | "start_date" | "is_mine">, today: string) =>
+  leave.is_mine &&
+  (leave.status === "pending" || (leave.status === "approved" && leave.start_date > today));
 
 export function useLeave({ status, page }: { status: string; page: number }) {
   return useQuery({

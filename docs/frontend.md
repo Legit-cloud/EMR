@@ -46,7 +46,8 @@ frontend/
                         each with a sample on /design
   src/components/<x>/   one folder per screen: billing, stock, staff, audit, inpatient, portal,
                         patients, chart, appointments, queue, prescribing, dashboard, auth,
-                        inventory, messages, leave, accounting
+                        inventory, messages, leave, accounting,
+                        signup (sign-up and the onboarding questions)
   src/components/layout the shell: sidebar, top bar, and nav-config.ts (who sees which item)
   src/lib/              logic with no markup: one file per area (billing.ts, stock.ts, ...),
                         plus api.ts (typed client), money.ts, status-map.ts, permissions.ts

@@ -145,6 +145,47 @@ def sign_out(request) -> None:
 # -- password recovery and invitations -------------------------------------------
 
 
+@transaction.atomic
+def create_tenant_admin(
+    *, tenant_id, email: str, first_name: str, last_name: str, password_hash: str
+) -> User:
+    """The first administrator of a new organisation. Signs in with the email as username."""
+    email = email.strip().lower()
+    if User.objects.filter(username__iexact=email).exists():
+        raise DomainError("That email address already belongs to another account.")
+    user = User(
+        username=email,
+        email=email,
+        first_name=first_name.strip(),
+        last_name=last_name.strip(),
+        tenant_id=tenant_id,
+        password=password_hash,
+    )
+    user.save()
+    with tenant_context(tenant_id, user.pk):
+        RoleAssignment.objects.create(user=user, role=Role.TENANT_ADMIN)
+    return user
+
+
+def email_in_use(email: str) -> bool:
+    return User.objects.filter(email__iexact=email.strip(), is_active=True).exists()
+
+
+def start_session(request, user: User, *, how: str) -> None:
+    """Sign a user in without a password, because the caller has just proved the mailbox with a
+    one-time code (account sign-up). The session counts as code-verified."""
+    device = _sign_in_device(user)
+    login(request, user, backend="django.contrib.auth.backends.ModelBackend")
+    django_otp.login(request, device)
+    audit.record(
+        action=audit.AuditAction.LOGIN,
+        request=request,
+        actor=user,
+        tenant_id=user.tenant_id,
+        details={"mode": "session", "mfa": True, "how": how},
+    )
+
+
 def _queue_email(user: User, *, subject: str, body: str, purpose: str) -> None:
     """Queue the email; a slow or unreachable mail server never fails the request.
 

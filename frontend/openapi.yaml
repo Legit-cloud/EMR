@@ -3842,6 +3842,194 @@ paths:
               schema:
                 $ref: '#/components/schemas/Message'
           description: ''
+  /api/onboarding/profile/:
+    get:
+      operationId: onboarding_profile_list
+      description: The organisation's onboarding answers. Only its administrator sees
+        or changes them.
+      tags:
+      - onboarding
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/onboarding/profile/{id}/:
+    get:
+      operationId: onboarding_profile_retrieve
+      description: The organisation's onboarding answers. Only its administrator sees
+        or changes them.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          pattern: ^[0-9a-fA-F-]{36}$
+        required: true
+      tags:
+      - onboarding
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/onboarding/profile/current/:
+    get:
+      operationId: onboarding_profile_current_retrieve
+      description: The organisation's onboarding answers. Only its administrator sees
+        or changes them.
+      tags:
+      - onboarding
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/onboarding/profile/finish/:
+    post:
+      operationId: onboarding_profile_finish_create
+      description: The organisation's onboarding answers. Only its administrator sees
+        or changes them.
+      tags:
+      - onboarding
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/onboarding/profile/save/:
+    post:
+      operationId: onboarding_profile_save_create
+      description: The organisation's onboarding answers. Only its administrator sees
+        or changes them.
+      tags:
+      - onboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnswersRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AnswersRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AnswersRequest'
+      security:
+      - bearerAuth: []
+      - cookieAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/onboarding/signup/:
+    post:
+      operationId: onboarding_signup_create
+      description: |-
+        Ask to open an account. Emails a code; the answer never says whether the address is
+        already registered.
+      tags:
+      - onboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accepted'
+          description: ''
+  /api/onboarding/signup/resend/:
+    post:
+      operationId: onboarding_signup_resend_create
+      tags:
+      - onboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResendRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ResendRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ResendRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Accepted'
+          description: ''
+  /api/onboarding/signup/verify/:
+    post:
+      operationId: onboarding_signup_verify_create
+      description: Enter the emailed code. Creates the organisation and its administrator
+        and signs them in.
+      tags:
+      - onboarding
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Verified'
+          description: ''
   /api/patients/allergies/:
     get:
       operationId: patients_allergies_list
@@ -7261,6 +7449,15 @@ paths:
           description: ''
 components:
   schemas:
+    Accepted:
+      type: object
+      description: The same answer for every sign-up request, whatever the address.
+      properties:
+        email:
+          type: string
+          format: email
+      required:
+      - email
     Account:
       type: object
       properties:
@@ -7516,6 +7713,44 @@ components:
         * `mild` - Mild
         * `moderate` - Moderate
         * `severe` - Severe
+    AnswersRequest:
+      type: object
+      description: Any subset of the answers, saved as the person moves between steps.
+      properties:
+        facility_name:
+          type: string
+          minLength: 1
+          maxLength: 200
+        facility_type:
+          $ref: '#/components/schemas/FacilityTypeEnum'
+        country:
+          type: string
+          minLength: 1
+          pattern: ^[A-Z]{2}$
+        city:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+          minLength: 1
+          pattern: ^\+[1-9]\d{7,14}$
+        staff_band:
+          $ref: '#/components/schemas/StaffBandEnum'
+        bed_band:
+          $ref: '#/components/schemas/BedBandEnum'
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentsEnum'
+          maxItems: 8
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModulesEnum'
+          maxItems: 10
+        heard_from:
+          type: string
+          maxLength: 100
     Appointment:
       type: object
       properties:
@@ -8072,6 +8307,18 @@ components:
       - label
       - status
       - ward
+    BedBandEnum:
+      enum:
+      - none
+      - 1-20
+      - 21-100
+      - 100+
+      type: string
+      description: |-
+        * `none` - No inpatient beds
+        * `1-20` - 1 to 20
+        * `21-100` - 21 to 100
+        * `100+` - More than 100
     BedRequest:
       type: object
       description: |-
@@ -8694,6 +8941,26 @@ components:
       required:
       - facility
       - name
+    DepartmentsEnum:
+      enum:
+      - Outpatient (OPD)
+      - Emergency
+      - Paediatrics
+      - Maternity
+      - Surgery
+      - Laboratory
+      - Radiology
+      - Pharmacy
+      type: string
+      description: |-
+        * `Outpatient (OPD)` - Outpatient (OPD)
+        * `Emergency` - Emergency
+        * `Paediatrics` - Paediatrics
+        * `Maternity` - Maternity
+        * `Surgery` - Surgery
+        * `Laboratory` - Laboratory
+        * `Radiology` - Radiology
+        * `Pharmacy` - Pharmacy
     Diagnosis:
       type: object
       description: |-
@@ -9403,6 +9670,18 @@ components:
       required:
       - code
       - name
+    FacilityTypeEnum:
+      enum:
+      - clinic
+      - hospital
+      - specialist_centre
+      - group
+      type: string
+      description: |-
+        * `clinic` - Clinic
+        * `hospital` - Hospital
+        * `specialist_centre` - Specialist centre
+        * `group` - Group of facilities
     Finance:
       type: object
       properties:
@@ -10153,12 +10432,16 @@ components:
         decision_note:
           type: string
           readOnly: true
+        is_mine:
+          type: boolean
+          readOnly: true
       required:
       - days
       - decided_at
       - decision_note
       - end_date
       - id
+      - is_mine
       - leave_type
       - note
       - staff
@@ -10529,6 +10812,30 @@ components:
       description: |-
         * `session` - session
         * `token` - token
+    ModulesEnum:
+      enum:
+      - appointments
+      - patient_records
+      - pharmacy
+      - inpatient
+      - diagnostics
+      - billing
+      - insurance_claims
+      - patient_portal
+      - inventory
+      - hr
+      type: string
+      description: |-
+        * `appointments` - appointments
+        * `patient_records` - patient_records
+        * `pharmacy` - pharmacy
+        * `inpatient` - inpatient
+        * `diagnostics` - diagnostics
+        * `billing` - billing
+        * `insurance_claims` - insurance_claims
+        * `patient_portal` - patient_portal
+        * `inventory` - inventory
+        * `hr` - hr
     Movement:
       type: object
       properties:
@@ -13827,6 +14134,69 @@ components:
       - response_days
       - retention_years
       - version
+    Profile:
+      type: object
+      properties:
+        facility_name:
+          type: string
+          maxLength: 200
+        facility_type:
+          oneOf:
+          - $ref: '#/components/schemas/FacilityTypeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        country:
+          type: string
+          maxLength: 2
+        city:
+          type: string
+          maxLength: 100
+        phone:
+          type: string
+          maxLength: 20
+        staff_band:
+          oneOf:
+          - $ref: '#/components/schemas/StaffBandEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        bed_band:
+          oneOf:
+          - $ref: '#/components/schemas/BedBandEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        departments:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        modules:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        heard_from:
+          type: string
+          maxLength: 100
+        complete:
+          type: boolean
+          readOnly: true
+        organisation_name:
+          type: string
+          readOnly: true
+        department_choices:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        module_choices:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - complete
+      - department_choices
+      - departments
+      - module_choices
+      - modules
+      - organisation_name
     PurchaseOrderStatusEnum:
       enum:
       - pending
@@ -14110,6 +14480,16 @@ components:
           format: uuid
       required:
       - start_at
+    ResendRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+      required:
+      - email
     ResolveReviewRequest:
       type: object
       properties:
@@ -14435,6 +14815,51 @@ components:
       - signed
       - signing_key_id
       - valid
+    SignupRequest:
+      type: object
+      properties:
+        organisation_name:
+          type: string
+          minLength: 2
+          maxLength: 200
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          minLength: 1
+          maxLength: 128
+        accepted_terms:
+          type: boolean
+      required:
+      - accepted_terms
+      - email
+      - first_name
+      - last_name
+      - organisation_name
+      - password
+    StaffBandEnum:
+      enum:
+      - 1-10
+      - 11-50
+      - 51-200
+      - 200+
+      type: string
+      description: |-
+        * `1-10` - 1 to 10
+        * `11-50` - 11 to 50
+        * `51-200` - 51 to 200
+        * `200+` - More than 200
     StaffProfile:
       type: object
       description: |-
@@ -15048,6 +15473,29 @@ components:
         * `confirmed` - Confirmed
         * `refuted` - Refuted
         * `entered_in_error` - Entered in error
+    Verified:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+      required:
+      - user_id
+    VerifyRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        code:
+          type: string
+          minLength: 1
+          maxLength: 12
+      required:
+      - code
+      - email
     VitalSigns:
       type: object
       properties:

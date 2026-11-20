@@ -42,3 +42,5 @@ AUDIT_CHAIN_SHARDS = 1
 PAYMENT_GATEWAY = "apps.billing.gateway.FakeGateway"
 PAYSTACK_SECRET_KEY = "sk_test_unit_tests_only"
 PORTAL_URL = "https://hospital.example.test"
+
+SIGNUP_RESEND_SECONDS = 0

@@ -70,6 +70,11 @@ class StaffSummarySerializer(serializers.Serializer):
 class LeaveSerializer(serializers.ModelSerializer):
     staff_name = serializers.CharField(source="staff.user.get_full_name", read_only=True)
     days = serializers.IntegerField(read_only=True)
+    is_mine = serializers.SerializerMethodField()
+
+    def get_is_mine(self, leave) -> bool:
+        request = self.context.get("request")
+        return bool(request) and leave.staff.user_id == request.user.pk
 
     class Meta:
         model = LeaveRequest
@@ -85,6 +90,7 @@ class LeaveSerializer(serializers.ModelSerializer):
             "status",
             "decided_at",
             "decision_note",
+            "is_mine",
         ]
         read_only_fields = fields
 

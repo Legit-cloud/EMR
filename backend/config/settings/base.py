@@ -42,6 +42,7 @@ LOCAL_APPS = [
     "apps.billing",
     "apps.inpatient",
     "apps.inventory",
+    "apps.onboarding",
     "apps.messaging",
     "apps.diagnostics",
     "apps.portal",
@@ -363,3 +364,8 @@ PRIVACY_NOTICE_VERSION = env("PRIVACY_NOTICE_VERSION", default="2026-10-23")
 PRIVACY_CONTACT_EMAIL = env("PRIVACY_CONTACT_EMAIL", default="")
 PRIVACY_CONTROLLER_NAME = env("PRIVACY_CONTROLLER_NAME", default="")
 RECORD_RETENTION_YEARS = env.int("RECORD_RETENTION_YEARS", default=10)
+
+# Self-service sign-up (ADR 0027). Turn it off to open accounts by invitation only.
+SELF_SIGNUP_ENABLED = env.bool("SELF_SIGNUP_ENABLED", default=True)
+SIGNUP_CODE_TTL_MINUTES = env.int("SIGNUP_CODE_TTL_MINUTES", default=15)
+SIGNUP_RESEND_SECONDS = env.int("SIGNUP_RESEND_SECONDS", default=60)

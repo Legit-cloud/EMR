@@ -123,9 +123,14 @@ function LoginForm() {
             </button>
           </span>
         ) : (
-          <Link href="/forgot-password" className={AUTH_LINK}>
-            Forgot your password?
-          </Link>
+          <span className="flex flex-col items-center gap-2">
+            <Link href="/forgot-password" className={AUTH_LINK}>
+              Forgot your password?
+            </Link>
+            <Link href="/signup" className={AUTH_LINK}>
+              New hospital or clinic? Create an account
+            </Link>
+          </span>
         )
       }
     >
